@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "194427576619",
+    "project_id": "sombratestes",
+    "storage_bucket": "sombratestes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194427576619:android:db125b3f5df8fe0437a56e",
+        "android_client_info": {
+          "package_name": "com.example.sombra_testes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIfc0TzkMF1BnQJ4xuCgOwyClOD6cKIME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
