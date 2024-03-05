@@ -261,6 +261,9 @@ class _CameraScreenState extends State<CameraScreen> {
           return const Center(child: CircularProgressIndicator());
         } else {
           return Scaffold(
+            appBar: AppBar(
+              //title: const Text('Tire uma foto'),
+            ),
             body: FutureBuilder<void>(
               future: _initializeControllerFuture,
               builder: (context, snapshot) {

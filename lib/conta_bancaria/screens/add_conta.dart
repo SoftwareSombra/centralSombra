@@ -17,6 +17,7 @@ class AddContaBancariaScreeen extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 14, 14, 14),
         appBar: AppBar(
           title: const Text(
             'Adicionar conta bancária',

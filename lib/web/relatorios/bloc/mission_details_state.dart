@@ -2,6 +2,8 @@ import 'package:google_static_maps_controller/google_static_maps_controller.dart
 import '../../../missao/model/missao_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 
+import '../../home/screens/mapa_teste.dart';
+
 sealed class MissionDetailsState {}
 
 final class MissionDetailsInitial extends MissionDetailsState {}
@@ -14,7 +16,7 @@ final class MissionDetailsLoaded extends MissionDetailsState {
   final Set<gmap.Marker>? userMarkers;
   final Set<gmap.Polyline>? polylines;
   final gmap.LatLng? pontoInicial;
-  final List<Location>? locations;
+  final List<CoordenadaComTimestamp>? locations;
   final Location? middleLocation;
   final double? distancia;
   MissionDetailsLoaded(

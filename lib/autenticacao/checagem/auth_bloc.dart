@@ -8,7 +8,6 @@ import 'state_bloc.dart';
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FirebaseAuth auth;
-  // StreamSubscription<User?>? _streamSubscription;
 
   AuthenticationBloc(this.auth)
       : super(AuthenticationState(AuthStatus.login, null)) {
@@ -31,12 +30,4 @@ class AuthenticationBloc
       emit(AuthenticationState(AuthStatus.error, e.toString()));
     }
   }
-
-  // void _startAuthListener() {
-  //   _streamSubscription = auth.authStateChanges().listen(
-  //     (User? user) {
-  //       add(CheckAuthentication()); // Apenas adicione o evento e deixe o _handleCheckAuthentication lidar com ele.
-  //     },
-  //   );
-  // }
 }

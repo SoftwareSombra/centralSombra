@@ -31,7 +31,7 @@ class Rotas {
       final String uid = ModalRoute.of(_)!.settings.arguments as String;
       return ChatScreen(uid: uid);
     },
-    //'/adduserinfos': (_) => AddInfosScreen(),
+    '/adduserinfos': (_) => AddInfosScreen(),
     //'/agentes-solicitacoes': (_) => const AgentesSolicitacoes(),
     //'/addveiculo': (_) => AddVeiculoScreen(),
     //'/veiculos-solicitacoes':(_) => const VeiculosSolicitacoes(),

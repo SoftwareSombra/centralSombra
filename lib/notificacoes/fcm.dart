@@ -139,14 +139,15 @@ class FirebaseMessagingService {
     }
   }
 
-  Future<void> sendNotification(String token, String title, String body) async {
+  Future<void> sendNotification(
+      String token, String title, String body, String? rota) async {
     const postUrl = 'https://fcm.googleapis.com/fcm/send';
     final headers = {
       'Content-Type': 'application/json',
       'Authorization':
-          'key=AAAADUL5rWQ:APA91bGw3R55wUgM6oMoJMVkqyq75GI1UTRJvY-ogplzzGmi89ZbY'
-              'tj6Hlo8eLW2uWAoDIqXDHKGtFr_88oCHQft0lIAb14DAOQlxNgMrXPRTiiXkAU4jX'
-              'IGmiWriWpRnOz2n92HfzPt',
+          'key=AAAALUTJYSs:APA91bGIZAJrPMeEvLMTO1BXLC1bXYH9B_8e4bd-KSlEBKuJ5Saw'
+              'Kk0RU6tlCMFGLgBse39NvMqiBJYCmpbTXYHL8Wc0busnd3dDg__lwAMXcXzUTdQ-J4l2k'
+              'MKXZa6mWR3ECCqe1ui-',
     };
     Dio dio = Dio();
 
@@ -163,6 +164,7 @@ class FirebaseMessagingService {
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
             'status': 'done',
+            'rota': rota
           },
           'to': token,
         },
@@ -177,5 +179,31 @@ class FirebaseMessagingService {
     } catch (e) {
       debugPrint('Erro ao enviar notificação: $e');
     }
+  }
+
+  Future<List<String>> fetchUserTokens(String uid) async {
+    List<String> tokens = [];
+
+    // Referência à coleção de tokens de um usuário específico
+    CollectionReference tokensCollection = FirebaseFirestore.instance
+        .collection('FCM Tokens')
+        .doc(uid)
+        .collection('tokens');
+
+    // Busca todos os documentos da coleção de tokens
+    QuerySnapshot tokensSnapshot = await tokensCollection.get();
+
+    debugPrint('Tokens snapshot: ${tokensSnapshot.docs.length}');
+
+    // Itera sobre os documentos e extrai o valor do token
+    for (QueryDocumentSnapshot tokenDoc in tokensSnapshot.docs) {
+      Map<String, dynamic> data = tokenDoc.data() as Map<String, dynamic>;
+      String? token = data['FCM Token'];
+      if (token != null) {
+        tokens.add(token);
+      }
+    }
+
+    return tokens;
   }
 }

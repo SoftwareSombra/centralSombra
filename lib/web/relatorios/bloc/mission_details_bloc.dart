@@ -31,11 +31,20 @@ class MissionDetailsBloc
             emit(MissionDetailsNoRouteFound());
             return;
           }
-          List<CoordenadaComTimestamp> routeOrdenada =
+
+          final routeOrdenada =
               ordenarPorTimestamp(route);
-          List<Location> locations = convertToLocations(routeOrdenada);
+
+          List<Location> rotaLocations = convertToLocations(routeOrdenada);
+
+          List<CoordenadaComTimestamp> routeFiltrada =
+              ordenarPorTimestampEManterPrimeiroPorMinuto(route);
+
+          List<Location> locations = convertToLocations(routeFiltrada);
+
           final distancia =
               await calcularDistanciaComFirebaseFunction(locations);
+
           final int middleIndex = locations.length ~/ 2;
           final Location middleLocation = locations[middleIndex];
           final initialPosition = gmap.CameraPosition(
@@ -60,7 +69,7 @@ class MissionDetailsBloc
                 userMarkers,
                 polylines,
                 route[0].ponto,
-                locations,
+                routeFiltrada,
                 middleLocation,
                 distancia!));
           } else {
@@ -131,8 +140,8 @@ class MissionDetailsBloc
 
     List<CoordenadaComTimestamp> filteredLocations = [];
     filteredLocations.addAll(locations);
-    //filtrar caso existam mais de 23 pontos
-    if (locations.length > 23) {
+    //filtrar caso existam mais de 24 pontos
+    if (locations.length > 24) {
       List<CoordenadaComTimestamp> pontosFiltrados =
           filtrarPontosProximos(locations);
 
@@ -144,8 +153,8 @@ class MissionDetailsBloc
     }
     // Agora, divida 'filteredLocations' em subconjuntos de no máximo 25
     List<List<CoordenadaComTimestamp>> splitLocations = [];
-    for (int i = 0; i < filteredLocations.length; i += 24) {
-      int endRange = i + 24;
+    for (int i = 0; i < filteredLocations.length; i += 25) {
+      int endRange = i + 25;
       if (i != 0) {
         endRange += 1;
       }
@@ -177,10 +186,10 @@ class MissionDetailsBloc
                 "${splitLoc.first.ponto.latitude},${splitLoc.first.ponto.longitude}",
             "destination":
                 "${splitLoc.last.ponto.latitude},${splitLoc.last.ponto.longitude}",
-            "waypoints": waypoints,
-            "mode": "driving",
+            "intermediates": waypoints,
+            "travelMode": "driving",
             "key": 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
-            "language": "pt_BR"
+            "languageCode": "pt_BR"
           },
         );
 
@@ -196,7 +205,7 @@ class MissionDetailsBloc
           if (combinedRoute.isNotEmpty) {
             decoded = decoded
                 .skip(1)
-                .toList(); // Pular o primeiro ponto se não for o primeiro segmento
+                .toList();
           }
           combinedRoute.addAll(decoded);
         } else {
@@ -262,6 +271,43 @@ class MissionDetailsBloc
     return route;
   }
 
+  List<CoordenadaComTimestamp> ordenarPorTimestampEManterPrimeiroPorMinuto(
+      List<CoordenadaComTimestamp> route) {
+    // Ordena a lista por timestamp
+    route.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    List<CoordenadaComTimestamp> filtrado = [];
+
+    // Inicializa com valores que não interferem na comparação inicial
+    int ultimoAno = -1,
+        ultimoMes = -1,
+        ultimoDia = -1,
+        ultimaHora = -1,
+        ultimoMinuto = -1;
+
+    for (var coord in route) {
+      DateTime ts = coord.timestamp;
+      // Verifica se o ano, mês, dia, hora e minuto são iguais aos últimos vistos
+      if (ts.year != ultimoAno ||
+          ts.month != ultimoMes ||
+          ts.day != ultimoDia ||
+          ts.hour != ultimaHora ||
+          ts.minute != ultimoMinuto) {
+        // Atualiza os últimos valores vistos
+        ultimoAno = ts.year;
+        ultimoMes = ts.month;
+        ultimoDia = ts.day;
+        ultimaHora = ts.hour;
+        ultimoMinuto = ts.minute;
+
+        // Adiciona a coordenada atual à lista filtrada
+        filtrado.add(coord);
+      }
+    }
+
+    return filtrado;
+  }
+
   List<Location> convertToLocations(List<CoordenadaComTimestamp> route) {
     return route
         .map((coord) => Location(coord.ponto.latitude, coord.ponto.longitude))
@@ -283,39 +329,79 @@ class MissionDetailsBloc
     return totalDistance;
   }
 
+  String generateWaypoints(List<Location> locations) {
+    final waypoints =
+        locations.skip(1).take(locations.length - 2).map((location) {
+      return "${location.latitude},${location.longitude}";
+    }).join('|');
+
+    return waypoints;
+  }
+
   Future<double?> calcularDistanciaComFirebaseFunction(
-      List<Location> locations) async {
-    const firebaseFunctionUrl =
-        "https://us-central1-primeval-rune-309222.cloudfunctions.net/getDirections";
+    List<Location> locations) async {
+  const firebaseFunctionUrl =
+      "https://southamerica-east1-sombratestes.cloudfunctions.net/getDistanceBetweenWaypoints";
 
-    try {
-      final Dio dio = Dio();
-      final response = await dio.get(
-        firebaseFunctionUrl,
-        queryParameters: {
-          "origin": "${locations.first.latitude},${locations.first.longitude}",
-          "destination":
-              "${locations.last.latitude},${locations.last.longitude}",
-          "mode": "driving",
-          "key": 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
-          "language": "pt_BR"
-        },
-      );
+  // Verifica se a lista precisa ser dividida
+  if (locations.length <= 24) {
+    // Se não precisar ser dividida, faz a requisição única com todas as localizações
+    return await requestDistance(firebaseFunctionUrl, locations);
+  } else {
+    // Divide a lista em subconjuntos de no máximo 24 localizações (preservando o primeiro e o último ponto para continuidade)
+    List<List<Location>> splitLocations = [];
+    for (int i = 0; i < locations.length; i += 23) {
+      int endRange = (i + 23 < locations.length) ? i + 23 : locations.length;
+      splitLocations.add(locations.sublist(i, endRange));
+    }
 
-      if (response.statusCode == 200) {
-        final data = response.data;
-        final int distanceInMeters =
-            data["routes"][0]["legs"][0]["distance"]["value"];
-        return distanceInMeters / 1000.0; // Convertendo para quilômetros
+    double totalDistance = 0.0;
+    for (var locationSubset in splitLocations) {
+      double? distance = await requestDistance(firebaseFunctionUrl, locationSubset);
+      if (distance != null) {
+        totalDistance += distance;
       } else {
-        debugPrint("Erro ao buscar a rota: Status code ${response.statusCode}");
         return null;
       }
-    } catch (e) {
-      debugPrint("Erro ao obter direções: $e");
+    }
+    return totalDistance;
+  }
+}
+
+Future<double?> requestDistance(String url, List<Location> locations) async {
+  final Dio dio = Dio();
+  final String waypoints = generateWaypoints(locations);
+
+  try {
+    final response = await dio.get(
+      url,
+      queryParameters: {
+        "origin": "${locations.first.latitude},${locations.first.longitude}",
+        "destination":
+            "${locations.last.latitude},${locations.last.longitude}",
+        "waypoints": waypoints,
+        "mode": "driving",
+        "key": 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
+        "language": "pt_BR"
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+      int distanceInMeters = 0;
+      for (var leg in data["routes"][0]["legs"]) {
+        distanceInMeters += leg["distance"]["value"] as int;
+      }
+      return distanceInMeters / 1000.0; // Convertendo para quilômetros
+    } else {
+      debugPrint("Erro ao buscar a rota: Status code ${response.statusCode}");
       return null;
     }
+  } catch (e) {
+    debugPrint("Erro ao obter direções: $e");
+    return null;
   }
+}
 
   double distanciaHaversine(
       double lat1, double lon1, double lat2, double lon2) {

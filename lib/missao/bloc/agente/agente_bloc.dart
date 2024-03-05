@@ -1,28 +1,36 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:sombra_testes/missao/services/missao_services.dart';
-import '../../../chat/services/chat_services.dart';
+import '../../../agente/services/agente_services.dart';
 import '../../../sqfLite/missao/services/db_helper.dart';
 import '../../model/missao_model.dart';
+import '../../services/missao_services.dart';
 import 'events.dart';
 import 'states.dart';
 
 class AgentMissionBloc extends Bloc<AgentEvent, AgentState> {
-  final MissaoServices missaoServices;
 
-  AgentMissionBloc({required this.missaoServices})
+  AgentMissionBloc()
       : super(LoadingAgentState()) {
-    ChatServices chatServices = ChatServices();
+    //ChatServices chatServices = ChatServices();
+    AgenteServices agenteServices = AgenteServices();
+    final MissaoServices missaoServices = MissaoServices();
 
     on<FetchMission>(
       (event, emit) async {
         //pegar localização atual
         FirebaseAuth firebaseAuth = FirebaseAuth.instance;
         final uid = firebaseAuth.currentUser!.uid;
+        debugPrint('======uid: $uid=======');
+
+        final isAgent = await agenteServices.isAgent(uid);
+
+        if (!isAgent) {
+          emit(IsNotAgent());
+          return;
+        }
 
         final currentLocation = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
@@ -74,8 +82,12 @@ class AgentMissionBloc extends Bloc<AgentEvent, AgentState> {
             final missaoIniciada =
                 await missaoServices.verificarMissaoIniciada(uid);
             if (missaoIniciada) {
+              //só prosseguir quando missionDetails for diferente de null, ficar aguardando
+              while (missionDetails == null) {
+                await Future.delayed(Duration(seconds: 3));
+              }
               emit(
-                OnMission(missionDetails!),
+                OnMission(missionDetails),
               );
               final missaoEmCache = await MissionDatabaseHelper.instance
                   .verificarMissaoIniciada();

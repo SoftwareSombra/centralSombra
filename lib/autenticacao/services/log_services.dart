@@ -8,13 +8,13 @@ class LogServices {
   TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
   MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
 
-   Future<bool> login(String email, String password) async {
+   Future<Object> login(String email, String password) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-      return true;
+      return 'Sucesso';
     } catch (e) {
-      rethrow;
+      return e;
     }
   }
 

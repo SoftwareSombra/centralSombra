@@ -7,72 +7,113 @@ const storage = admin.storage();
 const { getStorage, getDownloadURL } = require('firebase-admin/storage');
 
 
-const CustomClaimsRepository = require('./autenticacao/administrador/custom_claims_repository');
-const CustomClaimsServices = require('./autenticacao/administrador/custom_claims_services');
-const CustomClaimsController = require('./autenticacao/administrador/custom_claims_controller');
-const CadastroRepository = require('./autenticacao/cadastro/cadastro_repository');
-const CadastroService = require('./autenticacao/cadastro/cadastro_services');
-const CadastroController = require('./autenticacao/cadastro/cadastro_controller');
-// const UserRepository = require('./user/user_repository');
-// const UserService = require('./user/user_services');
-// const UserController = require('./user/user_controller');
+// const CustomClaimsRepository = require('./autenticacao/administrador/custom_claims_repository');
+// const CustomClaimsServices = require('./autenticacao/administrador/custom_claims_services');
+// const CustomClaimsController = require('./autenticacao/administrador/custom_claims_controller');
+// const CadastroRepository = require('./autenticacao/cadastro/cadastro_repository');
+// const CadastroService = require('./autenticacao/cadastro/cadastro_services');
+// const CadastroController = require('./autenticacao/cadastro/cadastro_controller');
+// // const UserRepository = require('./user/user_repository');
+// // const UserService = require('./user/user_services');
+// // const UserController = require('./user/user_controller');
 
 
 
-const cadastroRepository = new CadastroRepository(admin.auth(), admin.firestore(), admin.storage());
-const cadastroService = new CadastroService(cadastroRepository);
-const cadastroControllerInstance = new CadastroController(cadastroService);
+// const cadastroRepository = new CadastroRepository(admin.auth(), admin.firestore(), admin.storage());
+// const cadastroService = new CadastroService(cadastroRepository);
+// const cadastroControllerInstance = new CadastroController(cadastroService);
 
-//const userRepository = new UserRepository(admin.auth(), admin.firestore(), admin.storage());
-//const userService = new UserService(userRepository);
-//const userControllerInstance = new UserController(userService);
+// //const userRepository = new UserRepository(admin.auth(), admin.firestore(), admin.storage());
+// //const userService = new UserService(userRepository);
+// //const userControllerInstance = new UserController(userService);
 
-const customClaimsRepository = new CustomClaimsRepository(admin.auth(), admin.firestore(), admin.storage());
-const customClaimsService = new CustomClaimsServices(customClaimsRepository);
-const customClaimsControllerInstance = new CustomClaimsController(customClaimsService);
+// const customClaimsRepository = new CustomClaimsRepository(admin.auth(), admin.firestore(), admin.storage());
+// const customClaimsService = new CustomClaimsServices(customClaimsRepository);
+// const customClaimsControllerInstance = new CustomClaimsController(customClaimsService);
 
-const exportedFunctions = {
-  setDevClaim: customClaimsControllerInstance.setDev,
-  setAdmin: customClaimsControllerInstance.setAdmin,
-  setGestor: customClaimsControllerInstance.setGestor,
-  setOperador: customClaimsControllerInstance.setOperador,
-  setAdminCliente: customClaimsControllerInstance.setAdminCliente,
-  setOperadorCliente: customClaimsControllerInstance.setOperadorCliente,
-  hasAllClaims: customClaimsControllerInstance.hasAllClaims,
-  hasDev: customClaimsControllerInstance.hasDev,
-  hasAdmin: customClaimsControllerInstance.hasAdmin,
-  hasGestor: customClaimsControllerInstance.hasGestor,
-  hasOperador: customClaimsControllerInstance.hasOperador,
-  hasAdminCliente: customClaimsControllerInstance.hasAdminCliente,
-  hasOperadorCliente: customClaimsControllerInstance.hasOperadorCliente,
-  deleteAllUsers: customClaimsControllerInstance.deleteAllUsers,
-  deleteAllUsers2: customClaimsControllerInstance.deleteAllUsers2,
-  cadastro: cadastroControllerInstance.registerUser,
-  // getUserName: userControllerInstance.getName,
-  // getUserPhoto: userControllerInstance.getPhoto,
-  // addUserInfos: userControllerInstance.addUserInfos,
-};
+// const exportedFunctions = {
+//   setDevClaim: customClaimsControllerInstance.setDev,
+//   setAdmin: customClaimsControllerInstance.setAdmin,
+//   setGestor: customClaimsControllerInstance.setGestor,
+//   setOperador: customClaimsControllerInstance.setOperador,
+//   setAdminCliente: customClaimsControllerInstance.setAdminCliente,
+//   setOperadorCliente: customClaimsControllerInstance.setOperadorCliente,
+//   hasAllClaims: customClaimsControllerInstance.hasAllClaims,
+//   hasDev: customClaimsControllerInstance.hasDev,
+//   hasAdmin: customClaimsControllerInstance.hasAdmin,
+//   hasGestor: customClaimsControllerInstance.hasGestor,
+//   hasOperador: customClaimsControllerInstance.hasOperador,
+//   hasAdminCliente: customClaimsControllerInstance.hasAdminCliente,
+//   hasOperadorCliente: customClaimsControllerInstance.hasOperadorCliente,
+//   deleteAllUsers: customClaimsControllerInstance.deleteAllUsers,
+//   deleteAllUsers2: customClaimsControllerInstance.deleteAllUsers2,
+//   cadastro: cadastroControllerInstance.registerUser,
+//   // getUserName: userControllerInstance.getName,
+//   // getUserPhoto: userControllerInstance.getPhoto,
+//   // addUserInfos: userControllerInstance.addUserInfos,
+// };
 
-module.exports = exportedFunctions;
+// module.exports = exportedFunctions;
 
 
-// exports.getDirections = functions.https.onRequest((request, response) => {
+exports.getDirections = functions.https.onRequest((request, response) => {
+    cors(request, response, async () => {
+        if (request.method !== 'GET') {
+            return response.status(500).json({ error: "Método não permitido" });
+        }
+
+        const googleMapsUrl = `https://maps.googleapis.com/maps/api/directions/json?${request.url.split('?')[1]}`;
+
+        try {
+            const apiResponse = await fetch(googleMapsUrl);
+            const data = await apiResponse.json();
+            response.json(data);
+        } catch (err) {
+            response.status(500).send(err);
+        }
+    });
+});
+
+//getRoute usando a api google routes
+exports.getRoute = functions.https.onRequest((request, response) => {
+    cors(request, response, async () => {
+        if (request.method !== 'GET') {
+            return response.status(500).json({ error: "Método não permitido" });
+        }
+
+        const googleMapsUrl = `https://maps.googleapis.com/maps/api/directions/json?${request.url.split('?')[1]}`;
+
+        try {
+            const apiResponse = await fetch(googleMapsUrl);
+            const data = await apiResponse.json();
+            response.json(data);
+        } catch (err) {
+            response.status(500).send(err);
+        }
+    });
+});
+
+
+// exports.getDistanceBetweenWaypoints = functions.https.onRequest((request, response) => {
 //     cors(request, response, async () => {
-//         if (request.method !== 'GET') {
-//             return response.status(500).json({ error: "Método não permitido" });
-//         }
+//         //console.log(request);
+//         console.log(request.body);
+//         console.log(request.query);
 
-//         const googleMapsUrl = `https://maps.googleapis.com/maps/api/directions/json?${request.url.split('?')[1]}`;
+//         console.log('chegou aqui')
+//         const googleMapsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${request.query.origin}&destination=${request.query.destination}&waypoints=${request.query.waypoints}&key=AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU`;
 
 //         try {
 //             const apiResponse = await fetch(googleMapsUrl);
 //             const data = await apiResponse.json();
+//             console.log(data);
 //             response.json(data);
 //         } catch (err) {
 //             response.status(500).send(err);
 //         }
 //     });
-// });
+// }
+// );
 
 
 
@@ -93,7 +134,7 @@ module.exports = exportedFunctions;
 
 
 // exports.preAddDocumentosDoAgente = functions.https.onRequest(async (request, response) => {
-//     const { uid, nome, endereco, cep, celular, rg, cpf, rgFotoFrente, rgFotoVerso, compResidFoto, rgFotoFrenteBase64, rgFotoVersoBase64, compResidFotoBase64 } = request.body;
+//     const { uid, nome, logradouro, numero, complemento, bairro, cidade, estado, cep, celular, rg, cpf, rgFotoFrente, rgFotoVerso, compResidFoto, rgFotoFrenteBase64, rgFotoVersoBase64, compResidFotoBase64 } = request.body;
 
 //     let rgFotoFrenteDownloadURL = null;
 //     let rgFotoVersoDownloadURL = null;
@@ -161,7 +202,12 @@ module.exports = exportedFunctions;
 //         await db.collection('Aprovação de user infos').doc(uid).set({
 //             uid: uid,
 //             'Nome': nome,
-//             Endereço: endereco,
+//             logradouro: logradouro,
+//             numero: numero,
+//             complemento: complemento,
+//             bairro: bairro,
+//             cidade: cidade,
+//             estado: estado,
 //             Cep: cep,
 //             Celular: celular,
 //             RG: rg,
@@ -171,11 +217,10 @@ module.exports = exportedFunctions;
 //             'Comprovante de residência': compResidFotoDownloadURL,
 //             Timestamp: new Date(),
 //         });
-
 //         response.status(200).send(`Documentos adicionados com sucesso`);
 //     } catch (e) {
 //         console.log(e);
-//         response.status(500).send(`Erro ao adicionar documentos`);
+//         response.status(500).send(`Erro ao adicionar documentos: ${e}`);
 //     };
 // });
 
@@ -470,69 +515,60 @@ module.exports = exportedFunctions;
 //     }
 // });
 
-// exports.incrementoRelatorioMissao2 = functions.https.onRequest(async (request, response) => {
-//     const { uid, missaoId, fotosPosMissao, infos } = request.body;
+exports.incrementoRelatorioMissao2 = functions.https.onRequest(async (request, response) => {
+    const { uid, missaoId, fotosPosMissao, infos } = request.body;
 
-//     try {
-//         let data = { 'infos': infos };
-//         let fotos = [];
-//         if (fotosPosMissao && fotosPosMissao.length > 0) {
-//             for (const fotoBase64 of fotosPosMissao) {
-//                 //subir para o storage 
-//                 const buffer = Buffer.from(fotoBase64.url, 'base64');
-//                 const now = Date.now();
-//                 const token = `${request.body.missaoId}${now}`
+    try {
+        let data = { 'infos': infos };
+        let fotos = [];
+        if (fotosPosMissao && fotosPosMissao.length > 0) {
+            for (const fotoBase64 of fotosPosMissao) {
+                //subir para o storage 
+                const buffer = Buffer.from(fotoBase64.url, 'base64');
+                const now = Date.now();
+                const token = `${request.body.missaoId}${now}`
 
-//                 const file = storage.bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
+                const file = storage.bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
 
-//                 await file.save(buffer, {
-//                     contentType: 'image/jpg',
-//                     metadata: {
-//                         firebaseStorageDownloadTokens: token
-//                     }
-//                 });
+                await file.save(buffer, {
+                    contentType: 'image/jpg',
+                    metadata: {
+                        firebaseStorageDownloadTokens: token
+                    }
+                });
 
-//                 const bucketName = storage.bucket().name;
-//                 const fileRef = getStorage().bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
-//                 const downloadURL = await getDownloadURL(fileRef);
+                const fileRef = getStorage().bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
+                const downloadURL = await getDownloadURL(fileRef);
 
-//                 console.log(` =================${downloadURL}`);
+                console.log(` =================${downloadURL}`);
 
 
-//                 //const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`)}?alt=media&token=${token}`;
-//                 fotoBase64.url = downloadURL;
-//                 console.log(` =================${fotoBase64.url}`);
-//                 let horario;
-//                 if (fotoBase64.timestamp) {
-//                     horario = new Date(fotoBase64.timestamp);
-//                     if (isNaN(horario)) {
-//                         throw new Error('Data inválida');
-//                     }
-//                 } else {
-//                     horario = new Date();
-//                 }
-//                 fotoBase64.timestamp = horario;
-//                 fotos.push(fotoBase64);
-//             };
-//         }
+                //const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`)}?alt=media&token=${token}`;
+                fotoBase64.url = downloadURL;
+                //console.log(` =================${fotoBase64.url}`);
+                let horario =  new Date();
+                fotoBase64.timestamp = horario;
+                fotos.push(fotoBase64);
+            };
+        }
 
-//         if (fotos.length > 0) {
-//             data['fotosPosMissao'] = fotos;
-//         }
+        if (fotos.length > 0) {
+            data['fotosPosMissao'] = fotos;
+        }
 
-//         await admin.firestore()
-//             .collection('Relatórios')
-//             .doc(uid)
-//             .collection('Missões')
-//             .doc(missaoId)
-//             .set(data, { merge: true });
+        await admin.firestore()
+            .collection('Relatórios')
+            .doc(uid)
+            .collection('Missões')
+            .doc(missaoId)
+            .set(data, { merge: true });
 
-//         response.status(200).send(`Relatório atualizado com sucesso`);
+        response.status(200).send(`Relatório atualizado com sucesso`);
 
-//     } catch (error) {
-//         response.status(500).send(`Erro ao adicionar documento, erro: ${error}, --- ${request.body.uid}, ${request.body.missaoId}, ${request.body.fotosPosMissao}, ${request.body.infos}`);
-//     }
-// });
+    } catch (error) {
+        response.status(500).send(`Erro ao adicionar documento, erro: ${error}, --- ${request.body.uid}, ${request.body.missaoId}, ${request.body.fotosPosMissao}, ${request.body.infos}`);
+    }
+});
 
 
 

@@ -78,6 +78,79 @@ class MissaoServices {
     }
   }
 
+  Future<bool> criarMissaoPendente(
+      cnpj,
+      nomeDaEmpresa,
+      placaCavalo,
+      placaCarreta,
+      motorista,
+      corVeiculo,
+      observacao,
+      missaoId,
+      uid,
+      tipo,
+      userLatitude,
+      userLongitude,
+      missaoLatitude,
+      missaoLongitude,
+      local) async {
+    try {
+      await firestore.collection('Missões pendentes').doc(missaoId).set({
+        'sinc': 'sinc',
+      });
+      final timestamp = FieldValue.serverTimestamp();
+      await firestore
+          .collection('Missões pendentes')
+          .doc(missaoId)
+          .collection('Empresa')
+          .doc(cnpj)
+          .set({
+        'cnpj': cnpj,
+        'nome da empresa': nomeDaEmpresa,
+        'placaCavalo': placaCavalo,
+        'placaCarreta': placaCarreta,
+        'motorista': motorista,
+        'corVeiculo': corVeiculo,
+        'observacao': observacao,
+        'tipo de missao': tipo,
+        'missaoId': missaoId,
+        'userUid': uid,
+        'userLatitude': userLatitude,
+        'userLongitude': userLongitude,
+        'missaoLatitude': missaoLatitude,
+        'missaoLongitude': missaoLongitude,
+        'local': local,
+        'timestamp': timestamp,
+      });
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao criar missão pendente: $e');
+      return false;
+    }
+  }
+
+  Future<int> quantidadeDeMissoesPendentes() async {
+    final qtd = await firestore.collection('Missões pendentes').get();
+    return qtd.docs.length;
+  }
+
+  //quantidade de missões pendentes stream
+  Stream<int> quantidadeDeMissoesPendentesStream() {
+    return firestore.collection('Missões pendentes').snapshots().map((event) {
+      return event.docs.length;
+    });
+  }
+
+  //excluir missao pendente
+  Future<bool> excluirMissaoPendente(String missaoId) async {
+    try {
+      await firestore.collection('Missões pendentes').doc(missaoId).delete();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<String?> recusadoPelaCentral(uid) async {
     try {
       await FirebaseFirestore.instance
@@ -147,7 +220,7 @@ class MissaoServices {
     return agentes;
   }
 
-  Future<String?> criarMissao(
+  Future<bool> criarMissao(
       cnpj,
       nomedaEmpresa,
       placaCavalo,
@@ -230,9 +303,9 @@ class MissaoServices {
           .doc(uid)
           .delete();
 
-      return 'Missão aceita com sucesso';
+      return true;
     } catch (e) {
-      return 'Erro ao aceitar missão';
+      return false;
     }
   }
 
@@ -269,17 +342,17 @@ class MissaoServices {
   }
 
   Future<bool> iniciarMissaoCache(
-      uid, 
-      missaoId, 
-      missaoLatitude, 
-      missaoLongitude, 
-      local, 
-      String? placaCavalo, 
-      String? placaCarreta, 
-      String? motorista,
-      String? corVeiculo,
-      String? tipo,
-      ) async {
+    uid,
+    missaoId,
+    missaoLatitude,
+    missaoLongitude,
+    local,
+    String? placaCavalo,
+    String? placaCarreta,
+    String? motorista,
+    String? corVeiculo,
+    String? tipo,
+  ) async {
     try {
       debugPrint('iniciando missao cache...');
       final db = MissionDatabaseHelper.instance.database;
@@ -347,7 +420,7 @@ class MissaoServices {
     final timestamp = DateTime.now().toString();
     var dio = Dio();
     var url =
-        'https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/addFinalLocation';
+        'https://southamerica-east1-sombratestes.cloudfunctions.net/addFinalLocation';
 
     try {
       var response = await dio.post(url, data: {
@@ -589,7 +662,7 @@ class MissaoServices {
 
     var dio = Dio();
     var url =
-        'https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/finalizarMissao';
+        'https://southamerica-east1-sombratestes.cloudfunctions.net/finalizarMissao';
 
     try {
       var response = await dio.post(url, data: {
@@ -913,6 +986,24 @@ class MissaoServices {
     }
   }
 
+  //como sdk do cliente, funcao que envia foto do odometro para o firebase storage e depois salva a url no firestore
+  Future<String?> enviarFotoOdometro(File file, String missaoId) async {
+    try {
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final Reference storageReference = FirebaseStorage.instance
+          .ref('Fotos odometro')
+          .child(missaoId)
+          .child(fileName);
+      final UploadTask uploadTask = storageReference.putFile(file);
+      final TaskSnapshot downloadUrl =
+          (await uploadTask.whenComplete(() => null));
+      final String url = (await downloadUrl.ref.getDownloadURL());
+      return url;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<bool?> enviarFotoRelatorio(
       String uid, String missaoId, String imageBase64, String caption) async {
     print('Enviando foto...');
@@ -921,7 +1012,7 @@ class MissaoServices {
 
     var dio = Dio();
     var url =
-        'https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/addFotoRelatorio2';
+        'https://southamerica-east1-sombratestes.cloudfunctions.net/addFotoRelatorio2';
 
     try {
       var response = await dio.post(url, data: {
@@ -1218,7 +1309,7 @@ class MissaoServices {
 
     var dio = Dio();
     var url =
-        'https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/addRelatorioMissao';
+        'https://southamerica-east1-sombratestes.cloudfunctions.net/addRelatorioMissao';
     try {
       var response = await dio.post(url, data: {
         'cnpj': cnpj,
@@ -1519,7 +1610,7 @@ class MissaoServices {
     }
     var dio = Dio();
     var url =
-        'https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/incrementoRelatorioMissao2';
+        'https://southamerica-east1-sombratestes.cloudfunctions.net/incrementoRelatorioMissao2';
     try {
       var response = await dio.post(url, data: {
         'uid': uid,
@@ -1801,6 +1892,16 @@ class MissaoServices {
     return result.exists;
   }
 
+  Future<bool> verificarSeAgenteEstaDisponivel(String uid) async {
+
+    final result = await firestore.collection('status').doc(uid).get();
+    if (!result.exists) {
+      return false;
+    }
+    final data = result.data() as Map<String, dynamic>;
+    return data['disponivel'];
+  }
+
   Future<bool> aguardandoresposta() async {
     final uid = firebaseAuth.currentUser!.uid;
     DocumentSnapshot doc = await FirebaseFirestore.instance
@@ -1865,9 +1966,64 @@ class MissaoServices {
     return missoes;
   }
 
+  Future<bool> excluirMissaoSolicitada(String missaoId, String cnpj) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Missões solicitadas')
+          .doc(missaoId)
+          .collection('Empresa')
+          .doc(cnpj)
+          .delete();
+      await FirebaseFirestore.instance
+          .collection('Missões solicitadas')
+          .doc(missaoId)
+          .delete();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //funcao para buscar missoes pendentes
+  Future<List<MissaoSolicitada>> buscarMissoesPendentes() async {
+    debugPrint('Buscando missões pendentes...');
+
+    List<MissaoSolicitada> missoes = [];
+    QuerySnapshot missoesSnapshot =
+        await FirebaseFirestore.instance.collection('Missões pendentes').get();
+
+    debugPrint('Missões pendentes: ${missoesSnapshot.docs.length}');
+
+    for (var missaoDoc in missoesSnapshot.docs) {
+      String missaoId = missaoDoc.id;
+
+      debugPrint('Missão ID: $missaoId');
+
+      QuerySnapshot empresasSnapshot = await FirebaseFirestore.instance
+          .collection('Missões pendentes')
+          .doc(missaoId)
+          .collection('Empresa')
+          .get();
+
+      for (var empresaDoc in empresasSnapshot.docs) {
+        MissaoSolicitada missao = MissaoSolicitada.fromFirestore(
+            missaoId, empresaDoc.data() as Map<String, dynamic>);
+        missoes.add(missao);
+      }
+    }
+
+    debugPrint('Missões pendentes encontradas: ${missoes.length}');
+
+    //ordenar a lista de missões por data
+    missoes.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    debugPrint('Missões pendentes encontradas: ${missoes.length}');
+    return missoes;
+  }
+
   Future<String?> fetchAgentAddress(String uid) async {
     Agente? agente = await AgenteServices().getAgenteInfos(uid);
-    return agente?.endereco;
+    return agente?.cidade;
   }
 
   Future<MissaoRelatorio?> buscarRelatorio(uid, missaoId) async {

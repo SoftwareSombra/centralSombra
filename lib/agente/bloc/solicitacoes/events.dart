@@ -1,6 +1,6 @@
 abstract class AgenteSolicitacaoEvent {}
 
-class FetchAgenteSolicitacaos extends AgenteSolicitacaoEvent {
+class FetchAgenteSolicitacoes extends AgenteSolicitacaoEvent {
 
-  FetchAgenteSolicitacaos();
+  FetchAgenteSolicitacoes();
 }

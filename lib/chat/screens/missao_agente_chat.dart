@@ -77,8 +77,10 @@ class _MissaoChatScreenState extends State<MissaoChatScreen> {
     final userName = user?.displayName;
     resetUserUnreadCount(userUid!);
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 14, 14, 14),
       appBar: AppBar(
         title: const Text('Chat'),
+        centerTitle: true,
       ),
       body: Column(
         children: [

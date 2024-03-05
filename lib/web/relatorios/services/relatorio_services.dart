@@ -70,6 +70,9 @@ class RelatorioServices {
       debugPrint('Erro ao buscar dados: $error');
     }
 
+    //ordenar a lista de missões por data de fim
+    todasMissoes.sort((a, b) => b!.serverFim!.compareTo(a!.serverFim!));
+
     return todasMissoes;
   }
 
@@ -137,6 +140,10 @@ class RelatorioServices {
       RelatorioCliente relatorioCliente) async {
     final firestore = FirebaseFirestore.instance;
     try {
+      await firestore
+          .collection('Empresa')
+          .doc(relatorioCliente.cnpj)
+          .set({'sinc': 'sinc'});
       await firestore
           .collection('Empresa')
           .doc(relatorioCliente.cnpj)

@@ -5,9 +5,8 @@ import 'events.dart';
 import 'states.dart';
 
 class UserFotoBloc extends Bloc<UserFotoEvent, UserFotoState> {
-  final UserServices userServices;
-
-  UserFotoBloc({required this.userServices}) : super(UserFotoInitial()) {
+  UserFotoBloc() : super(UserFotoInitial()) {
+    final UserServices userServices = UserServices();
     on<FetchUserFoto>((event, emit) async {
       emit(UserFotoLoading());
       try {

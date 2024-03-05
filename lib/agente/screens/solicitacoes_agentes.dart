@@ -24,7 +24,7 @@ class AgentesSolicitacoes extends StatelessWidget {
       ),
       body: BlocProvider(
         create: (context) =>
-            AgenteSolicitacaoBloc()..add(FetchAgenteSolicitacaos()),
+            AgenteSolicitacaoBloc()..add(FetchAgenteSolicitacoes()),
         child: BlocBuilder<AgenteSolicitacaoBloc, AgenteSolicitacaoState>(
           builder: (context, state) {
             if (state is AgenteSolicitacaoLoading) {
@@ -123,8 +123,20 @@ class _AgenteCardState extends State<AgenteCard> {
     switch (chaveCampo) {
       case 'nome':
         return widget.agente.nome;
-      case 'endereco':
-        return widget.agente.endereco;
+      // case 'endereco':
+      //   return widget.agente.endereco;
+      case 'logradouro':
+        return widget.agente.logradouro;
+      case 'numero':
+        return widget.agente.numero;
+      case 'bairro':
+        return widget.agente.bairro;
+      case 'cidade':
+        return widget.agente.cidade;
+      case 'estado':
+        return widget.agente.estado;
+      case 'complemento':
+        return widget.agente.complemento;
       case 'celular':
         return widget.agente.celular;
       case 'cep':
@@ -149,7 +161,13 @@ class _AgenteCardState extends State<AgenteCard> {
     // Por exemplo:
     await agenteServices.addUserInfos(
       widget.agente.uid,
-      widget.agente.endereco,
+      //widget.agente.endereco,
+      widget.agente.logradouro,
+      widget.agente.numero,
+      widget.agente.bairro,
+      widget.agente.cidade,
+      widget.agente.estado,
+      widget.agente.complemento,
       widget.agente.cep,
       widget.agente.celular,
       widget.agente.rg,
@@ -163,7 +181,7 @@ class _AgenteCardState extends State<AgenteCard> {
     await agenteServices.solicitacaoRemove(widget.agente.uid);
     // Atualize a UI ou recarregue a lista de agentes conforme necessário
     if (context.mounted) {
-      context.read<AgenteSolicitacaoBloc>().add(FetchAgenteSolicitacaos());
+      context.read<AgenteSolicitacaoBloc>().add(FetchAgenteSolicitacoes());
     }
   }
 
@@ -185,7 +203,13 @@ class _AgenteCardState extends State<AgenteCard> {
         await agenteServices.rejeicaoParcial(
           widget.agente.uid,
           camposReprovados.contains('nome') ? widget.agente.nome : null,
-          camposReprovados.contains('endereco') ? widget.agente.endereco : null,
+          //camposReprovados.contains('endereco') ? widget.agente.endereco : null,
+          camposReprovados.contains('logradouro') ? widget.agente.logradouro : null,
+          camposReprovados.contains('numero') ? widget.agente.numero : null,
+          camposReprovados.contains('bairro') ? widget.agente.bairro : null,
+          camposReprovados.contains('cidade') ? widget.agente.cidade : null,
+          camposReprovados.contains('estado') ? widget.agente.estado : null,
+          camposReprovados.contains('complemento') ? widget.agente.complemento : null,
           camposReprovados.contains('cep') ? widget.agente.cep : null,
           camposReprovados.contains('celular') ? widget.agente.celular : null,
           camposReprovados.contains('rg') ? widget.agente.rg : null,
@@ -204,7 +228,13 @@ class _AgenteCardState extends State<AgenteCard> {
         await agenteServices.aprovacaoParcial(
           widget.agente.uid,
           camposAprovados.contains('nome') ? widget.agente.nome : null,
-          camposAprovados.contains('endereco') ? widget.agente.endereco : null,
+          //camposAprovados.contains('endereco') ? widget.agente.endereco : null,
+          camposAprovados.contains('logradouro') ? widget.agente.logradouro : null,
+          camposAprovados.contains('numero') ? widget.agente.numero : null,
+          camposAprovados.contains('bairro') ? widget.agente.bairro : null,
+          camposAprovados.contains('cidade') ? widget.agente.cidade : null,
+          camposAprovados.contains('estado') ? widget.agente.estado : null,
+          camposAprovados.contains('complemento') ? widget.agente.complemento : null,
           camposAprovados.contains('cep') ? widget.agente.cep : null,
           camposAprovados.contains('celular') ? widget.agente.celular : null,
           camposAprovados.contains('rg') ? widget.agente.rg : null,
@@ -221,7 +251,7 @@ class _AgenteCardState extends State<AgenteCard> {
         await agenteServices.solicitacaoRemove(widget.agente.uid);
         // Atualiza a UI ou recarrega a lista de contas conforme necessário
         if (context.mounted) {
-          context.read<AgenteSolicitacaoBloc>().add(FetchAgenteSolicitacaos());
+          context.read<AgenteSolicitacaoBloc>().add(FetchAgenteSolicitacoes());
         }
       });
     }
@@ -238,7 +268,13 @@ class _AgenteCardState extends State<AgenteCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             campoComCheckbox('Nome', 'nome'),
-            campoComCheckbox('Endereço', 'endereco'),
+            //campoComCheckbox('Endereço', 'endereco'),
+            campoComCheckbox('Logradouro', 'logradouro'),
+            campoComCheckbox('Número', 'numero'),
+            campoComCheckbox('Bairro', 'bairro'),
+            campoComCheckbox('Cidade', 'cidade'),
+            campoComCheckbox('Estado', 'estado'),
+            campoComCheckbox('Complemento', 'complemento'),
             campoComCheckbox('Celular', 'celular'),
             campoComCheckbox('CEP', 'cep'),
             campoComCheckbox('CPF', 'cpf'),

@@ -25,7 +25,7 @@
             "name": "Flutter Web Renderer: HTML",
             "request": "launch",
             "type": "dart",
-            "args": ["--web-renderer canvaskit", "html"]
+            "args": ["--web-renderer canvaskit", "html"],
         },
     ]
 }

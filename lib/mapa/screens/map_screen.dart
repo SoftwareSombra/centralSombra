@@ -9,7 +9,9 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
+import 'package:hawk_fab_menu/hawk_fab_menu.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:sombra_testes/agente/model/agente_model.dart';
 import 'package:sombra_testes/autenticacao/screens/tratamento/error_snackbar.dart';
 import 'package:sombra_testes/mapa/services/mapa_services.dart';
@@ -79,6 +81,7 @@ class _MapScreenState extends State<MapScreen> {
   final ChatServices chatServices = ChatServices();
   CameraDescription firstCamera = const CameraDescription(
       name: '', lensDirection: CameraLensDirection.back, sensorOrientation: 0);
+  final HawkFabMenuController hawkFabMenuController = HawkFabMenuController();
 
   @override
   void initState() {
@@ -157,6 +160,17 @@ class _MapScreenState extends State<MapScreen> {
         "Distância entre o local da missão e o agente: ${missionStartDistance}km");
   }
 
+  abrirCamera() {
+    PersistentNavBarNavigator.pushNewScreen(
+      context,
+      screen: CameraScreen(
+        camera: firstCamera,
+        missaoId: widget.missaoId,
+      ),
+      withNavBar: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -165,297 +179,313 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Missão',
-          style: TextStyle(color: Colors.black),
+          'MAPA',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
         ),
         centerTitle: true,
-        elevation: 0,
-        leading: IconButton(
-          color: Colors.black,
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const CircleAvatar(
-            backgroundColor: Colors.black,
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-          ),
-        ),
       ),
-      body: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            // Padding(
-            //   padding: const EdgeInsets.all(8.0),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       missionDistanceDisplay != null
-            //           ? Text(
-            //               missionDistanceDisplay!,
-            //               style: const TextStyle(
-            //                 fontSize: 16.0,
-            //                 fontWeight: FontWeight.bold,
-            //               ),
-            //             )
-            //           : const SizedBox.shrink(),
-            //       ElevatedButton(
-            //         onPressed: () async {
-            //           Navigator.push(
-            //             context,
-            //             MaterialPageRoute(
-            //               builder: (context) => CameraScreen(
-            //                 camera: firstCamera,
-            //                 missaoId: widget.missaoId,
-            //               ),
-            //             ),
-            //           );
-            //           // final picker = ImagePicker();
-            //           // final pickedFile =
-            //           //     await picker.pickImage(source: ImageSource.camera);
+      body: HawkFabMenu(
+        icon: AnimatedIcons.menu_arrow,
+        fabColor: Colors.blue.withOpacity(0.7),
+        iconColor: Colors.white,
+        hawkFabMenuController: hawkFabMenuController,
+        items: [
+          HawkFabMenuItem(
+            label: 'Câmera',
+            ontap: () {
+              abrirCamera();
+            },
+            icon: const Icon(
+              Icons.camera_alt,
+              color: Colors.blue,
+            ),
+            color: Colors.white,
+            labelColor: Colors.black,
+          ),
+          HawkFabMenuItem(
+            label: 'Informações',
+            ontap: () {},
+            icon: const Icon(
+              Icons.info,
+              color: Colors.blue,
+            ),
+            labelColor: Colors.black,
+            color: Colors.white,
+            //labelBackgroundColor: Colors.blue,
+          ),
+        ],
+        body: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: [
+              //       missionDistanceDisplay != null
+              //           ? Text(
+              //               missionDistanceDisplay!,
+              //               style: const TextStyle(
+              //                 fontSize: 16.0,
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //             )
+              //           : const SizedBox.shrink(),
+              //       ElevatedButton(
+              //         onPressed: () async {
+              //           Navigator.push(
+              //             context,
+              //             MaterialPageRoute(
+              //               builder: (context) => CameraScreen(
+              //                 camera: firstCamera,
+              //                 missaoId: widget.missaoId,
+              //               ),
+              //             ),
+              //           );
+              //           // final picker = ImagePicker();
+              //           // final pickedFile =
+              //           //     await picker.pickImage(source: ImageSource.camera);
 
-            //           // if (pickedFile != null) {
-            //           //   final File photo = File(pickedFile.path);
+              //           // if (pickedFile != null) {
+              //           //   final File photo = File(pickedFile.path);
 
-            //           //   // Capturando o horário atual.
-            //           //   DateTime now = DateTime.now();
-            //           //   debugPrint("A foto foi tirada em: $now");
+              //           //   // Capturando o horário atual.
+              //           //   DateTime now = DateTime.now();
+              //           //   debugPrint("A foto foi tirada em: $now");
 
-            //           //   if (context.mounted) {
-            //           //     showDialog(
-            //           //       context: context,
-            //           //       builder: (BuildContext context) {
-            //           //         return AlertDialog(
-            //           //           title: const Text('Adicione uma descrição'),
-            //           //           content: SingleChildScrollView(
-            //           //             child: Column(
-            //           //               mainAxisSize: MainAxisSize.min,
-            //           //               children: [
-            //           //                 Image.file(
-            //           //                   photo,
-            //           //                   fit: BoxFit.cover,
-            //           //                 ),
-            //           //                 TextField(
-            //           //                   controller: captionController,
-            //           //                   decoration: const InputDecoration(
-            //           //                       hintText:
-            //           //                           'Digite uma descrição...'),
-            //           //                 ),
-            //           //               ],
-            //           //             ),
-            //           //           ),
-            //           //           actions: [
-            //           //             TextButton(
-            //           //               onPressed: () async {
-            //           //                 String caption = captionController.text;
-            //           //                 // Agora você pode usar a variável 'caption' para a legenda e 'photo' para a foto
-            //           //                 final url = await missaoServices
-            //           //                     .uploadPhoto(photo, widget.missaoId!);
-            //           //                 List<Map<String, dynamic>>
-            //           //                     fotoComLegenda = [
-            //           //                   {
-            //           //                     'url': url,
-            //           //                     'caption': caption,
-            //           //                     'timestamp': now,
-            //           //                   }
-            //           //                 ];
-            //           //                 //fotosComLegendas.add(fotoComLegenda);
+              //           //   if (context.mounted) {
+              //           //     showDialog(
+              //           //       context: context,
+              //           //       builder: (BuildContext context) {
+              //           //         return AlertDialog(
+              //           //           title: const Text('Adicione uma descrição'),
+              //           //           content: SingleChildScrollView(
+              //           //             child: Column(
+              //           //               mainAxisSize: MainAxisSize.min,
+              //           //               children: [
+              //           //                 Image.file(
+              //           //                   photo,
+              //           //                   fit: BoxFit.cover,
+              //           //                 ),
+              //           //                 TextField(
+              //           //                   controller: captionController,
+              //           //                   decoration: const InputDecoration(
+              //           //                       hintText:
+              //           //                           'Digite uma descrição...'),
+              //           //                 ),
+              //           //               ],
+              //           //             ),
+              //           //           ),
+              //           //           actions: [
+              //           //             TextButton(
+              //           //               onPressed: () async {
+              //           //                 String caption = captionController.text;
+              //           //                 // Agora você pode usar a variável 'caption' para a legenda e 'photo' para a foto
+              //           //                 final url = await missaoServices
+              //           //                     .uploadPhoto(photo, widget.missaoId!);
+              //           //                 List<Map<String, dynamic>>
+              //           //                     fotoComLegenda = [
+              //           //                   {
+              //           //                     'url': url,
+              //           //                     'caption': caption,
+              //           //                     'timestamp': now,
+              //           //                   }
+              //           //                 ];
+              //           //                 //fotosComLegendas.add(fotoComLegenda);
 
-            //           //                 final sucesso = await missaoServices
-            //           //                     .fotoRelatorioMissao(uid,
-            //           //                         widget.missaoId!, fotoComLegenda);
-            //           //                 captionController.clear();
-            //           //                 if (context.mounted) {
-            //           //                   if (sucesso!) {
-            //           //                     //Navigator.of(context).pop();
-            //           //                   } else {
-            //           //                     tratamentoDeErros.showErrorSnackbar(
-            //           //                         context, 'Erro ao enviar foto');
-            //           //                   }
-            //           //                   Navigator.of(context)
-            //           //                       .pop(); // Fechar o AlertDialog
-            //           //                 }
-            //           //               },
-            //           //               child: const Text('Confirmar'),
-            //           //             ),
-            //           //           ],
-            //           //         );
-            //           //       },
-            //           //     );
-            //           //   }
-            //           // } else {
-            //           //   // O usuário não tirou uma foto.
-            //           // }
-            //         },
-            //         child: const Text('Abrir câmera'),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  0.8, // 60% da altura da tela
-              child: gmap.GoogleMap(
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                initialCameraPosition: _initialPosition,
-                markers: _markers,
-                polylines: _polylines,
-                onMapCreated: (gmap.GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
+              //           //                 final sucesso = await missaoServices
+              //           //                     .fotoRelatorioMissao(uid,
+              //           //                         widget.missaoId!, fotoComLegenda);
+              //           //                 captionController.clear();
+              //           //                 if (context.mounted) {
+              //           //                   if (sucesso!) {
+              //           //                     //Navigator.of(context).pop();
+              //           //                   } else {
+              //           //                     tratamentoDeErros.showErrorSnackbar(
+              //           //                         context, 'Erro ao enviar foto');
+              //           //                   }
+              //           //                   Navigator.of(context)
+              //           //                       .pop(); // Fechar o AlertDialog
+              //           //                 }
+              //           //               },
+              //           //               child: const Text('Confirmar'),
+              //           //             ),
+              //           //           ],
+              //           //         );
+              //           //       },
+              //           //     );
+              //           //   }
+              //           // } else {
+              //           //   // O usuário não tirou uma foto.
+              //           // }
+              //         },
+              //         child: const Text('Abrir câmera'),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: gmap.GoogleMap(
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  initialCameraPosition: _initialPosition,
+                  markers: _markers,
+                  polylines: _polylines,
+                  onMapCreated: (gmap.GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     ElevatedButton(
-            //       onPressed: () async {
-            //         // final userFinal = getCurrentLocation();
-            //         final userFinalLocation = await getFinalLocation();
-            //         //final now = DateTime.now();
-            //         final userFinalLatitude = userFinalLocation.lat;
-            //         final userFinalLongitude = userFinalLocation.lng;
-            //         final currentLocation = await Geolocator.getCurrentPosition(
-            //             desiredAccuracy: LocationAccuracy.high);
-            //         if (selectedStartLocation != null) {
-            //           // await missaoServices.finalLocalMissao(
-            //           //     uid, widget.missaoId, currentLocation);
-            //           final finalLocal =
-            //               await missaoServices.finalLocalMissaoSelectFunction(
-            //                   uid,
-            //                   widget.missaoId,
-            //                   currentLocation.latitude,
-            //                   currentLocation.longitude);
-            //           final finalizar =
-            //               await missaoServices.finalizarMissaoSelectFunction(
-            //             widget.cnpj,
-            //             widget.nomeDaEmpresa,
-            //             widget.placaCavalo,
-            //             widget.placaCarreta,
-            //             widget.motorista,
-            //             widget.corVeiculo,
-            //             widget.observacao,
-            //             uid,
-            //             widget.startPosition!.lat,
-            //             widget.startPosition!.lng,
-            //             userFinalLatitude,
-            //             userFinalLongitude,
-            //             widget.endPosition!.lat,
-            //             widget.endPosition!.lng,
-            //             widget.local,
-            //             widget.tipo,
-            //             widget.missaoId,
-            //             fim: DateTime.now().toIso8601String(),
-            //           );
-            //           final relatorio =
-            //               await missaoServices.relatorioMissaoSelectFunction(
-            //             widget.cnpj,
-            //             widget.nomeDaEmpresa,
-            //             widget.placaCavalo,
-            //             widget.placaCarreta,
-            //             widget.motorista,
-            //             widget.corVeiculo,
-            //             widget.observacao,
-            //             uid,
-            //             widget.missaoId,
-            //             nomeDoAgente,
-            //             widget.tipo,
-            //             widget.startPosition!.lat,
-            //             widget.startPosition!.lng,
-            //             userFinalLatitude,
-            //             userFinalLongitude,
-            //             widget.endPosition!.lat,
-            //             widget.endPosition!.lng,
-            //             widget.local,
-            //             fim: DateTime.now().toIso8601String(),
-            //           );
-            //           debugPrint("Final local: ${finalLocal.item2}");
-            //           debugPrint("Finalizar: ${finalizar.item2}");
-            //           debugPrint("Relatorio: ${relatorio.item2}");
+              const SizedBox(
+                height: 10,
+              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     ElevatedButton(
+              //       onPressed: () async {
+              //         // final userFinal = getCurrentLocation();
+              //         final userFinalLocation = await getFinalLocation();
+              //         //final now = DateTime.now();
+              //         final userFinalLatitude = userFinalLocation.lat;
+              //         final userFinalLongitude = userFinalLocation.lng;
+              //         final currentLocation = await Geolocator.getCurrentPosition(
+              //             desiredAccuracy: LocationAccuracy.high);
+              //         if (selectedStartLocation != null) {
+              //           // await missaoServices.finalLocalMissao(
+              //           //     uid, widget.missaoId, currentLocation);
+              //           final finalLocal =
+              //               await missaoServices.finalLocalMissaoSelectFunction(
+              //                   uid,
+              //                   widget.missaoId,
+              //                   currentLocation.latitude,
+              //                   currentLocation.longitude);
+              //           final finalizar =
+              //               await missaoServices.finalizarMissaoSelectFunction(
+              //             widget.cnpj,
+              //             widget.nomeDaEmpresa,
+              //             widget.placaCavalo,
+              //             widget.placaCarreta,
+              //             widget.motorista,
+              //             widget.corVeiculo,
+              //             widget.observacao,
+              //             uid,
+              //             widget.startPosition!.lat,
+              //             widget.startPosition!.lng,
+              //             userFinalLatitude,
+              //             userFinalLongitude,
+              //             widget.endPosition!.lat,
+              //             widget.endPosition!.lng,
+              //             widget.local,
+              //             widget.tipo,
+              //             widget.missaoId,
+              //             fim: DateTime.now().toIso8601String(),
+              //           );
+              //           final relatorio =
+              //               await missaoServices.relatorioMissaoSelectFunction(
+              //             widget.cnpj,
+              //             widget.nomeDaEmpresa,
+              //             widget.placaCavalo,
+              //             widget.placaCarreta,
+              //             widget.motorista,
+              //             widget.corVeiculo,
+              //             widget.observacao,
+              //             uid,
+              //             widget.missaoId,
+              //             nomeDoAgente,
+              //             widget.tipo,
+              //             widget.startPosition!.lat,
+              //             widget.startPosition!.lng,
+              //             userFinalLatitude,
+              //             userFinalLongitude,
+              //             widget.endPosition!.lat,
+              //             widget.endPosition!.lng,
+              //             widget.local,
+              //             fim: DateTime.now().toIso8601String(),
+              //           );
+              //           debugPrint("Final local: ${finalLocal.item2}");
+              //           debugPrint("Finalizar: ${finalizar.item2}");
+              //           debugPrint("Relatorio: ${relatorio.item2}");
 
-            //           if (context.mounted) {
-            //             finalLocal.item1
-            //                 ? mensagemDeSucesso.showSuccessSnackbar(
-            //                     context, finalLocal.item2)
-            //                 : tratamentoDeErros.showErrorSnackbar(
-            //                     context, finalLocal.item2);
-            //             finalizar.item1
-            //                 ? mensagemDeSucesso.showSuccessSnackbar(
-            //                     context, finalizar.item2!)
-            //                 : tratamentoDeErros.showErrorSnackbar(
-            //                     context, finalizar.item2!);
-            //             relatorio.item1
-            //                 ? mensagemDeSucesso.showSuccessSnackbar(
-            //                     context, relatorio.item2)
-            //                 : tratamentoDeErros.showErrorSnackbar(
-            //                     context, relatorio.item2);
-            //             context.read<AgentMissionBloc>().add(FetchMission());
-            //             Navigator.push(
-            //               context,
-            //               MaterialPageRoute(
-            //                 builder: (context) => AddRelatorioScreen(
-            //                     uid: uid, missaoId: widget.missaoId!),
-            //               ),
-            //             );
-            //           }
-            //         }
-            //       },
-            //       child: const Text('Finalizar Missão'),
-            //     ),
-            //   ],
-            // ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     ElevatedButton(
-            //       onPressed: () {
-            //         Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (context) => MissaoChatScreen(
-            //               missaoId: widget.missaoId!,
-            //             ),
-            //           ),
-            //         );
-            //       },
-            //       child: Row(
-            //         children: [
-            //           const Text('Chat'),
-            //           StreamBuilder<int>(
-            //             stream: chatServices
-            //                 .getUsersMissionConversationsUnreadCount(
-            //                     widget.missaoId!),
-            //             builder: (BuildContext context,
-            //                 AsyncSnapshot<int> snapshot) {
-            //               if (snapshot.hasData && snapshot.data! > 0) {
-            //                 return Padding(
-            //                   padding: const EdgeInsets.only(left: 2.0),
-            //                   child: Text(
-            //                     '(${snapshot.data})',
-            //                     style: const TextStyle(
-            //                         color: Colors.red,
-            //                         fontWeight: FontWeight.bold),
-            //                   ),
-            //                 );
-            //               } else {
-            //                 return const SizedBox
-            //                     .shrink();
-            //               }
-            //             },
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ],
-            // )
-          ],
+              //           if (context.mounted) {
+              //             finalLocal.item1
+              //                 ? mensagemDeSucesso.showSuccessSnackbar(
+              //                     context, finalLocal.item2)
+              //                 : tratamentoDeErros.showErrorSnackbar(
+              //                     context, finalLocal.item2);
+              //             finalizar.item1
+              //                 ? mensagemDeSucesso.showSuccessSnackbar(
+              //                     context, finalizar.item2!)
+              //                 : tratamentoDeErros.showErrorSnackbar(
+              //                     context, finalizar.item2!);
+              //             relatorio.item1
+              //                 ? mensagemDeSucesso.showSuccessSnackbar(
+              //                     context, relatorio.item2)
+              //                 : tratamentoDeErros.showErrorSnackbar(
+              //                     context, relatorio.item2);
+              //             context.read<AgentMissionBloc>().add(FetchMission());
+              //             Navigator.push(
+              //               context,
+              //               MaterialPageRoute(
+              //                 builder: (context) => AddRelatorioScreen(
+              //                     uid: uid, missaoId: widget.missaoId!),
+              //               ),
+              //             );
+              //           }
+              //         }
+              //       },
+              //       child: const Text('Finalizar Missão'),
+              //     ),
+              //   ],
+              // ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     ElevatedButton(
+              //       onPressed: () {
+              //         Navigator.push(
+              //           context,
+              //           MaterialPageRoute(
+              //             builder: (context) => MissaoChatScreen(
+              //               missaoId: widget.missaoId!,
+              //             ),
+              //           ),
+              //         );
+              //       },
+              //       child: Row(
+              //         children: [
+              //           const Text('Chat'),
+              //           StreamBuilder<int>(
+              //             stream: chatServices
+              //                 .getUsersMissionConversationsUnreadCount(
+              //                     widget.missaoId!),
+              //             builder: (BuildContext context,
+              //                 AsyncSnapshot<int> snapshot) {
+              //               if (snapshot.hasData && snapshot.data! > 0) {
+              //                 return Padding(
+              //                   padding: const EdgeInsets.only(left: 2.0),
+              //                   child: Text(
+              //                     '(${snapshot.data})',
+              //                     style: const TextStyle(
+              //                         color: Colors.red,
+              //                         fontWeight: FontWeight.bold),
+              //                   ),
+              //                 );
+              //               } else {
+              //                 return const SizedBox
+              //                     .shrink();
+              //               }
+              //             },
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // )
+            ],
+          ),
         ),
       ),
     );
@@ -522,7 +552,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<String?> fetchAgentAddress(String uid) async {
     Agente? agente = await AgenteServices().getAgenteInfos(uid);
-    return agente?.endereco;
+    return agente?.cidade;
   }
 
   Future<Place?> getPlaceFromLatLng(LatLng latLng) async {

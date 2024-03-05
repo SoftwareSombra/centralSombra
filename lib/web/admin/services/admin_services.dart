@@ -148,7 +148,7 @@ class AdminServices {
             .httpsCallable('setAdminCliente');
     try {
       final HttpsCallableResult result = await callable
-          .call(<String, dynamic>{'uid': uid.text.trim(), 'id': id.text});
+          .call(<String, dynamic>{'uid': uid, 'id': id});
       debugPrint("Admin cliente set successfully: ${result.data}");
       return true;
     } on FirebaseFunctionsException catch (e) {
@@ -175,7 +175,7 @@ class AdminServices {
             .httpsCallable('setOperadorCliente');
     try {
       final HttpsCallableResult result = await callable
-          .call(<String, dynamic>{'uid': uid.text.trim(), 'id': id.text.trim()});
+          .call(<String, dynamic>{'uid': uid, 'id': id});
       debugPrint("Operador cliente set successfully: ${result.data}");
       return true;
     } on FirebaseFunctionsException catch (e) {

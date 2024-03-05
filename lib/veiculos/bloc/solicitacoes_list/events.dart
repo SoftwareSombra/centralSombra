@@ -1,6 +1,6 @@
 abstract class VeiculoSolicitacaoEvent {}
 
-class FetchVeiculoSolicitacaos extends VeiculoSolicitacaoEvent {
+class FetchVeiculoSolicitacoes extends VeiculoSolicitacaoEvent {
 
-  FetchVeiculoSolicitacaos();
+  FetchVeiculoSolicitacoes();
 }

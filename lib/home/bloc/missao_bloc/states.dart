@@ -43,3 +43,5 @@ final class ConfirmacaoMissaoFailed extends GetMissaoState {
 
   ConfirmacaoMissaoFailed(this.message);
 }
+
+final class IsNotAvailable extends GetMissaoState {}

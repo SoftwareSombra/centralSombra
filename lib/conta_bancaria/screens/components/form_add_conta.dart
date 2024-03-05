@@ -35,10 +35,8 @@ class FormAddConta extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = firebaseAuth.currentUser;
     final uid = user?.uid;
-    print('conta bancaria');
     return BlocBuilder<ContaBancariaBloc, ContaBancariaState>(
       builder: (context, state) {
-        print(state.toString());
         if (state is ContaBancariaLoading) {
           return const Center(
             child: CircularProgressIndicator(),
@@ -46,6 +44,34 @@ class FormAddConta extends StatelessWidget {
         } else if (state is AgenteSemCadastro) {
           return const Center(
             child: Text('Você não possui cadastro'),
+          );
+        } else if (state is ContaBancariaAguardandoAprovacao) {
+          return const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 50,
+                    color: Colors.yellow,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  "Os dados da sua conta bancária estão sendo analisados, aguarde.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           );
         } else if (state is ContaBancariaInfosRejected) {
           final titularAceito = state.titularAceito;
@@ -67,7 +93,9 @@ class FormAddConta extends StatelessWidget {
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.allow(
                               RegExp("[a-zA-Z]"),
-                            ), // Permite apenas letras
+                            ),
+                            //limite de caracteres
+                            LengthLimitingTextInputFormatter(40),
                           ],
                           decoration: const InputDecoration(
                             labelText: 'Nome do titular',
@@ -93,17 +121,20 @@ class FormAddConta extends StatelessWidget {
                           },
                         )
                       : const SizedBox.shrink(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  state.dados.containsKey('titular')
+                      ? const SizedBox(
+                          height: 10,
+                        )
+                      : const SizedBox.shrink(),
                   state.dados.containsKey('numero')
                       ? TextFormField(
                           controller: numero,
                           keyboardType: TextInputType
                               .number, // Define o teclado como numérico
                           inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter
-                                .digitsOnly, // Permite apenas dígitos
+                            FilteringTextInputFormatter.digitsOnly,
+                            //limite de caracteres
+                            LengthLimitingTextInputFormatter(20),
                           ],
                           decoration: const InputDecoration(
                             labelText: 'Número da conta',
@@ -129,17 +160,20 @@ class FormAddConta extends StatelessWidget {
                           },
                         )
                       : const SizedBox.shrink(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  state.dados.containsKey('numero')
+                      ? const SizedBox(
+                          height: 10,
+                        )
+                      : const SizedBox.shrink(),
                   state.dados.containsKey('agencia')
                       ? TextFormField(
                           controller: agencia,
                           keyboardType: TextInputType
                               .number, // Define o teclado como numérico
                           inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter
-                                .digitsOnly, // Permite apenas dígitos
+                            FilteringTextInputFormatter.digitsOnly,
+                            //limite de caracteres
+                            LengthLimitingTextInputFormatter(20),
                           ],
                           decoration: const InputDecoration(
                             labelText: 'Número da agência',
@@ -165,12 +199,18 @@ class FormAddConta extends StatelessWidget {
                           },
                         )
                       : const SizedBox.shrink(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  state.dados.containsKey('agencia')
+                      ? const SizedBox(
+                          height: 10,
+                        )
+                      : const SizedBox.shrink(),
                   state.dados.containsKey('chavePix')
                       ? TextFormField(
                           controller: chavePix,
+                          inputFormatters: <TextInputFormatter>[
+                            //limite de caracteres
+                            LengthLimitingTextInputFormatter(40),
+                          ],
                           decoration: const InputDecoration(
                             labelText: 'Chave pix',
                             labelStyle: TextStyle(color: Colors.grey),
@@ -192,9 +232,11 @@ class FormAddConta extends StatelessWidget {
                           },
                         )
                       : const SizedBox.shrink(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  state.dados.containsKey('chavePix')
+                      ? const SizedBox(
+                          height: 10,
+                        )
+                      : const SizedBox.shrink(),
                   BlocBuilder<ElevatedButtonBloc, ElevatedButtonBlocState>(
                     builder: (context, state) {
                       if (state is ElevatedButtonBlocLoading) {
@@ -302,7 +344,9 @@ class FormAddConta extends StatelessWidget {
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.allow(
                       RegExp("[a-zA-Z]"),
-                    ), // Permite apenas letras
+                    ),
+                    //limite de caracteres
+                    LengthLimitingTextInputFormatter(40),
                   ],
                   decoration: const InputDecoration(
                     labelText: 'Nome do titular',
@@ -335,8 +379,9 @@ class FormAddConta extends StatelessWidget {
                   keyboardType:
                       TextInputType.number, // Define o teclado como numérico
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter
-                        .digitsOnly, // Permite apenas dígitos
+                    FilteringTextInputFormatter.digitsOnly,
+                    //limite de caracteres
+                    LengthLimitingTextInputFormatter(20),
                   ],
                   decoration: const InputDecoration(
                     labelText: 'Número da conta',
@@ -369,8 +414,9 @@ class FormAddConta extends StatelessWidget {
                   keyboardType:
                       TextInputType.number, // Define o teclado como numérico
                   inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter
-                        .digitsOnly, // Permite apenas dígitos
+                    FilteringTextInputFormatter.digitsOnly,
+                    //limite de caracteres
+                    LengthLimitingTextInputFormatter(20),
                   ],
                   decoration: const InputDecoration(
                     labelText: 'Número da agência',
@@ -400,6 +446,10 @@ class FormAddConta extends StatelessWidget {
                 ),
                 TextFormField(
                   controller: chavePix,
+                  inputFormatters: <TextInputFormatter>[
+                    //limite de caracteres
+                    LengthLimitingTextInputFormatter(40),
+                  ],
                   decoration: const InputDecoration(
                     labelText: 'Chave pix',
                     labelStyle: TextStyle(color: Colors.grey),

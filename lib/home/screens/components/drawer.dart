@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/home/screens/components/theme_switch.dart';
 import '../../../autenticacao/services/log_services.dart';
 
 class BuildDrawer extends StatelessWidget {
@@ -41,7 +40,7 @@ class BuildDrawer extends StatelessWidget {
                   // Adicionar mais propriedades conforme necessário
                 ),
               ),
-              ThemeSwitcher(),
+              //ThemeSwitcher(),
               // Adicionar mais Cards conforme necessário...
             ],
           ),

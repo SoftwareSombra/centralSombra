@@ -21,6 +21,9 @@ final class RespostaSolicitacaoVeiculoLoaded
       this.placa, this.marca, this.modelo, this.cor, this.ano);
 }
 
+final class RespostaSolicitacaoVeiculoAguardandoAprovacao
+    extends RespostaSolicitacaoVeiculoState {}
+
 final class RespostaSolicitacaoNotFound
     extends RespostaSolicitacaoVeiculoState {}
 

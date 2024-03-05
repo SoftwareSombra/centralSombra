@@ -30,11 +30,47 @@ class AgenteBloc extends Bloc<AgenteEvent, AgenteState> {
           } else {
             nomeAceito = null;
           }
-          final String? enderecoAceito;
-          if (dadosAceitos.containsKey('Endereço')) {
-            enderecoAceito = dadosAceitos['Endereço'];
+          // final String? enderecoAceito;
+          // if (dadosAceitos.containsKey('Endereço')) {
+          //   enderecoAceito = dadosAceitos['Endereço'];
+          // } else {
+          //   enderecoAceito = null;
+          // }
+          final String? logradouroAceito;
+          if (dadosAceitos.containsKey('logradouro')) {
+            logradouroAceito = dadosAceitos['logradouro'];
           } else {
-            enderecoAceito = null;
+            logradouroAceito = null;
+          }
+          final String? numeroAceito;
+          if (dadosAceitos.containsKey('numero')) {
+            numeroAceito = dadosAceitos['numero'];
+          } else {
+            numeroAceito = null;
+          }
+          final String? bairroAceito;
+          if (dadosAceitos.containsKey('bairro')) {
+            bairroAceito = dadosAceitos['bairro'];
+          } else {
+            bairroAceito = null;
+          }
+          final String? cidadeAceito;
+          if (dadosAceitos.containsKey('cidade')) {
+            cidadeAceito = dadosAceitos['cidade'];
+          } else {
+            cidadeAceito = null;
+          }
+          final String? estadoAceito;
+          if (dadosAceitos.containsKey('estado')) {
+            estadoAceito = dadosAceitos['estado'];
+          } else {
+            estadoAceito = null;
+          }
+          final String? complementoAceito;
+          if (dadosAceitos.containsKey('complemento')) {
+            complementoAceito = dadosAceitos['complemento'];
+          } else {
+            complementoAceito = null;
           }
           final String? cepAceito;
           if (dadosAceitos.containsKey('Cep')) {
@@ -85,7 +121,13 @@ class AgenteBloc extends Bloc<AgenteEvent, AgenteState> {
                 dadosRejeitados,
                 dadosAceitos,
                 nomeAceito,
-                enderecoAceito,
+                //enderecoAceito,
+                logradouroAceito,
+                numeroAceito,
+                bairroAceito,
+                cidadeAceito,
+                estadoAceito,
+                complementoAceito,
                 cepAceito,
                 celularAceito,
                 rgAceito,

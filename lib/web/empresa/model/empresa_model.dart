@@ -10,6 +10,7 @@ class Empresa {
   String representanteLegalCpf;
   DateTime prazoContratoInicio;
   DateTime prazoContratoFim;
+  String? logo;
   String? observacao;
 
   Empresa({
@@ -22,6 +23,7 @@ class Empresa {
     required this.representanteLegalCpf,
     required this.prazoContratoInicio,
     required this.prazoContratoFim,
+    this.logo,
     this.observacao = '',
   });
 
@@ -34,8 +36,10 @@ class Empresa {
       email: data['Email'],
       representanteLegalNome: data['Representante legal nome'],
       representanteLegalCpf: data['Representante legal CPF'],
-      prazoContratoInicio: (data['Prazo do contrato inicio'] as Timestamp).toDate(),
+      prazoContratoInicio:
+          (data['Prazo do contrato inicio'] as Timestamp).toDate(),
       prazoContratoFim: (data['Prazo do contrato fim'] as Timestamp).toDate(),
+      logo: data['Logo'],
       observacao: data['Observação'],
     );
   }

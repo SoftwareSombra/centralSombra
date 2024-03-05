@@ -389,4 +389,12 @@ class CoordenadaComTimestamp {
   final DateTime timestamp;
 
   CoordenadaComTimestamp(this.ponto, this.timestamp);
+
+  //fromMap
+  factory CoordenadaComTimestamp.fromMap(Map<String, dynamic> data) {
+    return CoordenadaComTimestamp(
+      gmap.LatLng(data['ponto']['latitude'], data['ponto']['longitude']),
+      data['timestamp'].toDate(),
+    );
+  }
 }

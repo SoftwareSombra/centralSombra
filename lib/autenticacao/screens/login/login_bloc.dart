@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/log_services.dart';
 import '../../services/user_services.dart';
@@ -9,11 +10,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LogServices logServices;
   final UserServices userServices;
 
-  LoginBloc(
-    this.logServices,
-    this.userServices
-  ) : super(LoginInitial()) {
+  LoginBloc(this.logServices, this.userServices) : super(LoginInitial()) {
     on<PerformLoginEvent>(_onPerformLoginEvent);
+  }
+
+  String _mapFirebaseErrorToMessage(FirebaseAuthException e) {
+    debugPrint('---- Error: ${e.code} ----');
+    switch (e.code) {
+      case "user-not-found":
+        return 'Nenhum usuário encontrado com esse e-mail.';
+      case "wrong-password":
+        return 'Senha incorreta.';
+      case "invalid-credential":
+        return 'Senha ou email inválidos.';
+      default:
+        return 'Ocorreu um erro durante o login. Por favor, tente novamente.';
+    }
   }
 
   Future<void> _onPerformLoginEvent(
@@ -32,30 +44,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
 
     try {
-      bool isLoginSuccessful = await logServices.login(event.email, event.password);
-      if (isLoginSuccessful) {
+      Object object = await logServices.login(event.email, event.password);
+      if (object == 'Sucesso') {
         emit(LoginSuccess());
       } else {
-        emit(LoginFailure('Erro desconhecido.'));
+        if (object is FirebaseAuthException) {
+          emit(LoginFailure(_mapFirebaseErrorToMessage(object)));
+        } else {
+          emit(LoginFailure('Ocorreu um erro. Tente novamente.'));
+        }
       }
     } catch (e) {
-      if (e is FirebaseAuthException) {
-        // Traduz os códigos de erro para mensagens
-        emit(LoginFailure(_mapFirebaseErrorToMessage(e)));
-      } else {
-        emit(LoginFailure('Ocorreu um erro. Tente novamente.'));
-      }
-    }
-  }
-
-  String _mapFirebaseErrorToMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case "user-not-found":
-        return 'Nenhum usuário encontrado com esse e-mail.';
-      case "wrong-password":
-        return 'Senha incorreta.';
-      default:
-        return 'Ocorreu um erro durante o login. Por favor, tente novamente.';
+      emit(LoginFailure('Ocorreu um erro. Tente novamente.'));
     }
   }
 }

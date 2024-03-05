@@ -4,20 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sombra_testes/missao/services/missao_services.dart';
+import '../../../agente/services/agente_services.dart';
 import '../../../missao/model/missao_model.dart';
 import 'events.dart';
 import 'states.dart';
 
 class GetMissaoBloc extends Bloc<GetMissaoEvent, GetMissaoState> {
-  final MissaoServices missaoServices;
 
-  GetMissaoBloc({required this.missaoServices}) : super(GetMissaoLoading()) {
+  GetMissaoBloc() : super(GetMissaoLoading()) {
+    AgenteServices agenteServices = AgenteServices();
+    final MissaoServices missaoServices = MissaoServices();
+    
     on<LoadMissao>((event, emit) async {
+
       FirebaseAuth firebaseAuth = FirebaseAuth.instance;
       final uid = firebaseAuth.currentUser!.uid;
       final nome = firebaseAuth.currentUser!.displayName;
+
+      
+
       emit(GetMissaoLoading());
       try {
+        final isAgent = await agenteServices.isAgent(uid);
+
+        if (!isAgent) {
+          emit(IsNotAvailable());
+          return;
+        }
         bool emMissao = await missaoServices.emMissao(uid);
         if (emMissao) {
           emit(EmMissao());

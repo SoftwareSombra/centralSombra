@@ -15,6 +15,14 @@ class ContaBancariaBloc extends Bloc<ContaBancariaEvent, ContaBancariaState> {
         DocumentSnapshot isAgent =
             await firestore.collection('User infos').doc(event.uid).get();
         if (isAgent.exists) {
+          final aguardandoAprovacao = await contaBancariaServices
+              .existeDocDoAgenteAguardandoAprovacao(event.uid);
+
+          if (aguardandoAprovacao) {
+            emit(ContaBancariaAguardandoAprovacao());
+            return;
+          }
+
           ContaBancaria? contaBancaria =
               await contaBancariaServices.getConta(event.uid);
 

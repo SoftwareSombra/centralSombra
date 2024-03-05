@@ -26,9 +26,9 @@ class DevScreen extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text('Adicionar cargos'),
         centerTitle: true,
       ),

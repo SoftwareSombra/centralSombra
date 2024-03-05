@@ -45,3 +45,5 @@ class ReportPending extends AgentState {
   final String nome;
   ReportPending(this.missao, this.uid, this.nome);
 }
+
+class IsNotAgent extends AgentState {}

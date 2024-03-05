@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sombra_testes/veiculos/services/veiculos_services.dart';
 import 'resposta_solicitacao_veiculo_event.dart';
@@ -16,6 +17,14 @@ class RespostaSolicitacaoVeiculoBloc extends Bloc<
         DocumentSnapshot isAgent =
             await firestore.collection('User infos').doc(event.uid).get();
         if (isAgent.exists) {
+          final aprovacaoPendente = await veiculoServices
+              .existeDocDoAgenteAguardandoAprovacao(event.uid);
+          debugPrint('aprovacaoPendente: $aprovacaoPendente');
+          if (aprovacaoPendente) {
+            emit(RespostaSolicitacaoVeiculoAguardandoAprovacao());
+            debugPrint(state.toString());
+            return;
+          }
           final dadosRejeitados =
               await veiculoServices.getDadosRejeitados(event.uid);
           final dadosAceitos =

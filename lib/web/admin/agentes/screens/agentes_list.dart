@@ -48,7 +48,8 @@ class AgentesList extends StatelessWidget {
                 child: state.agentes.isNotEmpty
                     ? PaginatedDataTable(
                         columns: columns,
-                        source: EmpresaDataSource(agentes: state.agentes),
+                        source: EmpresaDataSource(
+                            agentes: state.agentes, context: context),
                         header: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -111,7 +112,8 @@ class AgentesList extends StatelessWidget {
 
 class EmpresaDataSource extends DataTableSource {
   List<AgenteAdmList> agentes;
-  EmpresaDataSource({required this.agentes});
+  BuildContext context;
+  EmpresaDataSource({required this.agentes, required this.context});
 
   @override
   DataRow? getRow(int index) {
@@ -123,19 +125,22 @@ class EmpresaDataSource extends DataTableSource {
 
     return DataRow.byIndex(
       index: index,
+      color: const MaterialStatePropertyAll(
+        Color.fromARGB(255, 3, 9, 18),
+      ),
       cells: [
         DataCell(
           Row(
             children: [
-              Checkbox(
-                value: false,
-                onChanged: (value) {
-                  value = !value!;
-                },
-              ),
-              const SizedBox(
-                width: 2,
-              ),
+              // Checkbox(
+              //   value: false,
+              //   onChanged: (value) {
+              //     value = !value!;
+              //   },
+              // ),
+              // const SizedBox(
+              //   width: 2,
+              // ),
               SelectableText(agente.nome),
             ],
           ),
@@ -148,12 +153,51 @@ class EmpresaDataSource extends DataTableSource {
           Text(agente.nivel ?? 'S/N'),
         ),
         DataCell(
-          IconButton(
-            // Adicione um IconButton para ver detalhes
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: () {
-              // Navegue para a tela de detalhes
-            },
+          Row(
+            children: [
+              MouseRegion(
+                cursor: MaterialStateMouseCursor.clickable,
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Aguarde'),
+                            content: Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                      'Nível do agente sendo implementado...'),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                  },
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        size: 15,
+                      ),
+                      SizedBox(
+                        height: 1,
+                      ),
+                      Text(
+                        'Detalhes',
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

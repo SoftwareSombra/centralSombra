@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,11 +10,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
+import 'package:hawk_fab_menu/hawk_fab_menu.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:sombra_testes/missao/model/missao_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -64,6 +70,7 @@ class _MissaoScreenState extends State<MissaoScreen> {
   MissaoServices missaoServices = MissaoServices();
   Place? selectedStartLocation;
   bool isLoading = false;
+  HawkFabMenuController hawkFabMenuController = HawkFabMenuController();
 
   //StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
 
@@ -292,575 +299,852 @@ class _MissaoScreenState extends State<MissaoScreen> {
     //     : nomeDoMotorista[0];
     return hasConnection == null
         ? const Center(child: CircularProgressIndicator())
-        : Column(
-            children: [
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.gps_fixed,
-                            color: Colors.blue,
-                          ),
-                          SizedBox(width: width * 0.02),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Tipo:',
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w300),
-                              ),
-                              Text(
-                                widget.missao.tipo,
-                                style: const TextStyle(
-                                    fontSize: 21, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.blue,
-                          ),
-                          SizedBox(width: width * 0.02),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Local:',
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w300),
-                              ),
-                              Text(
-                                widget.missao.local,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontSize: 21, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+        : HawkFabMenu(
+            icon: AnimatedIcons.menu_arrow,
+            fabColor: Colors.blue.withOpacity(0.7),
+            iconColor: Colors.white,
+            hawkFabMenuController: hawkFabMenuController,
+            items: [
+              HawkFabMenuItem(
+                label: 'Câmera',
+                ontap: () {
+                  abrirCamera();
+                },
+                icon: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.blue,
                 ),
+                color: Colors.white,
+                labelColor: Colors.black,
               ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.only(left: width * 0.08),
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Placa cavalo:',
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          widget.missao.placaCavalo == ''
-                              ? ' - '
-                              : widget.missao.placaCavalo!,
-                          style: const TextStyle(
-                              fontSize: 21, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 5),
-                        const Text(
-                          'Motorista:',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          widget.missao.motorista == ''
-                              ? ' - '
-                              : widget.missao.motorista!,
-                          style: const TextStyle(
-                              fontSize: 21, fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                    SizedBox(width: width * 0.2),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Placa carreta:',
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          widget.missao.placaCarreta == ''
-                              ? ' - '
-                              : widget.missao.placaCarreta!,
-                          style: const TextStyle(
-                              fontSize: 21, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 5),
-                        const Text(
-                          'Cor do veículo:',
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                        Text(
-                          widget.missao.corVeiculo == ''
-                              ? ' - '
-                              : widget.missao.corVeiculo!,
-                          style: const TextStyle(
-                              fontSize: 21, fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  ],
+              HawkFabMenuItem(
+                label: 'Mapa',
+                ontap: () {
+                  abrirMapa();
+                },
+                icon: const Icon(
+                  Icons.map,
+                  color: Colors.blue,
                 ),
+                labelColor: Colors.black,
+                color: Colors.white,
+                //labelBackgroundColor: Colors.blue,
               ),
-              const SizedBox(height: 20),
-              Card(
-                elevation: 2,
-                child: Container(
-                  width: width,
-                  height: height * 0.4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(0),
+              HawkFabMenuItem(
+                label: 'Finalizar missão',
+                ontap: () {
+                  dialogoParaFinalizarMissao();
+                },
+                icon: const Icon(
+                  Icons.done,
+                  color: Colors.red,
+                ),
+                color: Colors.white,
+                labelColor: Colors.white,
+                labelBackgroundColor: Colors.red,
+              ),
+            ],
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Card(
+                  //   elevation: 2,
+                  //   child:
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 25),
                     child: Column(
                       children: [
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Central',
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 5),
-                        Expanded(
-                          child: StreamBuilder<List<Map<String, dynamic>>>(
-                            stream: getConversationMessages(hasConnection!),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                return Text('Erro: ${snapshot.error}');
-                              }
-
-                              if (snapshot.connectionState ==
-                                      ConnectionState.waiting ||
-                                  !snapshot.hasData) {
-                                // Aqui você retorna um CircularProgressIndicator se o snapshot ainda está carregando
-                                // ou se os dados ainda não estão disponíveis (null).
-                                return const CircularProgressIndicator();
-                              }
-
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (controller.hasClients) {
-                                  controller.jumpTo(
-                                      controller.position.maxScrollExtent);
-                                }
-                              });
-
-                              return Listener(
-                                onPointerDown: (_) {
-                                  FocusScope.of(context).unfocus();
-                                },
-                                child: ListView.builder(
-                                  controller: controller,
-                                  itemCount: snapshot.data?.length ??
-                                      0, // Usa 0 se snapshot.data for null.
-                                  itemBuilder: (context, index) {
-                                    Map<String, dynamic>? data = snapshot
-                                        .data?[index]; // data pode ser null.
-                                    if (data == null) {
-                                      // Você pode decidir o que fazer se o dado for null.
-                                      // Por exemplo, retornar um widget vazio ou algum placeholder.
-                                      return SizedBox.shrink();
-                                    }
-
-                                    debugPrint('Data: $data');
-                                    final autor =
-                                        data['User uid']?.isEmpty ?? true
-                                            ? data['userUid']
-                                            : data['User uid'];
-                                    final messageText = data['Mensagem'];
-                                    final imageUrl = data['Imagem'];
-                                    final timestamp = data['Timestamp'];
-                                    final isCurrentUser =
-                                        autor == widget.userUid;
-
-                                    if (timestamp is String) {
-                                      final timestamp2 =
-                                          DateTime.parse(timestamp);
-                                      final timestamp3 =
-                                          Timestamp.fromDate(timestamp2);
-
-                                      return MessageBubble(
-                                        message: messageText,
-                                        sender: autor,
-                                        isCurrentUser: isCurrentUser,
-                                        imageUrl: imageUrl,
-                                        timestamp: timestamp3,
-                                      );
-                                    } else {
-                                      return MessageBubble(
-                                        message: messageText,
-                                        sender: autor,
-                                        isCurrentUser: isCurrentUser,
-                                        imageUrl: imageUrl,
-                                        timestamp: timestamp,
-                                      );
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 5),
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Row(
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.gps_fixed,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(width: width * 0.02),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Botão para anexos
-
-                                RawMaterialButton(
-                                  onPressed: () async {
-                                    // Ação para anexar arquivo
-                                    final ImagePicker picker = ImagePicker();
-                                    final XFile? image = await picker.pickImage(
-                                        source: ImageSource.gallery);
-
-                                    if (image != null) {
-                                      File imageFile = File(image.path);
-                                      await _showImagePreviewAndUpload(
-                                          imageFile,
-                                          widget.userName,
-                                          widget
-                                              .userUid); // Mostra a prévia da imagem
-                                    }
-                                  },
-                                  shape: const CircleBorder(),
-                                  //fillColor: Colors.blue,
-                                  constraints: const BoxConstraints.expand(
-                                      width: 20, height: 20),
-                                  child: ValueListenableBuilder(
-                                    valueListenable: isUploading,
-                                    builder:
-                                        (context, bool isUploading, child) {
-                                      return isUploading
-                                          ? const CircularProgressIndicator()
-                                          : const Icon(
-                                              Icons.attach_file,
-                                              color: Colors.white,
-                                            );
-                                    },
-                                  ),
+                                const Text(
+                                  'Tipo:',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w300),
                                 ),
-                                const SizedBox(width: 10),
-
-                                // TextFormField
-                                Expanded(
-                                  child: LayoutBuilder(
-                                    builder: (BuildContext context,
-                                        BoxConstraints constraints) {
-                                      return Center(
-                                        child: SingleChildScrollView(
-                                          reverse: true,
-                                          child: Padding(
-                                            padding: EdgeInsets.only(
-                                              bottom: MediaQuery.of(context)
-                                                  .viewInsets
-                                                  .bottom,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: TextFormField(
-                                                    controller: msgController,
-                                                    minLines: 1,
-                                                    maxLines: 3,
-                                                    maxLength: 500,
-                                                    decoration: InputDecoration(
-                                                      counter: const Offstage(),
-                                                      //counterText: '',
-                                                      labelText:
-                                                          'Digite sua mensagem aqui',
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide:
-                                                            const BorderSide(
-                                                                color: Colors
-                                                                    .grey),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                      ),
-                                                      contentPadding:
-                                                          const EdgeInsets
-                                                              .symmetric(
-                                                        vertical: 10.0,
-                                                        horizontal: 10.0,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                ValueListenableBuilder(
-                                  valueListenable: isSubmitting,
-                                  builder: (context, bool value, child) {
-                                    return Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        value
-                                            ? const CircularProgressIndicator()
-                                            : RawMaterialButton(
-                                                onPressed: value
-                                                    ? null
-                                                    : () async {
-                                                        isSubmitting.value =
-                                                            true;
-                                                        if (msgController.text
-                                                            .trim()
-                                                            .isNotEmpty) {
-                                                          await chatServices
-                                                              .addMsgMissao(
-                                                                  msgController,
-                                                                  widget
-                                                                      .userName,
-                                                                  widget
-                                                                      .userUid,
-                                                                  widget.missao
-                                                                      .missaoId,
-                                                                  null);
-                                                        }
-                                                        isSubmitting.value =
-                                                            false;
-                                                        controller.animateTo(
-                                                          controller.position
-                                                              .maxScrollExtent,
-                                                          duration:
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      300),
-                                                          curve: Curves.easeOut,
-                                                        );
-                                                      },
-                                                shape: const CircleBorder(),
-                                                fillColor: Colors.blue,
-                                                constraints:
-                                                    const BoxConstraints.expand(
-                                                        width: 35, height: 35),
-                                                child: const Icon(
-                                                  Icons.send,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                        if (value)
-                                          const CircularProgressIndicator(),
-                                      ],
-                                    );
-                                  },
+                                Text(
+                                  widget.missao.tipo,
+                                  style: const TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
-                          ),
+                          ],
                         ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(width: width * 0.02),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Local:',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w300),
+                                ),
+                                SizedBox(
+                                  width: width * 0.8,
+                                  child: Text(
+                                    widget.missao.local,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    iconSize: 27,
-                    padding: const EdgeInsets.all(10),
-                    onPressed: () {
-                      debugPrint(
-                          'selectedStartLocation: $selectedStartLocation');
-                      if (selectedStartLocation != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MapScreen(
-                              cnpj: widget.missao.cnpj,
-                              nomeDaEmpresa: widget.missao.nomeDaEmpresa,
-                              placaCavalo: widget.missao.placaCavalo,
-                              placaCarreta: widget.missao.placaCarreta,
-                              motorista: widget.missao.motorista,
-                              corVeiculo: widget.missao.corVeiculo,
-                              observacao: widget.missao.observacao,
-                              startPosition: LatLng(
-                                  lat: selectedStartLocation!.latLng!.lat,
-                                  lng: selectedStartLocation!.latLng!.lng),
-                              endPosition: LatLng(
-                                  lat: widget.missao.missaoLatitude,
-                                  lng: widget.missao.missaoLongitude),
-                              missaoId: widget.missao.missaoId,
-                              tipo: widget.missao.tipo,
-                              inicio: widget.missao.inicio,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.map),
-                  ),
-                  isLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          onPressed: () async {
-                            setState(() {
-                              isLoading = true;
-                            });
 
-                            // final userFinal = getCurrentLocation();
-                            final userFinalLocation = await getFinalLocation();
-                            //final now = DateTime.now();
-                            final userFinalLatitude = userFinalLocation.lat;
-                            final userFinalLongitude = userFinalLocation.lng;
-                            final currentLocation =
-                                await Geolocator.getCurrentPosition(
-                                    desiredAccuracy: LocationAccuracy.high);
-                            if (selectedStartLocation != null) {
-                              // await missaoServices.finalLocalMissao(
-                              //     uid, widget.missaoId, currentLocation);
-                              final finalLocal = await missaoServices
-                                  .finalLocalMissaoSelectFunction(
-                                      widget.userUid,
-                                      widget.missao.missaoId,
-                                      currentLocation.latitude,
-                                      currentLocation.longitude);
-                              final finalizar = await missaoServices
-                                  .finalizarMissaoSelectFunction(
-                                widget.missao.cnpj,
-                                widget.missao.nomeDaEmpresa,
-                                widget.missao.placaCavalo,
-                                widget.missao.placaCarreta,
-                                widget.missao.motorista,
-                                widget.missao.corVeiculo,
-                                widget.missao.observacao,
-                                widget.userUid,
-                                widget.startPosition.latitude,
-                                widget.startPosition.longitude,
-                                userFinalLatitude,
-                                userFinalLongitude,
-                                widget.missao.missaoLatitude,
-                                widget.missao.missaoLongitude,
-                                widget.missao.local,
-                                widget.missao.tipo,
-                                widget.missao.missaoId,
-                                fim: DateTime.now().toIso8601String(),
-                              );
-                              final relatorio = await missaoServices
-                                  .relatorioMissaoSelectFunction(
-                                widget.missao.cnpj,
-                                widget.missao.nomeDaEmpresa,
-                                widget.missao.placaCavalo,
-                                widget.missao.placaCarreta,
-                                widget.missao.motorista,
-                                widget.missao.corVeiculo,
-                                widget.missao.observacao,
-                                widget.userUid,
-                                widget.missao.missaoId,
-                                widget.userName,
-                                widget.missao.tipo,
-                                widget.startPosition.latitude,
-                                widget.startPosition.longitude,
-                                userFinalLatitude,
-                                userFinalLongitude,
-                                widget.missao.missaoLatitude,
-                                widget.missao.missaoLongitude,
-                                widget.missao.local,
-                                fim: DateTime.now().toIso8601String(),
-                              );
-                              debugPrint("Final local: ${finalLocal.item2}");
-                              debugPrint("Finalizar: ${finalizar.item2}");
-                              debugPrint("Relatorio: ${relatorio.item2}");
-
-                              setState(() {
-                                isLoading = false;
-                              });
-
-                              if (context.mounted) {
-                                finalLocal.item1
-                                    ? mensagemDeSucesso.showSuccessSnackbar(
-                                        context, finalLocal.item2)
-                                    : tratamentoDeErros.showErrorSnackbar(
-                                        context, finalLocal.item2);
-                                finalizar.item1
-                                    ? mensagemDeSucesso.showSuccessSnackbar(
-                                        context, finalizar.item2!)
-                                    : tratamentoDeErros.showErrorSnackbar(
-                                        context, finalizar.item2!);
-                                relatorio.item1
-                                    ? mensagemDeSucesso.showSuccessSnackbar(
-                                        context, relatorio.item2)
-                                    : tratamentoDeErros.showErrorSnackbar(
-                                        context, relatorio.item2);
-                                context
-                                    .read<AgentMissionBloc>()
-                                    .add(FetchMission());
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AddRelatorioScreen(
-                                        uid: widget.userUid,
-                                        missaoId: widget.missao.missaoId),
+                  const SizedBox(height: 20),
+                  // Padding(
+                  //   padding: EdgeInsets.only(left: width * 0.08),
+                  //   child: Row(
+                  //     children: [
+                  //       Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           const Text(
+                  //             'Placa cavalo:',
+                  //             style: TextStyle(
+                  //                 fontSize: 15, fontWeight: FontWeight.w300),
+                  //           ),
+                  //           Text(
+                  //             widget.missao.placaCavalo == ''
+                  //                 ? ' - '
+                  //                 : widget.missao.placaCavalo!,
+                  //             style: const TextStyle(
+                  //                 fontSize: 21, fontWeight: FontWeight.bold),
+                  //           ),
+                  //           const SizedBox(height: 5),
+                  //           const Text(
+                  //             'Motorista:',
+                  //             overflow: TextOverflow.ellipsis,
+                  //             maxLines: 1,
+                  //             style: TextStyle(
+                  //                 fontSize: 15, fontWeight: FontWeight.w300),
+                  //           ),
+                  //           Text(
+                  //             widget.missao.motorista == ''
+                  //                 ? ' - '
+                  //                 : widget.missao.motorista!,
+                  //             style: const TextStyle(
+                  //                 fontSize: 21, fontWeight: FontWeight.bold),
+                  //           )
+                  //         ],
+                  //       ),
+                  //       SizedBox(width: width * 0.2),
+                  //       Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           const Text(
+                  //             'Placa carreta:',
+                  //             style: TextStyle(
+                  //                 fontSize: 15, fontWeight: FontWeight.w300),
+                  //           ),
+                  //           Text(
+                  //             widget.missao.placaCarreta == ''
+                  //                 ? ' - '
+                  //                 : widget.missao.placaCarreta!,
+                  //             style: const TextStyle(
+                  //                 fontSize: 21, fontWeight: FontWeight.bold),
+                  //           ),
+                  //           const SizedBox(height: 5),
+                  //           const Text(
+                  //             'Cor do veículo:',
+                  //             style: TextStyle(
+                  //                 fontSize: 15, fontWeight: FontWeight.w300),
+                  //           ),
+                  //           Text(
+                  //             widget.missao.corVeiculo == ''
+                  //                 ? ' - '
+                  //                 : widget.missao.corVeiculo!,
+                  //             style: const TextStyle(
+                  //                 fontSize: 21, fontWeight: FontWeight.bold),
+                  //           )
+                  //         ],
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Card(
+                      color: Colors.blue.withOpacity(0.5),
+                      elevation: 1,
+                      child: Container(
+                        width: width,
+                        height: height * 0.35,
+                        child: Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Column(
+                            children: [
+                              //const SizedBox(height: 10),
+                              Container(
+                                color: Colors.black.withOpacity(0.3),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        BoxIcons.bx_expand_alt,
+                                        size: 16,
+                                        color: Colors.transparent,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Bootstrap.whatsapp,
+                                              color: Colors.white, size: 22),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'CENTRAL',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      Icon(
+                                        BoxIcons.bx_expand_alt,
+                                        size: 16,
+                                      ),
+                                    ],
                                   ),
-                                );
-                              }
-                            }
-                          },
-                          child: const Text('Finalizar'),
-                        ),
-                  IconButton(
-                    padding: const EdgeInsets.all(10),
-                    iconSize: 27,
-                    onPressed: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CameraScreen(
-                            camera: firstCamera,
-                            missaoId: widget.missao.missaoId,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child:
+                                    StreamBuilder<List<Map<String, dynamic>>>(
+                                  stream:
+                                      getConversationMessages(hasConnection!),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return Text('Erro: ${snapshot.error}');
+                                    }
+
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.waiting ||
+                                        !snapshot.hasData) {
+                                      // Aqui você retorna um CircularProgressIndicator se o snapshot ainda está carregando
+                                      // ou se os dados ainda não estão disponíveis (null).
+                                      return const CircularProgressIndicator();
+                                    }
+
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      if (controller.hasClients) {
+                                        controller.jumpTo(controller
+                                            .position.maxScrollExtent);
+                                      }
+                                    });
+
+                                    return Listener(
+                                      onPointerDown: (_) {
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                      child: ListView.builder(
+                                        controller: controller,
+                                        itemCount: snapshot.data?.length ??
+                                            0, // Usa 0 se snapshot.data for null.
+                                        itemBuilder: (context, index) {
+                                          Map<String, dynamic>? data =
+                                              snapshot.data?[
+                                                  index]; // data pode ser null.
+                                          if (data == null) {
+                                            // Você pode decidir o que fazer se o dado for null.
+                                            // Por exemplo, retornar um widget vazio ou algum placeholder.
+                                            return const SizedBox.shrink();
+                                          }
+
+                                          debugPrint('Data: $data');
+                                          final autor =
+                                              data['User uid']?.isEmpty ?? true
+                                                  ? data['userUid']
+                                                  : data['User uid'];
+                                          final messageText = data['Mensagem'];
+                                          final imageUrl = data['Imagem'];
+                                          final timestamp = data['Timestamp'];
+                                          final isCurrentUser =
+                                              autor == widget.userUid;
+
+                                          if (timestamp is String) {
+                                            final timestamp2 =
+                                                DateTime.parse(timestamp);
+                                            final timestamp3 =
+                                                Timestamp.fromDate(timestamp2);
+
+                                            return MessageBubble(
+                                              message: messageText,
+                                              sender: autor,
+                                              isCurrentUser: isCurrentUser,
+                                              imageUrl: imageUrl,
+                                              timestamp: timestamp3,
+                                            );
+                                          } else {
+                                            return MessageBubble(
+                                              message: messageText,
+                                              sender: autor,
+                                              isCurrentUser: isCurrentUser,
+                                              imageUrl: imageUrl,
+                                              timestamp: timestamp,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 5),
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Botão para anexos
+
+                                      RawMaterialButton(
+                                        onPressed: () async {
+                                          // Ação para anexar arquivo
+                                          final ImagePicker picker =
+                                              ImagePicker();
+                                          final XFile? image =
+                                              await picker.pickImage(
+                                                  source: ImageSource.gallery);
+
+                                          if (image != null) {
+                                            File imageFile = File(image.path);
+                                            await _showImagePreviewAndUpload(
+                                                imageFile,
+                                                widget.userName,
+                                                widget
+                                                    .userUid); // Mostra a prévia da imagem
+                                          }
+                                        },
+                                        shape: const CircleBorder(),
+                                        //fillColor: Colors.blue,
+                                        constraints:
+                                            const BoxConstraints.expand(
+                                                width: 20, height: 20),
+                                        child: ValueListenableBuilder(
+                                          valueListenable: isUploading,
+                                          builder: (context, bool isUploading,
+                                              child) {
+                                            return isUploading
+                                                ? const CircularProgressIndicator()
+                                                : const Icon(
+                                                    Icons.attach_file,
+                                                    color: Colors.white,
+                                                  );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      // TextFormField
+                                      Expanded(
+                                        child: LayoutBuilder(
+                                          builder: (BuildContext context,
+                                              BoxConstraints constraints) {
+                                            return Center(
+                                              child: SingleChildScrollView(
+                                                reverse: true,
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(
+                                                    bottom:
+                                                        MediaQuery.of(context)
+                                                            .viewInsets
+                                                            .bottom,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: TextFormField(
+                                                          controller:
+                                                              msgController,
+                                                          minLines: 1,
+                                                          maxLines: 3,
+                                                          maxLength: 500,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            counter:
+                                                                const Offstage(),
+                                                            //counterText: '',
+                                                            labelText:
+                                                                'Digite sua mensagem aqui',
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    color: Colors
+                                                                        .grey),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  const BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                            ),
+                                                            contentPadding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                              vertical: 10.0,
+                                                              horizontal: 10.0,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ValueListenableBuilder(
+                                        valueListenable: isSubmitting,
+                                        builder: (context, bool value, child) {
+                                          return Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              value
+                                                  ? const CircularProgressIndicator()
+                                                  : RawMaterialButton(
+                                                      onPressed: value
+                                                          ? null
+                                                          : () async {
+                                                              isSubmitting
+                                                                  .value = true;
+                                                              if (msgController
+                                                                  .text
+                                                                  .trim()
+                                                                  .isNotEmpty) {
+                                                                await chatServices.addMsgMissao(
+                                                                    msgController,
+                                                                    widget
+                                                                        .userName,
+                                                                    widget
+                                                                        .userUid,
+                                                                    widget
+                                                                        .missao
+                                                                        .missaoId,
+                                                                    null);
+                                                              }
+                                                              isSubmitting
+                                                                      .value =
+                                                                  false;
+                                                              controller
+                                                                  .animateTo(
+                                                                controller
+                                                                    .position
+                                                                    .maxScrollExtent,
+                                                                duration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            300),
+                                                                curve: Curves
+                                                                    .easeOut,
+                                                              );
+                                                            },
+                                                      shape:
+                                                          const CircleBorder(),
+                                                      fillColor: Colors.white
+                                                          .withOpacity(0.9),
+                                                      constraints:
+                                                          const BoxConstraints
+                                                              .expand(
+                                                              width: 35,
+                                                              height: 35),
+                                                      child: const Icon(
+                                                        Icons.send,
+                                                        size: 20,
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                              if (value)
+                                                const CircularProgressIndicator(),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.camera_alt),
+                      ),
+                    ),
                   ),
+                  const SizedBox(height: 5),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //   children: [
+                  //     IconButton(
+                  //       iconSize: 27,
+                  //       padding: const EdgeInsets.all(10),
+                  //       onPressed: () {
+                  //         debugPrint(
+                  //             'selectedStartLocation: $selectedStartLocation');
+                  //         if (selectedStartLocation != null) {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //               builder: (context) => MapScreen(
+                  //                 cnpj: widget.missao.cnpj,
+                  //                 nomeDaEmpresa: widget.missao.nomeDaEmpresa,
+                  //                 placaCavalo: widget.missao.placaCavalo,
+                  //                 placaCarreta: widget.missao.placaCarreta,
+                  //                 motorista: widget.missao.motorista,
+                  //                 corVeiculo: widget.missao.corVeiculo,
+                  //                 observacao: widget.missao.observacao,
+                  //                 startPosition: LatLng(
+                  //                     lat: selectedStartLocation!.latLng!.lat,
+                  //                     lng: selectedStartLocation!.latLng!.lng),
+                  //                 endPosition: LatLng(
+                  //                     lat: widget.missao.missaoLatitude,
+                  //                     lng: widget.missao.missaoLongitude),
+                  //                 missaoId: widget.missao.missaoId,
+                  //                 tipo: widget.missao.tipo,
+                  //                 inicio: widget.missao.inicio,
+                  //               ),
+                  //             ),
+                  //           );
+                  //         }
+                  //       },
+                  //       icon: const Icon(Icons.map),
+                  //     ),
+                  //     isLoading
+                  //         ? const CircularProgressIndicator()
+                  //         : ElevatedButton(
+                  //             style: ElevatedButton.styleFrom(
+                  //               backgroundColor: Colors.red,
+                  //             ),
+                  //             onPressed: () async {
+                  //               setState(() {
+                  //                 isLoading = true;
+                  //               });
+
+                  //               // final userFinal = getCurrentLocation();
+                  //               final userFinalLocation =
+                  //                   await getFinalLocation();
+                  //               //final now = DateTime.now();
+                  //               final userFinalLatitude = userFinalLocation.lat;
+                  //               final userFinalLongitude =
+                  //                   userFinalLocation.lng;
+                  //               final currentLocation =
+                  //                   await Geolocator.getCurrentPosition(
+                  //                       desiredAccuracy: LocationAccuracy.high);
+                  //               if (selectedStartLocation != null) {
+                  //                 // await missaoServices.finalLocalMissao(
+                  //                 //     uid, widget.missaoId, currentLocation);
+                  //                 final finalLocal = await missaoServices
+                  //                     .finalLocalMissaoSelectFunction(
+                  //                         widget.userUid,
+                  //                         widget.missao.missaoId,
+                  //                         currentLocation.latitude,
+                  //                         currentLocation.longitude);
+                  //                 final finalizar = await missaoServices
+                  //                     .finalizarMissaoSelectFunction(
+                  //                   widget.missao.cnpj,
+                  //                   widget.missao.nomeDaEmpresa,
+                  //                   widget.missao.placaCavalo,
+                  //                   widget.missao.placaCarreta,
+                  //                   widget.missao.motorista,
+                  //                   widget.missao.corVeiculo,
+                  //                   widget.missao.observacao,
+                  //                   widget.userUid,
+                  //                   widget.startPosition.latitude,
+                  //                   widget.startPosition.longitude,
+                  //                   userFinalLatitude,
+                  //                   userFinalLongitude,
+                  //                   widget.missao.missaoLatitude,
+                  //                   widget.missao.missaoLongitude,
+                  //                   widget.missao.local,
+                  //                   widget.missao.tipo,
+                  //                   widget.missao.missaoId,
+                  //                   fim: DateTime.now().toIso8601String(),
+                  //                 );
+                  //                 final relatorio = await missaoServices
+                  //                     .relatorioMissaoSelectFunction(
+                  //                   widget.missao.cnpj,
+                  //                   widget.missao.nomeDaEmpresa,
+                  //                   widget.missao.placaCavalo,
+                  //                   widget.missao.placaCarreta,
+                  //                   widget.missao.motorista,
+                  //                   widget.missao.corVeiculo,
+                  //                   widget.missao.observacao,
+                  //                   widget.userUid,
+                  //                   widget.missao.missaoId,
+                  //                   widget.userName,
+                  //                   widget.missao.tipo,
+                  //                   widget.startPosition.latitude,
+                  //                   widget.startPosition.longitude,
+                  //                   userFinalLatitude,
+                  //                   userFinalLongitude,
+                  //                   widget.missao.missaoLatitude,
+                  //                   widget.missao.missaoLongitude,
+                  //                   widget.missao.local,
+                  //                   fim: DateTime.now().toIso8601String(),
+                  //                 );
+                  //                 debugPrint(
+                  //                     "Final local: ${finalLocal.item2}");
+                  //                 debugPrint("Finalizar: ${finalizar.item2}");
+                  //                 debugPrint("Relatorio: ${relatorio.item2}");
+
+                  //                 setState(() {
+                  //                   isLoading = false;
+                  //                 });
+
+                  //                 if (context.mounted) {
+                  //                   finalLocal.item1
+                  //                       ? mensagemDeSucesso.showSuccessSnackbar(
+                  //                           context, finalLocal.item2)
+                  //                       : tratamentoDeErros.showErrorSnackbar(
+                  //                           context, finalLocal.item2);
+                  //                   finalizar.item1
+                  //                       ? mensagemDeSucesso.showSuccessSnackbar(
+                  //                           context, finalizar.item2!)
+                  //                       : tratamentoDeErros.showErrorSnackbar(
+                  //                           context, finalizar.item2!);
+                  //                   relatorio.item1
+                  //                       ? mensagemDeSucesso.showSuccessSnackbar(
+                  //                           context, relatorio.item2)
+                  //                       : tratamentoDeErros.showErrorSnackbar(
+                  //                           context, relatorio.item2);
+                  //                   context
+                  //                       .read<AgentMissionBloc>()
+                  //                       .add(FetchMission());
+                  //                   Navigator.push(
+                  //                     context,
+                  //                     MaterialPageRoute(
+                  //                       builder: (context) =>
+                  //                           AddRelatorioScreen(
+                  //                               uid: widget.userUid,
+                  //                               missaoId:
+                  //                                   widget.missao.missaoId),
+                  //                     ),
+                  //                   );
+                  //                 }
+                  //               }
+                  //             },
+                  //             child: const Text('Finalizar'),
+                  //           ),
+                  //     IconButton(
+                  //       padding: const EdgeInsets.all(10),
+                  //       iconSize: 27,
+                  //       onPressed: () async {
+                  //         Navigator.push(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //             builder: (context) => CameraScreen(
+                  //               camera: firstCamera,
+                  //               missaoId: widget.missao.missaoId,
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //       icon: const Icon(Icons.camera_alt),
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
-            ],
+            ),
           );
+  }
+
+  abrirMapa() {
+    PersistentNavBarNavigator.pushNewScreen(context,
+        screen: MapScreen(
+          cnpj: widget.missao.cnpj,
+          nomeDaEmpresa: widget.missao.nomeDaEmpresa,
+          placaCavalo: widget.missao.placaCavalo,
+          placaCarreta: widget.missao.placaCarreta,
+          motorista: widget.missao.motorista,
+          corVeiculo: widget.missao.corVeiculo,
+          observacao: widget.missao.observacao,
+          startPosition: LatLng(
+              lat: selectedStartLocation!.latLng!.lat,
+              lng: selectedStartLocation!.latLng!.lng),
+          endPosition: LatLng(
+              lat: widget.missao.missaoLatitude,
+              lng: widget.missao.missaoLongitude),
+          missaoId: widget.missao.missaoId,
+          tipo: widget.missao.tipo,
+          inicio: widget.missao.inicio,
+        ),
+        withNavBar: false);
+  }
+
+  abrirCamera() {
+    PersistentNavBarNavigator.pushNewScreen(
+      context,
+      screen: CameraScreen(
+        camera: firstCamera,
+        missaoId: widget.missao.missaoId,
+      ),
+      withNavBar: false,
+    );
+  }
+
+  dialogoParaFinalizarMissao() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: const Text('Confirmação'),
+          content: const Text(
+              'Deseja finalizar a missão? Esta ação não poderá ser desfeita.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Finalizar'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                finalizarMissao();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  finalizarMissao() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // final userFinal = getCurrentLocation();
+    final userFinalLocation = await getFinalLocation();
+    //final now = DateTime.now();
+    final userFinalLatitude = userFinalLocation.lat;
+    final userFinalLongitude = userFinalLocation.lng;
+    final currentLocation = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    if (selectedStartLocation != null) {
+      // await missaoServices.finalLocalMissao(
+      //     uid, widget.missaoId, currentLocation);
+      final finalLocal = await missaoServices.finalLocalMissaoSelectFunction(
+          widget.userUid,
+          widget.missao.missaoId,
+          currentLocation.latitude,
+          currentLocation.longitude);
+      final finalizar = await missaoServices.finalizarMissaoSelectFunction(
+        widget.missao.cnpj,
+        widget.missao.nomeDaEmpresa,
+        widget.missao.placaCavalo,
+        widget.missao.placaCarreta,
+        widget.missao.motorista,
+        widget.missao.corVeiculo,
+        widget.missao.observacao,
+        widget.userUid,
+        widget.startPosition.latitude,
+        widget.startPosition.longitude,
+        userFinalLatitude,
+        userFinalLongitude,
+        widget.missao.missaoLatitude,
+        widget.missao.missaoLongitude,
+        widget.missao.local,
+        widget.missao.tipo,
+        widget.missao.missaoId,
+        fim: DateTime.now().toIso8601String(),
+      );
+      final relatorio = await missaoServices.relatorioMissaoSelectFunction(
+        widget.missao.cnpj,
+        widget.missao.nomeDaEmpresa,
+        widget.missao.placaCavalo,
+        widget.missao.placaCarreta,
+        widget.missao.motorista,
+        widget.missao.corVeiculo,
+        widget.missao.observacao,
+        widget.userUid,
+        widget.missao.missaoId,
+        widget.userName,
+        widget.missao.tipo,
+        widget.startPosition.latitude,
+        widget.startPosition.longitude,
+        userFinalLatitude,
+        userFinalLongitude,
+        widget.missao.missaoLatitude,
+        widget.missao.missaoLongitude,
+        widget.missao.local,
+        fim: DateTime.now().toIso8601String(),
+      );
+      debugPrint("Final local: ${finalLocal.item2}");
+      debugPrint("Finalizar: ${finalizar.item2}");
+      debugPrint("Relatorio: ${relatorio.item2}");
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (context.mounted) {
+        finalLocal.item1
+            ? mensagemDeSucesso.showSuccessSnackbar(context, finalLocal.item2)
+            : tratamentoDeErros.showErrorSnackbar(context, finalLocal.item2);
+        finalizar.item1
+            ? mensagemDeSucesso.showSuccessSnackbar(context, finalizar.item2!)
+            : tratamentoDeErros.showErrorSnackbar(context, finalizar.item2!);
+        relatorio.item1
+            ? mensagemDeSucesso.showSuccessSnackbar(context, relatorio.item2)
+            : tratamentoDeErros.showErrorSnackbar(context, relatorio.item2);
+        context.read<AgentMissionBloc>().add(FetchMission());
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: AddRelatorioScreen(
+              uid: widget.userUid, missaoId: widget.missao.missaoId),
+          withNavBar: false,
+        );
+      }
+    }
   }
 
   Future<void> _showImagePreviewAndUpload(
@@ -889,7 +1173,20 @@ class _MissaoScreenState extends State<MissaoScreen> {
               child: const Text('Enviar'),
               onPressed: () async {
                 Navigator.of(context).pop();
-                await _uploadAndSendMessage(imageFile, userName, userUid);
+                // comprimir e enviar a imagem
+                final Uint8List? compressedImage =
+                    await FlutterImageCompress.compressWithFile(
+                  imageFile.path,
+                  quality: 50,
+                );
+
+                final Directory tempDir = await getTemporaryDirectory();
+                final String targetPath = '${tempDir.path}/temp_image.jpg';
+
+                File image =
+                    await File(targetPath).writeAsBytes(compressedImage!);
+                debugPrint('image: $image');
+                await _uploadAndSendMessage(image, userName, userUid);
               },
             ),
           ],
@@ -999,9 +1296,9 @@ class MessageBubble extends StatelessWidget {
             timestamp == null
                 ? ''
                 : DateFormat('dd/MM/yyyy HH:mm').format(timestamp!.toDate()),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: Colors.grey,
             ),
           ),
         ),

@@ -10,6 +10,8 @@ final class MissoesSolicitadasLoaded extends MissoesSolicitadasState {
   MissoesSolicitadasLoaded(this.missoes);
 }
 
+final class MissoesSolicitadasEmpty extends MissoesSolicitadasState {}
+
 final class MissoesSolicitadasError extends MissoesSolicitadasState {
   final String error;
 

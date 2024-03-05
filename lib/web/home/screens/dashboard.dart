@@ -1,13 +1,14 @@
+import 'package:dynamic_tabbar/dynamic_tabbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/agente/screens/solicitacoes_agentes.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+import 'package:sidebarx/sidebarx.dart';
 import 'package:sombra_testes/autenticacao/services/log_services.dart';
 import 'package:sombra_testes/missao/screens/criar_missao_screen.dart';
-import 'package:sombra_testes/veiculos/screens/solicitacoes.dart';
 import 'package:sombra_testes/web/admin/desenvolvedor/dev_screen.dart';
 import 'package:sombra_testes/web/home/screens/teste_web.dart';
-import '../../../conta_bancaria/screens/solicitacoes_conta_bancaria.dart';
+import '../../../chat/services/chat_services.dart';
 import '../../admin/bloc/roles_bloc.dart';
 import '../../admin/bloc/roles_event.dart';
 import '../../admin/bloc/roles_state.dart';
@@ -16,6 +17,7 @@ import '../../relatorios/screens/relatorios_screen.dart';
 import '../bloc/dashboard/dashboard_bloc.dart';
 import '../bloc/dashboard/events.dart';
 import '../bloc/dashboard/states.dart';
+import 'components/chat/app_chat_list.dart';
 
 class WebLoginHome extends StatefulWidget {
   const WebLoginHome({super.key});
@@ -25,6 +27,9 @@ class WebLoginHome extends StatefulWidget {
 }
 
 class _WebLoginHomeState extends State<WebLoginHome> {
+  final controller = SidebarXController(selectedIndex: 0, extended: false);
+  final ChatServices chatServices = ChatServices();
+
   @override
   void initState() {
     super.initState();
@@ -36,21 +41,64 @@ class _WebLoginHomeState extends State<WebLoginHome> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
   final _screens = [
     const HomeLoginWeb(),
     const CriarMissaoScreen(),
     const RelatoriosScreen(),
-    const AgentesSolicitacoes(),
-    const VeiculosSolicitacoes(),
-    const ContasBancariasSolicitacoes(),
+    // const AgentesSolicitacoes(),
+    // const VeiculosSolicitacoes(),
+    // const ContasBancariasSolicitacoes(),
     AddRolesScreen(),
     const DevScreen(),
   ];
+
   final LogServices logServices = LogServices();
+  final key = GlobalKey<ScaffoldState>();
+  final primaryColor = Colors.white;
+  static const canvasColor = Color.fromARGB(255, 0, 15, 42);
+  final scaffoldBackgroundColor = Colors.white.withOpacity(0.6);
+  final accentCanvasColor = Colors.blue;
+  final white = Colors.white;
+  final actionColor = Colors.white.withOpacity(0.6);
+  static const divider = Divider(color: Colors.white, height: 1);
+  List<TabData> tabs = [
+    TabData(
+      index: 1,
+      title: const Tab(
+        child: Text('App'),
+      ),
+      content: AppChatList(),
+    ),
+    TabData(
+      index: 2,
+      title: const Tab(
+        child: Text('Clientes'),
+      ),
+      content: const Center(child: Text('Nenhuma conversa')),
+    ),
+  ];
+  bool isScrollable = false;
+  bool showNextIcon = true;
+  bool showBackIcon = true;
+
+  // Leading icon
+  Widget? leading;
+
+  // Trailing icon
+  Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final bool isTablet = ResponsiveBreakpoints.of(context).isTablet;
+    final bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
     context.read<RolesBloc>().add(BuscarRoles());
 
     return BlocBuilder<RolesBloc, RolesState>(
@@ -82,176 +130,697 @@ class _WebLoginHomeState extends State<WebLoginHome> {
                     selectedIndex = state.selectedIndex;
                   }
                   // A estrutura do código continua, agora com o Bloc incorporado
+//                   return Scaffold(
+//                     backgroundColor: Colors.grey[800],
+//                     body: Row(
+//                       children: [
+//                         Container(
+//                           width: screenWidth / 7.5,
+//                           color: Colors.grey[800],
+//                           child: Column(
+//                             mainAxisAlignment: MainAxisAlignment.start,
+//                             // Adicione essa linha
+//                             children: [
+//                               Padding(
+//                                 padding: const EdgeInsets.only(
+//                                     left: 25, top: 20, right: 0),
+//                                 child: Row(
+//                                   mainAxisAlignment: MainAxisAlignment.start,
+//                                   children: [
+//                                     //SizedBox(width: screenWidth * 0.0030),
+//                                     Image.asset(
+//                                       'assets/images/escudo.png',
+//                                       fit: BoxFit.contain,
+//                                       height: 32,
+//                                     ),
+//                                     const SizedBox(width: 2),
+//                                   ],
+//                                 ),
+//                               ),
+//                               const SizedBox(
+//                                 height: 40,
+//                               ),
+//                               Column(
+//                                 children: [
+//                                   SideBarItem(
+//                                     icon: Icons.home_outlined,
+//                                     selectedIcon: Icons.home,
+//                                     label: 'Início',
+//                                     isSelected: selectedIndex == 0,
+//                                     onTap: () => context
+//                                         .read<DashboardBloc>()
+//                                         .add(ChangeDashboard(0)),
+//                                   ),
+//                                   SideBarItem(
+//                                     icon: Icons.map_outlined,
+//                                     selectedIcon: Icons.map,
+//                                     label: 'Missões',
+//                                     isSelected: selectedIndex == 1,
+//                                     onTap: () => context
+//                                         .read<DashboardBloc>()
+//                                         .add(ChangeDashboard(1)),
+//                                   ),
+//                                   SideBarItem(
+//                                     icon: Icons.assignment_outlined,
+//                                     selectedIcon: Icons.assignment,
+//                                     label: 'Relatórios',
+//                                     isSelected: selectedIndex == 2,
+//                                     onTap: () => context
+//                                         .read<DashboardBloc>()
+//                                         .add(ChangeDashboard(2)),
+//                                   ),
+//                                   SideBarItem(
+//                                     icon: Icons.person_outlined,
+//                                     selectedIcon: Icons.person,
+//                                     label: 'Agentes',
+//                                     isSelected: selectedIndex == 3,
+//                                     onTap: () => context
+//                                         .read<DashboardBloc>()
+//                                         .add(ChangeDashboard(3)),
+//                                   ),
+//                                   SideBarItem(
+//                                     icon: Icons.time_to_leave_outlined,
+//                                     selectedIcon: Icons.time_to_leave,
+//                                     label: 'Veículos',
+//                                     isSelected: selectedIndex == 4,
+//                                     onTap: () => context
+//                                         .read<DashboardBloc>()
+//                                         .add(ChangeDashboard(4)),
+//                                   ),
+//                                   SideBarItem(
+//                                     icon: Icons.account_balance_outlined,
+//                                     selectedIcon: Icons.account_balance,
+//                                     label: 'Contas Bancárias',
+//                                     isSelected: selectedIndex == 5,
+//                                     onTap: () => context
+//                                         .read<DashboardBloc>()
+//                                         .add(ChangeDashboard(5)),
+//                                   ),
+//                                   bloc.isAdmin
+//                                       ? SideBarItem(
+//                                           icon: Icons
+//                                               .admin_panel_settings_outlined,
+//                                           selectedIcon:
+//                                               Icons.admin_panel_settings,
+//                                           label: 'Administrador',
+//                                           isSelected: selectedIndex == 6,
+//                                           onTap: () => context
+//                                               .read<DashboardBloc>()
+//                                               .add(ChangeDashboard(6)),
+//                                         )
+//                                       : const SizedBox.shrink(),
+//                                   bloc.isDev
+//                                       ? SideBarItem(
+//                                           icon: Icons.code_outlined,
+//                                           selectedIcon: Icons.code,
+//                                           label: 'Dev',
+//                                           isSelected: selectedIndex == 7,
+//                                           onTap: () => context
+//                                               .read<DashboardBloc>()
+//                                               .add(ChangeDashboard(7)),
+//                                         )
+//                                       : const SizedBox.shrink(),
+//                                 ],
+//                               ),
+//                               // Adicione um espaço vazio para empurrar a primeira coluna para cima e a segunda para o centro.
+//                               const SizedBox.shrink(),
+//                               const Spacer(),
+//                               Padding(
+//                                 padding: const EdgeInsets.all(20),
+//                                 child: MouseRegion(
+//                                   cursor: SystemMouseCursors.click,
+//                                   child: GestureDetector(
+//                                     onTap: () async {
+//                                       //await sair();
+//                                     },
+//                                     child: Column(
+//                                       children: [
+//                                         MouseRegion(
+//                                           cursor: MaterialStateMouseCursor
+//                                               .clickable,
+//                                           child: GestureDetector(
+//                                             onTap: () async {
+//                                               await logServices.logOut(context);
+//                                               if (context.mounted) {
+//                                                 await Navigator.of(context)
+//                                                     .pushNamedAndRemoveUntil(
+//                                                         '/',
+//                                                         (Route<dynamic>
+//                                                                 route) =>
+//                                                             false);
+//                                               }
+//                                             },
+//                                             child: Row(
+//                                               children: [
+//                                                 const Text(
+//                                                   'Sair',
+//                                                   style: TextStyle(
+//                                                       color: Colors.white,
+//                                                       fontSize: 14),
+//                                                 ),
+//                                                 SizedBox(
+//                                                   width: screenWidth * 0.005,
+//                                                 ),
+//                                                 const Icon(
+//                                                   Icons.exit_to_app,
+//                                                   size: 15,
+//                                                   color: Colors.white,
+//                                                 ),
+//                                               ],
+//                                             ),
+//                                           ),
+//                                         ),
+//                                       ],
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                         Expanded(
+//                           child: _screens[selectedIndex],
+//                         ),
+//                       ],
+//                     ),
+//                   );
+//                 },
+//               ),
+//             );
+//           } else {
+//             return Column(
+//               children: [
+//                 const AlertDialog(
+//                   title: Text('Acesso negado'),
+//                   content:
+//                       Text('Você não tem permissão para acessar esta página'),
+//                 ),
+//                 const SizedBox(
+//                   height: 10,
+//                 ),
+//                 ElevatedButton(
+//                   onPressed: () async {
+//                     await logServices.logOut(context);
+//                     if (context.mounted) {
+//                       await Navigator.of(context).pushNamedAndRemoveUntil(
+//                           '/', (Route<dynamic> route) => false);
+//                     }
+//                   },
+//                   child: const Text('Sair'),
+//                 ),
+//               ],
+//             );
+//           }
+//         } else {
+//           return const AlertDialog(
+//             title: Text('Erro ao buscar credenciais'),
+//             content: Text('Recarregue a página'),
+//           );
+//         }
+//       },
+//     );
+//   }
+// }
+
                   return Scaffold(
-                    backgroundColor: Colors.grey[800],
+                    backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+                    key: key,
+                    appBar: isMobile || isTablet
+                        ? AppBar(
+                            backgroundColor: canvasColor,
+                            title: const Text('Teste'),
+                            leading: IconButton(
+                              onPressed: () {
+                                // if (!Platform.isAndroid && !Platform.isIOS) {
+                                //   _controller.setExtended(true);
+                                // }
+                                key.currentState?.openDrawer();
+                              },
+                              icon: const Icon(Icons.menu),
+                            ),
+                          )
+                        : null,
+                    drawer: isMobile || isTablet
+                        ? Drawer(child: NavigationList())
+                        : null, // Drawer apenas para mobile
                     body: Row(
                       children: [
-                        Container(
-                          width: screenWidth / 7.5,
-                          color: Colors.grey[800],
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            // Adicione essa linha
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 25, top: 20, right: 0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    //SizedBox(width: screenWidth * 0.0030),
-                                    Image.asset(
-                                      'assets/images/escudo.png',
-                                      fit: BoxFit.contain,
-                                      height: 32,
+                        isDesktop
+                            ? SidebarX(
+                                controller: controller,
+                                theme: SidebarXTheme(
+                                  margin: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: canvasColor.withOpacity(0.35),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  hoverColor: scaffoldBackgroundColor,
+                                  textStyle: TextStyle(
+                                      color: Colors.white.withOpacity(0.7)),
+                                  selectedTextStyle:
+                                      const TextStyle(color: Colors.white),
+                                  itemTextPadding:
+                                      const EdgeInsets.only(left: 30),
+                                  selectedItemTextPadding:
+                                      const EdgeInsets.only(left: 30),
+                                  // itemDecoration: BoxDecoration(
+                                  //   borderRadius: BorderRadius.circular(10),
+                                  //   border: Border.all(
+                                  //     color: canvasColor.withOpacity(0.35),
+                                  //   ),
+                                  // ),
+                                  selectedItemDecoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: canvasColor.withOpacity(0.35),
                                     ),
-                                    const SizedBox(width: 2),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 40,
-                              ),
-                              Column(
-                                children: [
-                                  SideBarItem(
-                                    icon: Icons.home_outlined,
-                                    selectedIcon: Icons.home,
-                                    label: 'Início',
-                                    isSelected: selectedIndex == 0,
-                                    onTap: () => context
-                                        .read<DashboardBloc>()
-                                        .add(ChangeDashboard(0)),
-                                  ),
-                                  SideBarItem(
-                                    icon: Icons.map_outlined,
-                                    selectedIcon: Icons.map,
-                                    label: 'Missões',
-                                    isSelected: selectedIndex == 1,
-                                    onTap: () => context
-                                        .read<DashboardBloc>()
-                                        .add(ChangeDashboard(1)),
-                                  ),
-                                  SideBarItem(
-                                    icon: Icons.assignment_outlined,
-                                    selectedIcon: Icons.assignment,
-                                    label: 'Relatórios',
-                                    isSelected: selectedIndex == 2,
-                                    onTap: () => context
-                                        .read<DashboardBloc>()
-                                        .add(ChangeDashboard(2)),
-                                  ),
-                                  SideBarItem(
-                                    icon: Icons.person_outlined,
-                                    selectedIcon: Icons.person,
-                                    label: 'Agentes',
-                                    isSelected: selectedIndex == 3,
-                                    onTap: () => context
-                                        .read<DashboardBloc>()
-                                        .add(ChangeDashboard(3)),
-                                  ),
-                                  SideBarItem(
-                                    icon: Icons.time_to_leave_outlined,
-                                    selectedIcon: Icons.time_to_leave,
-                                    label: 'Veículos',
-                                    isSelected: selectedIndex == 4,
-                                    onTap: () => context
-                                        .read<DashboardBloc>()
-                                        .add(ChangeDashboard(4)),
-                                  ),
-                                  SideBarItem(
-                                    icon: Icons.account_balance_outlined,
-                                    selectedIcon: Icons.account_balance,
-                                    label: 'Contas Bancárias',
-                                    isSelected: selectedIndex == 5,
-                                    onTap: () => context
-                                        .read<DashboardBloc>()
-                                        .add(ChangeDashboard(5)),
-                                  ),
-                                  bloc.isAdmin
-                                      ? SideBarItem(
-                                          icon: Icons
-                                              .admin_panel_settings_outlined,
-                                          selectedIcon:
-                                              Icons.admin_panel_settings,
-                                          label: 'Administrador',
-                                          isSelected: selectedIndex == 6,
-                                          onTap: () => context
-                                              .read<DashboardBloc>()
-                                              .add(ChangeDashboard(6)),
-                                        )
-                                      : const SizedBox.shrink(),
-                                  bloc.isDev
-                                      ? SideBarItem(
-                                          icon: Icons.code_outlined,
-                                          selectedIcon: Icons.code,
-                                          label: 'Dev',
-                                          isSelected: selectedIndex == 7,
-                                          onTap: () => context
-                                              .read<DashboardBloc>()
-                                              .add(ChangeDashboard(7)),
-                                        )
-                                      : const SizedBox.shrink(),
-                                ],
-                              ),
-                              // Adicione um espaço vazio para empurrar a primeira coluna para cima e a segunda para o centro.
-                              const SizedBox.shrink(),
-                              const Spacer(),
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    onTap: () async {
-                                      //await sair();
-                                    },
-                                    child: Column(
-                                      children: [
-                                        MouseRegion(
-                                          cursor: MaterialStateMouseCursor
-                                              .clickable,
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              await logServices.logOut(context);
-                                              if (context.mounted) {
-                                                await Navigator.of(context)
-                                                    .pushNamedAndRemoveUntil(
-                                                        '/',
-                                                        (Route<dynamic>
-                                                                route) =>
-                                                            false);
-                                              }
-                                            },
-                                            child: Row(
-                                              children: [
-                                                const Text(
-                                                  'Sair',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 14),
-                                                ),
-                                                SizedBox(
-                                                  width: screenWidth * 0.005,
-                                                ),
-                                                const Icon(
-                                                  Icons.exit_to_app,
-                                                  size: 15,
-                                                  color: Colors.white,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        accentCanvasColor.withOpacity(0.3),
+                                        canvasColor
                                       ],
                                     ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.28),
+                                        blurRadius: 30,
+                                      )
+                                    ],
+                                  ),
+                                  iconTheme: IconThemeData(
+                                    color: Colors.white.withOpacity(0.7),
+                                    size: 20,
+                                  ),
+                                  selectedIconTheme: const IconThemeData(
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
                                 ),
-                              ),
-                            ],
+                                extendedTheme: SidebarXTheme(
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                    color: canvasColor.withOpacity(0.35),
+                                  ),
+                                ),
+                                footerDivider: divider,
+                                headerBuilder: (context, extended) {
+                                  return SizedBox(
+                                    height: 100,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Image.asset(
+                                          'assets/images/escudo.png'),
+                                    ),
+                                  );
+                                },
+                                items: [
+                                  SidebarXItem(
+                                    icon: Icons.home,
+                                    label: 'Início',
+                                    onTap: () {
+                                      context
+                                          .read<DashboardBloc>()
+                                          .add(ChangeDashboard(0));
+                                    },
+                                  ),
+                                  SidebarXItem(
+                                    icon: Icons.gps_fixed,
+                                    label: 'Missões',
+                                    onTap: () {
+                                      context
+                                          .read<DashboardBloc>()
+                                          .add(ChangeDashboard(1));
+                                    },
+                                  ),
+                                  SidebarXItem(
+                                    icon: Icons.assignment,
+                                    label: 'Relatórios',
+                                    onTap: () {
+                                      context
+                                          .read<DashboardBloc>()
+                                          .add(ChangeDashboard(2));
+                                    },
+                                  ),
+                                  // SidebarXItem(
+                                  //   icon: Icons.person,
+                                  //   label: 'Agentes',
+                                  //   onTap: () {
+                                  //     context
+                                  //         .read<DashboardBloc>()
+                                  //         .add(ChangeDashboard(3));
+                                  //   },
+                                  // ),
+                                  // SidebarXItem(
+                                  //   icon: Icons.time_to_leave,
+                                  //   label: 'Veículos',
+                                  //   onTap: () {
+                                  //     context
+                                  //         .read<DashboardBloc>()
+                                  //         .add(ChangeDashboard(4));
+                                  //   },
+                                  // ),
+                                  // SidebarXItem(
+                                  //   icon: Icons.account_balance,
+                                  //   label: 'Contas Bancárias',
+                                  //   onTap: () {
+                                  //     context
+                                  //         .read<DashboardBloc>()
+                                  //         .add(ChangeDashboard(5));
+                                  //   },
+                                  // ),
+                                  bloc.isAdmin
+                                      ? SidebarXItem(
+                                          icon: Icons.admin_panel_settings,
+                                          label: 'Administrador',
+                                          onTap: () {
+                                            context
+                                                .read<DashboardBloc>()
+                                                .add(ChangeDashboard(3));
+                                          },
+                                        )
+                                      : SidebarXItem(),
+                                  bloc.isDev
+                                      ? SidebarXItem(
+                                          icon: Icons.code,
+                                          label: 'Dev',
+                                          onTap: () {
+                                            context
+                                                .read<DashboardBloc>()
+                                                .add(ChangeDashboard(4));
+                                          },
+                                        )
+                                      : SidebarXItem(),
+                                  SidebarXItem(
+                                    icon: Icons.logout,
+                                    label: 'Sair',
+                                    onTap: () async {
+                                      await logServices.logOut(context);
+                                      if (context.mounted) {
+                                        await Navigator.of(context)
+                                            .pushNamedAndRemoveUntil(
+                                                '/',
+                                                (Route<dynamic> route) =>
+                                                    false);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                        Expanded(
+                          child: Center(
+                            child: _screens[selectedIndex],
                           ),
                         ),
-                        Expanded(
-                          child: _screens[selectedIndex],
+                      ],
+                    ),
+                    floatingActionButton: Stack(
+                      children: [
+                        FloatingActionButton(
+                          onPressed: () {
+                            showGeneralDialog(
+                              barrierColor: Colors.black.withOpacity(0.5),
+                              context: context,
+                              pageBuilder: (context, animation1, animation2) {
+                                return const SizedBox.shrink();
+                              },
+                              barrierDismissible:
+                                  true, // Fecha o modal ao tocar fora dele.
+                              barrierLabel: "Barrier", // Descrição semântica.
+                              transitionBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(1,
+                                        0), // Começa do lado direito da tela.
+                                    end:
+                                        Offset.zero, // Termina alinhado à tela.
+                                  ).animate(animation),
+                                  child: Align(
+                                    alignment: Alignment
+                                        .centerRight, // Alinha o modal à direita.
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.25, // Define a largura do modal.
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(20),
+                                          bottomLeft: Radius.circular(20),
+                                        ),
+                                        color: Color.fromARGB(255, 0, 3, 7),
+                                      ),
+                                      //color: const Color.fromARGB(255, 3, 9, 18),
+                                      child: Material(
+                                        color:
+                                            const Color.fromARGB(255, 0, 3, 7),
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                              child: DynamicTabBarWidget(
+                                                dynamicTabs: tabs,
+                                                labelStyle: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                isScrollable: isScrollable,
+                                                onTabControllerUpdated:
+                                                    (controller) {
+                                                  debugPrint(
+                                                      "onTabControllerUpdated");
+                                                },
+                                                onTabChanged: (index) {
+                                                  debugPrint(
+                                                      "Tab changed: $index");
+                                                },
+                                                onAddTabMoveTo: MoveToTab.last,
+                                                // backIcon: Icon(Icons.keyboard_double_arrow_left),
+                                                // nextIcon: Icon(Icons.keyboard_double_arrow_right),
+                                                showBackIcon: showBackIcon,
+                                                showNextIcon: showNextIcon,
+                                                leading: leading,
+                                                trailing: trailing,
+                                              ),
+                                            ),
+                                            //     const SizedBox(height: 20),
+                                            //     Expanded(
+                                            //       child: StreamBuilder<QuerySnapshot>(
+                                            //         stream: chatServices
+                                            //             .getUsersConversations(),
+                                            //         builder: (BuildContext context,
+                                            //             AsyncSnapshot<QuerySnapshot>
+                                            //                 snapshot) {
+                                            //           if (snapshot.hasError) {
+                                            //             return Center(
+                                            //                 child: Text(
+                                            //                     'Erro: ${snapshot.error}'));
+                                            //           }
+
+                                            //           if (snapshot.connectionState ==
+                                            //               ConnectionState.waiting) {
+                                            //             return const Center(
+                                            //                 child:
+                                            //                     CircularProgressIndicator());
+                                            //           }
+
+                                            //           if (snapshot
+                                            //               .data!.docs.isEmpty) {
+                                            //             return const Center(
+                                            //                 child: Text(
+                                            //                     'Nenhuma conversa disponível'));
+                                            //           }
+
+                                            //           return ListView(
+                                            //             children: snapshot.data!.docs
+                                            //                 .map((DocumentSnapshot
+                                            //                     document) {
+                                            //               String uid = document.id;
+                                            //               Map<String, dynamic> data =
+                                            //                   document.data() as Map<
+                                            //                       String, dynamic>;
+                                            //               int unreadCount =
+                                            //                   data['unreadCount'] ??
+                                            //                       0;
+
+                                            //               resetUnreadCount() async {
+                                            //                 DocumentSnapshot
+                                            //                     document =
+                                            //                     await FirebaseFirestore
+                                            //                         .instance
+                                            //                         .collection(
+                                            //                             'Chat')
+                                            //                         .doc(uid)
+                                            //                         .get();
+
+                                            //                 Map<String, dynamic>
+                                            //                     data = document.data()
+                                            //                         as Map<String,
+                                            //                             dynamic>;
+                                            //                 Timestamp
+                                            //                     lastMessageTimestamp =
+                                            //                     data[
+                                            //                         'lastMessageTimestamp'];
+
+                                            //                 debugPrint(
+                                            //                     'Antes da atualização: $lastMessageTimestamp');
+
+                                            //                 await FirebaseFirestore
+                                            //                     .instance
+                                            //                     .collection('Chat')
+                                            //                     .doc(uid)
+                                            //                     .set(
+                                            //                         {
+                                            //                       'unreadCount': 0,
+                                            //                       'lastMessageTimestamp':
+                                            //                           lastMessageTimestamp,
+                                            //                     },
+                                            //                         SetOptions(
+                                            //                             merge: true));
+                                            //               }
+
+                                            //               return Card(
+                                            //                 shape:
+                                            //                     const RoundedRectangleBorder(
+                                            //                   borderRadius:
+                                            //                       BorderRadius.zero,
+                                            //                 ),
+                                            //                 color: Colors.black,
+                                            //                 child: ListTile(
+                                            //                   title: Row(
+                                            //                     children: [
+                                            //                       Expanded(
+                                            //                         child: FutureBuilder<
+                                            //                             Map<String,
+                                            //                                 String>>(
+                                            //                           future: chatServices
+                                            //                               .getUserName(
+                                            //                                   uid),
+                                            //                           builder: (BuildContext
+                                            //                                   context,
+                                            //                               AsyncSnapshot<
+                                            //                                       Map<String,
+                                            //                                           String>>
+                                            //                                   snapshot) {
+                                            //                             if (snapshot
+                                            //                                     .connectionState ==
+                                            //                                 ConnectionState
+                                            //                                     .waiting) {
+                                            //                               return const Text(
+                                            //                                   'Carregando...');
+                                            //                             } else if (snapshot
+                                            //                                 .hasError) {
+                                            //                               return const Text(
+                                            //                                   'Erro ao buscar o nome do usuário');
+                                            //                             } else {
+                                            //                               return Column(
+                                            //                                 crossAxisAlignment:
+                                            //                                     CrossAxisAlignment
+                                            //                                         .start,
+                                            //                                 children: [
+                                            //                                   Text(
+                                            //                                       '${snapshot.data!['Nome']}'),
+                                            //                                 ],
+                                            //                               );
+                                            //                             }
+                                            //                           },
+                                            //                         ),
+                                            //                       ),
+                                            //                       if (unreadCount > 0)
+                                            //                         Padding(
+                                            //                           padding:
+                                            //                               const EdgeInsets
+                                            //                                   .only(
+                                            //                                   left:
+                                            //                                       8.0),
+                                            //                           child: Text(
+                                            //                             '($unreadCount)',
+                                            //                             style: const TextStyle(
+                                            //                                 color: Colors
+                                            //                                     .red,
+                                            //                                 fontWeight:
+                                            //                                     FontWeight
+                                            //                                         .bold),
+                                            //                           ),
+                                            //                         ),
+                                            //                     ],
+                                            //                   ),
+                                            //                   onTap: () async {
+                                            //                     await resetUnreadCount();
+                                            //                     if (context.mounted) {
+                                            //                       Navigator.push(
+                                            //                         context,
+                                            //                         MaterialPageRoute(
+                                            //                           builder: (context) =>
+                                            //                               AtendenteMsg(
+                                            //                                   uid:
+                                            //                                       uid),
+                                            //                         ),
+                                            //                       );
+                                            //                     }
+                                            //                   },
+                                            //                 ),
+                                            //               );
+                                            //             }).toList(),
+                                            //           );
+                                            //         },
+                                            //       ),
+                                            //     ),
+                                            //   ],
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              transitionDuration: const Duration(
+                                  milliseconds: 500), // Duração da animação.
+                            );
+                          },
+                          backgroundColor: Colors.blue.withOpacity(0.11),
+                          child: const Icon(
+                            Icons.message,
+                            color: Colors.white,
+                          ),
+                        ),
+                        StreamBuilder(
+                          stream: chatServices.notificacaoChat(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<bool?> snapshot) {
+                            if (snapshot.hasError) {
+                              return const SizedBox.shrink();
+                            }
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const SizedBox.shrink();
+                            }
+                            if (snapshot.data == true) {
+                              return Positioned(
+                                top:
+                                    5,
+                                right: 5,
+                                child: Container(
+                                  width:
+                                      12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red, // Cor da bolinha
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors
+                                          .white, // Cor da borda da bolinha
+                                      width: 1, // Largura da borda
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -283,14 +852,90 @@ class _WebLoginHomeState extends State<WebLoginHome> {
               ],
             );
           }
-        } else {
-          return const AlertDialog(
-            title: Text('Erro ao buscar credenciais'),
-            content: Text('Recarregue a página'),
-          );
         }
+        return const AlertDialog(
+          title: Text('Erro ao buscar credenciais'),
+          content: Text('Recarregue a página'),
+        );
       },
     );
+  }
+
+  void addTab() {
+    setState(() {
+      var tabNumber = tabs.length + 1;
+      tabs.add(
+        TabData(
+          index: tabNumber,
+          title: Tab(
+            child: Text('Tab $tabNumber'),
+          ),
+          content: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Dynamic Tab $tabNumber'),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => removeTab(tabNumber - 1),
+                child: const Text('Remove this Tab'),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  void removeTab(int id) {
+    setState(() {
+      tabs.removeAt(id);
+    });
+  }
+
+  void addLeadingWidget() {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text(
+          'Adding Icon button Widget \nYou can add any customized widget)'),
+    ));
+
+    setState(() {
+      leading = Tooltip(
+        message: 'Add your desired Leading widget here',
+        child: IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.more_horiz_rounded),
+        ),
+      );
+    });
+  }
+
+  void removeLeadingWidget() {
+    setState(() {
+      leading = null;
+    });
+  }
+
+  void addTrailingWidget() {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text(
+          'Adding Icon button Widget \nYou can add any customized widget)'),
+    ));
+
+    setState(() {
+      trailing = Tooltip(
+        message: 'Add your desired Trailing widget here',
+        child: IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.more_horiz_rounded),
+        ),
+      );
+    });
+  }
+
+  void removeTrailingWidget() {
+    setState(() {
+      trailing = null;
+    });
   }
 }
 
@@ -301,7 +946,8 @@ class SideBarItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  SideBarItem({
+  const SideBarItem({
+    super.key,
     required this.icon,
     required this.label,
     required this.isSelected,
@@ -349,6 +995,19 @@ class SideBarItem extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class NavigationList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: const [
+        ListTile(title: Text('Item 1')),
+        ListTile(title: Text('Item 2')),
+        ListTile(title: Text('Item 3')),
+      ],
     );
   }
 }

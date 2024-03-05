@@ -12,6 +12,10 @@ class MissoesSolicitadasBloc
       emit(MissoesSolicitadasLoading());
       try {
         final missoes = await missaoServices.buscarMissoesSolicitadas();
+        if (missoes.isEmpty) {
+          emit(MissoesSolicitadasEmpty());
+          return;
+        }
         emit(MissoesSolicitadasLoaded(missoes));
       } catch (e) {
         emit(MissoesSolicitadasError(e.toString()));

@@ -520,7 +520,7 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
 
   Future<String?> fetchAgentAddress(String uid) async {
     Agente? agente = await AgenteServices().getAgenteInfos(uid);
-    return agente?.endereco;
+    return agente?.cidade;
   }
 
   Future<Place?> getPlaceFromLatLng(LatLng latLng) async {

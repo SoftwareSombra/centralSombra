@@ -383,10 +383,10 @@ class MessageBubbleAtendente extends StatelessWidget {
 
   Future<bool> _loadImage(String imageUrl) async {
     try {
-      await NetworkImage(imageUrl).resolve(const ImageConfiguration());
-      return true; // Imagem carregada com sucesso
+      NetworkImage(imageUrl).resolve(const ImageConfiguration());
+      return true;
     } catch (e) {
-      return false; // Erro ao carregar a imagem
+      return false;
     }
   }
 }

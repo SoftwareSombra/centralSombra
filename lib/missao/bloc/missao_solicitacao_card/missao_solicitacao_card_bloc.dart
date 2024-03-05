@@ -12,9 +12,9 @@ class MissaoSolicitacaoCardBloc
       try {
         final chamado = await missaoServices.verificarChamado(event.missaoId);
         if (chamado) {
-          emit(MissaoJaSolicitacaoCard());
+          emit(MissaoJaSolicitadaCard());
         } else {
-          emit(MissaoNaoSolicitacaoCard());
+          emit(MissaoNaoSolicitadaCard());
         }
       } catch (e) {
         emit(

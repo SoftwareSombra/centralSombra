@@ -1,14 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sombra_testes/chat/services/chat_services.dart';
 import 'package:sombra_testes/missao/services/missao_services.dart';
 import 'package:sombra_testes/web/home/notificacao/not_teste.dart';
+import 'package:sombra_testes/web/home/screens/components/second_row.dart';
+import 'package:sombra_testes/web/home/screens/components/solicitacoes.dart';
 import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
 import '../../../chat/screens/admin_chat.dart';
 import '../../../chat/screens/central_missao_chat.dart';
 import '../../../chat/screens/missao_cliente.dart';
+import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
+import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_event.dart';
 import '../../missoes/agente/realtime_map.dart';
+import 'components/missoes_ativas.dart';
 
 class HomeLoginWeb extends StatefulWidget {
   const HomeLoginWeb({super.key});
@@ -28,36 +34,70 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
   void initState() {
     // loadCoordinates();
     super.initState();
+    context.read<QtdMissoesPendentesBloc>().add(BuscarQtdMissoesPendentes());
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        title: const Text('Painel administrativo'),
-      ),
+      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.black,
+      //   elevation: 0,
+      //   title: Row(
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: [
+      //       Text(
+      //         'Painel Administrativo',
+      //         style: SafeGoogleFont(
+      //           "Lato",
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
       body: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Center(
-              child: Column(
+            Padding(
+              padding: EdgeInsets.only(
+                  top: 50,
+                  left: MediaQuery.of(context).size.width * 0.084,
+                  right: MediaQuery.of(context).size.width * 0.08,
+                  bottom: 20),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  width < 1300
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: _buildChildren(width),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: _buildChildren(width),
-                        ),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundImage:
+                        AssetImage('assets/images/fotoDePerfilNull.jpg'),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Nome do usuário',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        'Função',
+                        style: TextStyle(color: Colors.grey, fontSize: 11),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
+            const SolicitacoesComponent(),
+            const SecondRow(),
+            MissoesAtivasContainer()
           ],
         ),
       ),
@@ -82,6 +122,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
               ),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Chat',

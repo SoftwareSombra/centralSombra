@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../agente/bloc/get_user/agente_bloc.dart';
+import 'package:stepper_a/stepper_a.dart';
 import '../../autenticacao/services/user_services.dart';
-import '../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import '../bloc/infos/foto_bloc.dart';
-import '../bloc/infos/states_foto.dart';
 import 'components/form_add_infos.dart';
 
 class AddInfosScreen extends StatelessWidget {
@@ -19,6 +14,14 @@ class AddInfosScreen extends StatelessWidget {
   final TextEditingController cpf = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final UserServices userServices = UserServices();
+  final StepperAController stepperController = StepperAController();
+  final TextEditingController logradouroController = TextEditingController();
+  final TextEditingController numeroController = TextEditingController();
+  final TextEditingController complementoController = TextEditingController();
+  final TextEditingController bairroController = TextEditingController();
+  final TextEditingController cidadeController = TextEditingController();
+  final TextEditingController estadoController = TextEditingController();
+  final TextEditingController cepController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,31 +30,34 @@ class AddInfosScreen extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 14, 14, 14),
         appBar: AppBar(
           title: const Text(
-            'Adicionar informações',
+            'Cadastro',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
         ),
-        body: SingleChildScrollView(
-          child: Center(
+        body: Center(
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FormAddInfo(
-                    infosContext: context,
-                    nome: nome,
-                    endereco: endereco,
-                    cep: cep,
-                    celular: celular,
-                    rg: rg,
-                    cpf: cpf,
-                    formKey: formKey,
-                  ),
-                ],
+              child: FormAddInfo(
+                infosContext: context,
+                nome: nome,
+                endereco: endereco,
+                cep: cep,
+                celular: celular,
+                rg: rg,
+                cpf: cpf,
+                formKey: formKey,
+                stepperController: stepperController,
+                logradouroController: logradouroController,
+                numeroController: numeroController,
+                complementoController: complementoController,
+                bairroController: bairroController,
+                cidadeController: cidadeController,
+                estadoController: estadoController,
               ),
             ),
           ),

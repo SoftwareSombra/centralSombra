@@ -1,9 +1,16 @@
+import 'package:brasil_fields/brasil_fields.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:sombra_testes/veiculos/services/veiculos_services.dart';
+import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
+import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
+import '../../../perfil_user/screens/add_infos.dart';
+import '../../../perfil_user/screens/perfil.dart';
 import '../../bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_bloc.dart';
+import '../../bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_event.dart';
 import '../../bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_state.dart';
 
 class FormAddVeiculo extends StatelessWidget {
@@ -24,11 +31,14 @@ class FormAddVeiculo extends StatelessWidget {
 
   final VeiculoServices veiculoServices = VeiculoServices();
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final TratamentoDeErros tratamentoDeErro = TratamentoDeErros();
+  final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
 
   bool isValidPlaca(String placa) {
-    if (placa.length == 7) {
+    if (placa.length == 8) {
       RegExp regExp = RegExp(
-          r'^[A-Z]{3}[0-9][A-Z][0-9]{2}$|^[A-Z]{2}[0-9]{2}[A-Z][0-9]{2}$');
+        r'^[A-Za-z0-9-]+$',
+      );
       return regExp.hasMatch(placa);
     } else {
       return false;
@@ -46,8 +56,58 @@ class FormAddVeiculo extends StatelessWidget {
       if (state is RespostaSolicitacaoVeiculoLoading) {
         return const CircularProgressIndicator();
       } else if (state is SemCadastro) {
-        return const Center(
-          child: Text('Você não possui cadastro'),
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            PanaraInfoDialogWidget(
+              title: "Dados pessoais",
+              message:
+                  "Não é possível adicionar um veículo sem ter os dados pessoais cadastrados",
+              buttonText: "Cadastrar",
+              onTapDismiss: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                  context,
+                  screen: AddInfosScreen(),
+                  withNavBar: false,
+                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => AddInfosScreen(),
+                //   ),
+                // );
+              },
+              panaraDialogType: PanaraDialogType.normal,
+              noImage: false,
+              imagePath: 'assets/images/warning-pana.png',
+              textColor: Colors.white,
+              containerColor: Colors.grey[800],
+              buttonTextColor: Colors.white,
+            ),
+          ],
+        );
+      } else if (state is RespostaSolicitacaoVeiculoAguardandoAprovacao) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            PanaraInfoDialogWidget(
+              title: "Aguardando aprovação",
+              message:
+                  "Aguarde a aprovação do seu veículo para adicionar outro",
+              buttonText: "Voltar",
+              onTapDismiss: () {
+                Navigator.pop(context);
+              },
+              panaraDialogType: PanaraDialogType.normal,
+              noImage: false,
+              imagePath: 'assets/images/warning-pana.png',
+              textColor: Colors.white,
+              containerColor: Colors.grey[800],
+              buttonTextColor: Colors.white,
+            ),
+          ],
         );
       } else if (state is RespostaSolicitacaoVeiculoLoaded) {
         final placaAceita = state.placa;
@@ -66,6 +126,9 @@ class FormAddVeiculo extends StatelessWidget {
                 state.dados.containsKey('Placa')
                     ? TextFormField(
                         controller: placa,
+                        inputFormatters: [
+                          PlacaVeiculoInputFormatter(),
+                        ],
                         decoration: const InputDecoration(
                           labelText: 'Placa',
                           labelStyle: TextStyle(color: Colors.grey),
@@ -90,12 +153,18 @@ class FormAddVeiculo extends StatelessWidget {
                         },
                       )
                     : const SizedBox.shrink(),
-                const SizedBox(
-                  height: 10,
-                ),
+                state.dados.containsKey('Placa')
+                    ? const SizedBox(
+                        height: 10,
+                      )
+                    : const SizedBox.shrink(),
                 state.dados.containsKey('Marca')
                     ? TextFormField(
                         controller: marca,
+                        inputFormatters: [
+                          //limite de caracteres
+                          LengthLimitingTextInputFormatter(20),
+                        ],
                         decoration: const InputDecoration(
                           labelText: 'Marca',
                           labelStyle: TextStyle(color: Colors.grey),
@@ -117,12 +186,16 @@ class FormAddVeiculo extends StatelessWidget {
                         },
                       )
                     : const SizedBox.shrink(),
-                const SizedBox(
-                  height: 10,
-                ),
+                state.dados.containsKey('Marca')
+                    ? const SizedBox(height: 10)
+                    : const SizedBox.shrink(),
                 state.dados.containsKey('Modelo')
                     ? TextFormField(
                         controller: modelo,
+                        inputFormatters: [
+                          //limite de caracteres
+                          LengthLimitingTextInputFormatter(20),
+                        ],
                         decoration: const InputDecoration(
                           labelText: 'Modelo',
                           labelStyle: TextStyle(color: Colors.grey),
@@ -144,12 +217,18 @@ class FormAddVeiculo extends StatelessWidget {
                         },
                       )
                     : const SizedBox.shrink(),
-                const SizedBox(
-                  height: 10,
-                ),
+                state.dados.containsKey('Modelo')
+                    ? const SizedBox(
+                        height: 10,
+                      )
+                    : const SizedBox.shrink(),
                 state.dados.containsKey('Cor')
                     ? TextFormField(
                         controller: cor,
+                        inputFormatters: [
+                          //limite de caracteres
+                          LengthLimitingTextInputFormatter(20),
+                        ],
                         decoration: const InputDecoration(
                           labelText: 'Cor',
                           labelStyle: TextStyle(color: Colors.grey),
@@ -171,16 +250,19 @@ class FormAddVeiculo extends StatelessWidget {
                         },
                       )
                     : const SizedBox.shrink(),
-                const SizedBox(
-                  height: 10,
-                ),
+                state.dados.containsKey('Cor')
+                    ? const SizedBox(
+                        height: 10,
+                      )
+                    : const SizedBox.shrink(),
                 state.dados.containsKey('Ano')
                     ? TextFormField(
                         controller: ano,
                         keyboardType: TextInputType.number,
                         inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter
-                              .digitsOnly, // Permite apenas dígitos
+                          FilteringTextInputFormatter.digitsOnly,
+                          //limite de caracteres
+                          LengthLimitingTextInputFormatter(4),
                         ],
                         decoration: const InputDecoration(
                           labelText: 'Ano',
@@ -203,9 +285,11 @@ class FormAddVeiculo extends StatelessWidget {
                         },
                       )
                     : const SizedBox.shrink(),
-                const SizedBox(
-                  height: 10,
-                ),
+                state.dados.containsKey('Ano')
+                    ? const SizedBox(
+                        height: 10,
+                      )
+                    : const SizedBox.shrink(),
                 ElevatedButton(
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
@@ -257,9 +341,19 @@ class FormAddVeiculo extends StatelessWidget {
                         modelo.clear();
                         cor.clear();
                         ano.clear();
-                        // Fazer algo em caso de sucesso (ex: mostrar uma mensagem ou navegar para outra página)
+                        if (context.mounted) {
+                          mensagemDeSucesso.showSuccessSnackbar(
+                              context, 'Veículo adicionado com sucesso');
+                          context
+                              .read<RespostaSolicitacaoVeiculoBloc>()
+                              .add(FetchRespostaSolicitacaoVeiculo(uid));
+                          Navigator.pop(context);
+                        }
                       } else {
-                        // Fazer algo em caso de falha (ex: mostrar uma mensagem de erro)
+                        if (context.mounted) {
+                          tratamentoDeErro.showErrorSnackbar(context,
+                              'Erro ao adicionar veículo, tenta novamente');
+                        }
                       }
                     }
                   },
@@ -279,6 +373,9 @@ class FormAddVeiculo extends StatelessWidget {
             children: [
               TextFormField(
                 controller: placa,
+                inputFormatters: [
+                  PlacaVeiculoInputFormatter(),
+                ],
                 decoration: const InputDecoration(
                   labelText: 'Placa',
                   labelStyle: TextStyle(color: Colors.grey),
@@ -307,6 +404,10 @@ class FormAddVeiculo extends StatelessWidget {
               ),
               TextFormField(
                 controller: marca,
+                inputFormatters: [
+                  //limite de caracteres
+                  LengthLimitingTextInputFormatter(20),
+                ],
                 decoration: const InputDecoration(
                   labelText: 'Marca',
                   labelStyle: TextStyle(color: Colors.grey),
@@ -332,6 +433,10 @@ class FormAddVeiculo extends StatelessWidget {
               ),
               TextFormField(
                 controller: modelo,
+                inputFormatters: [
+                  //limite de caracteres
+                  LengthLimitingTextInputFormatter(20),
+                ],
                 decoration: const InputDecoration(
                   labelText: 'Modelo',
                   labelStyle: TextStyle(color: Colors.grey),
@@ -357,6 +462,10 @@ class FormAddVeiculo extends StatelessWidget {
               ),
               TextFormField(
                 controller: cor,
+                inputFormatters: [
+                  //limite de caracteres
+                  LengthLimitingTextInputFormatter(20),
+                ],
                 decoration: const InputDecoration(
                   labelText: 'Cor',
                   labelStyle: TextStyle(color: Colors.grey),
@@ -384,8 +493,9 @@ class FormAddVeiculo extends StatelessWidget {
                 controller: ano,
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Permite apenas dígitos
+                  FilteringTextInputFormatter.digitsOnly,
+                  //limite de caracteres
+                  LengthLimitingTextInputFormatter(4),
                 ],
                 decoration: const InputDecoration(
                   labelText: 'Ano',
@@ -429,11 +539,19 @@ class FormAddVeiculo extends StatelessWidget {
                       modelo.clear();
                       cor.clear();
                       ano.clear();
-                      debugPrint('sucessoo');
-                      // Fazer algo em caso de sucesso (ex: mostrar uma mensagem ou navegar para outra página)
+                      if (context.mounted) {
+                        mensagemDeSucesso.showSuccessSnackbar(
+                            context, 'Veículo adicionado com sucesso');
+                        context
+                            .read<RespostaSolicitacaoVeiculoBloc>()
+                            .add(FetchRespostaSolicitacaoVeiculo(uid));
+                        Navigator.pop(context);
+                      }
                     } else {
-                      debugPrint('errooou');
-                      // Fazer algo em caso de falha (ex: mostrar uma mensagem de erro)
+                      if (context.mounted) {
+                        tratamentoDeErro.showErrorSnackbar(context,
+                            'Erro ao adicionar veículo, tenta novamente');
+                      }
                     }
                   }
                 },

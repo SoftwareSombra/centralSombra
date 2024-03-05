@@ -49,6 +49,21 @@ class VeiculoServices {
           .collection('Veículo')
           .doc(placa)
           .delete();
+      await firestore.collection('Aprovação de veículos').doc(uid).delete();
+      return true;
+    } catch (e) {
+      debugPrint("Erro ao excluir solicitação: $e");
+      return false;
+    }
+  }
+
+  Future<bool> excluirPendencias(String uid) async {
+    try {
+      await firestore
+          .collection('Veículos infos aguardando aprovação')
+          .doc(uid)
+          .delete();
+      await firestore.collection('Veículos infos rejeitadas').doc(uid).delete();
       return true;
     } catch (e) {
       return false;
@@ -204,6 +219,7 @@ class VeiculoServices {
           .doc(uid)
           .get();
       if (documento.exists) {
+        debugPrint('------ documento existe ------');
         var dados = documento.data();
         dados?.remove('uid');
         dados?.remove('timestamp');
@@ -214,6 +230,29 @@ class VeiculoServices {
     } catch (e) {
       debugPrint("Erro ao buscar os dados rejeitados: $e");
       return {};
+    }
+  }
+
+  Future<bool> existeDocDoAgenteAguardandoAprovacao(String uid) async {
+    try {
+      var documento =
+          await firestore.collection('Aprovação de veículos').doc(uid).get();
+      return documento.exists;
+    } catch (e) {
+      debugPrint("Erro ao buscar os dados aguardando aprovação: $e");
+      return false;
+    }
+  }
+
+  Stream<bool> existeDocumentoAguardandoAprovacao() {
+    try {
+      return firestore
+          .collection('Aprovação de veículos')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.isNotEmpty);
+    } catch (e) {
+      debugPrint("Erro ao buscar os dados aguardando aprovação: $e");
+      return Stream.value(false);
     }
   }
 }

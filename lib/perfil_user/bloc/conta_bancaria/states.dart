@@ -13,6 +13,8 @@ class ContaBancariaLoaded extends ContaBancariaState {
 
 class ContaBancariaNotExist extends ContaBancariaState {}
 
+class ContaBancariaAguardandoAprovacao extends ContaBancariaState {}
+
 class ContaBancariaInfosRejected extends ContaBancariaState {
   final Map<String, dynamic> dados;
   final Map<String, dynamic> dadosAceitos;

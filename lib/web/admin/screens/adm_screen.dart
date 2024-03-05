@@ -46,9 +46,9 @@ class AddRolesScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor:  Colors.transparent,
         title: const Text('Administrador'),
       ),
       body: SingleChildScrollView(
@@ -58,7 +58,7 @@ class AddRolesScreen extends StatelessWidget {
           children: [
             Center(
               child: Container(
-                constraints: BoxConstraints(maxWidth: 800),
+                constraints: const BoxConstraints(maxWidth: 800),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                       horizontal: 20, vertical: screenHeight * 0.1),

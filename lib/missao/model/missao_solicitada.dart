@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class MissaoSolicitada {
   final String cnpj;
@@ -34,8 +35,9 @@ class MissaoSolicitada {
   });
 
   factory MissaoSolicitada.fromFirestore(String id, Map<String, dynamic> data) {
+    debugPrint(data.toString());
     return MissaoSolicitada(
-      cnpj: data['cnpj'],
+      cnpj: data['cnpj'],//
       nomeDaEmpresa: data['nome da empresa'],
       placaCavalo: data['placaCavalo'],
       placaCarreta: data['placaCarreta'],

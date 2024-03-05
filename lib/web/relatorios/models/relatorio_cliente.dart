@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
+import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
 import '../../../missao/model/missao_model.dart';
 
 class DadosRelatorioCliente {
@@ -8,6 +9,7 @@ class DadosRelatorioCliente {
   final bool? tipo;
   final bool? cnpj;
   final bool? nomeDaEmpresa;
+  final bool? local;
   final bool? placaCavalo;
   final bool? placaCarreta;
   final bool? motorista;
@@ -31,6 +33,7 @@ class DadosRelatorioCliente {
     this.tipo,
     this.cnpj,
     this.nomeDaEmpresa,
+    this.local,
     this.placaCavalo,
     this.placaCarreta,
     this.motorista,
@@ -57,6 +60,7 @@ class DadosRelatorioCliente {
       tipo: data['tipo'] ?? false,
       cnpj: data['cnpj'] ?? false,
       nomeDaEmpresa: data['nomeDaEmpresa'] ?? false,
+      local: data['local'] ?? false,
       placaCavalo: data['placaCavalo'] ?? false,
       placaCarreta: data['placaCarreta'] ?? false,
       motorista: data['motorista'] ?? false,
@@ -84,6 +88,7 @@ class DadosRelatorioCliente {
       'tipo': tipo ?? false,
       'cnpj': cnpj ?? false,
       'nomeDaEmpresa': nomeDaEmpresa ?? false,
+      'local': local ?? false,
       'placaCavalo': placaCavalo ?? false,
       'placaCarreta': placaCarreta ?? false,
       'motorista': motorista ?? false,
@@ -110,6 +115,7 @@ class RelatorioCliente {
   final String? uidOperadorSombra;
   final String? tipo;
   final String? nomeDaEmpresa;
+  final String? local;
   final String? placaCavalo;
   final String? placaCarreta;
   final String? motorista;
@@ -123,7 +129,7 @@ class RelatorioCliente {
   final List<Foto>? fotosPosMissao;
   final String? infos;
   final double? distancia;
-  final List<Location>? rota;
+  final List<CoordenadaComTimestamp>? rota;
 
   RelatorioCliente({
     this.cnpj,
@@ -131,6 +137,7 @@ class RelatorioCliente {
     this.uidOperadorSombra,
     this.tipo,
     this.nomeDaEmpresa,
+    this.local,
     this.placaCavalo,
     this.placaCarreta,
     this.motorista,
@@ -156,12 +163,20 @@ class RelatorioCliente {
     List<Foto>? fotosPosMissaoMapeadas = data['fotosPosMissao'] != null
         ? List.from(data['fotosPosMissao']).map((e) => Foto.fromMap(e)).toList()
         : null; // Ou atribua uma lista vazia se preferir: []
+
+    List<CoordenadaComTimestamp>? rotaMapeada = data['rota'] != null
+        ? List.from(data['rota'])
+            .map((e) => CoordenadaComTimestamp.fromMap(e))
+            .toList()
+        : null;
+
     return RelatorioCliente(
       cnpj: data['cnpj'],
       missaoId: data['missaoId'],
       uidOperadorSombra: data['uidOperadorSombra'],
       tipo: data['tipo'],
       nomeDaEmpresa: data['nomeDaEmpresa'],
+      local: data['local'],
       placaCavalo: data['placaCavalo'],
       placaCarreta: data['placaCarreta'],
       motorista: data['motorista'],
@@ -175,7 +190,7 @@ class RelatorioCliente {
       fotosPosMissao: fotosPosMissaoMapeadas,
       infos: data['infos'],
       distancia: data['distancia'],
-      rota: data['rota'],
+      rota: rotaMapeada,
     );
   }
 
@@ -193,7 +208,7 @@ class RelatorioCliente {
     List<Map<String, dynamic>>? rota = this.rota != null
         ? this
             .rota!
-            .map((e) => {'latitude': e.latitude, 'longitude': e.longitude})
+            .map((e) => {'latitude': e.ponto.latitude, 'longitude': e.ponto.longitude})
             .toList()
         : null;
 
@@ -203,6 +218,7 @@ class RelatorioCliente {
       'uidOperadorSombra': uidOperadorSombra,
       'tipo': tipo,
       'nomeDaEmpresa': nomeDaEmpresa,
+      'local': local,
       'placaCavalo': placaCavalo,
       'placaCarreta': placaCarreta,
       'motorista': motorista,

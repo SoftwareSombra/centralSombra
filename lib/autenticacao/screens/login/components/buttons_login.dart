@@ -42,8 +42,10 @@ class LoginButtons extends StatelessWidget {
                   ? null
                   : () {
                       if (logKey.currentState!.validate()) {
-                        context.read<LoginBloc>().add(PerformLoginEvent(
-                            emailController.text, passwordController.text));
+                        context.read<LoginBloc>().add(
+                              PerformLoginEvent(emailController.text,
+                                  passwordController.text),
+                            );
                       }
                     },
               child: state is LoginLoading

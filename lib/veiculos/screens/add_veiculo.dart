@@ -20,30 +20,30 @@ class AddVeiculoScreen extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 14, 14, 14),
         appBar: AppBar(
           title: const Text(
-            'Adicionar informações',
+            'Adicionar veículo',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FormAddVeiculo(
-                    cor: cor,
-                    placa: placa,
-                    marca: marca,
-                    modelo: modelo,
-                    ano: ano,
-                    formKey: formKey,
-                  ),
-                ],
-              ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                FormAddVeiculo(
+                  cor: cor,
+                  placa: placa,
+                  marca: marca,
+                  modelo: modelo,
+                  ano: ano,
+                  formKey: formKey,
+                ),
+              ],
             ),
           ),
         ),

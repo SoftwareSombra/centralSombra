@@ -16,7 +16,6 @@ import 'package:sombra_testes/agente/bloc/get_user/agente_bloc.dart';
 import 'package:sombra_testes/home/bloc/missao_bloc/get_missao_bloc.dart';
 import 'package:sombra_testes/internet_connection.dart';
 import 'package:sombra_testes/missao/bloc/agente/agente_bloc.dart';
-import 'package:sombra_testes/missao/services/missao_services.dart';
 import 'package:sombra_testes/perfil_user/bloc/conta_bancaria/conta_bancaria_bloc.dart';
 import 'package:sombra_testes/veiculos/bloc/solicitacoes_list/solicitacoes_veiculos_bloc.dart';
 import 'package:sombra_testes/veiculos/bloc/veiculos_list/veiculo_bloc.dart';
@@ -24,12 +23,19 @@ import 'package:sombra_testes/web/home/bloc/dashboard/dashboard_bloc.dart';
 import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:workmanager/workmanager.dart';
+import 'agente/bloc/solicitacoes/solicitacoes_agente_bloc.dart';
+import 'autenticacao/screens/login/login_bloc.dart';
+import 'autenticacao/services/log_services.dart';
 import 'autenticacao/services/user_services.dart';
 import 'conta_bancaria/bloc/solicitacoes_conta_bancaria_bloc.dart';
 import 'firebase_options.dart';
+import 'home/bloc/swipe_button_bloc/swipe_button_bloc.dart';
 import 'home/nav_bar/bloc_nav.dart';
+import 'home/services/swipebutton_services.dart';
 import 'localizacao/loc_services.dart';
 import 'missao/bloc/missao_solicitacao_card/missao_solicitacao_card_bloc.dart';
+import 'missao/bloc/missoes_pendentes/missoes_pendentes_bloc.dart';
+import 'missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import 'missao/bloc/missoes_solicitadas/missoes_solicitadas_bloc.dart';
 import 'missao/model/missao_model.dart';
 import 'notificacoes/fcm.dart';
@@ -39,7 +45,6 @@ import 'perfil_user/bloc/infos/docs_imgs/comp_resid/bloc/comp_resid_bloc.dart';
 import 'perfil_user/bloc/infos/docs_imgs/rg_frente/bloc/rg_frente_bloc.dart';
 import 'perfil_user/bloc/infos/docs_imgs/rg_verso/bloc/rg_verso_bloc.dart';
 import 'perfil_user/bloc/nome/get_name_bloc.dart';
-import 'perfil_user/bloc/nome/get_name_events.dart';
 import 'rotas/rotas.dart';
 import 'sqfLite/sincronizacao/workmanager.dart';
 import 'tema/state_bloc.dart';
@@ -52,7 +57,9 @@ import 'web/admin/agentes/bloc/agentes_list_bloc.dart';
 import 'web/admin/bloc/roles_bloc.dart';
 import 'web/admin/usuarios/bloc/add_user_bloc/bloc/add_user_bloc.dart';
 import 'web/admin/usuarios/bloc/users_list_bloc/users_list_bloc.dart';
+import 'web/empresa/bloc/empresa_user_bloc/empresa_users_bloc.dart';
 import 'web/empresa/bloc/get_empresas_bloc.dart';
+import 'web/relatorios/bloc/list/relatorios_list_bloc.dart';
 import 'web/relatorios/bloc/mission_details_bloc.dart';
 
 void main() async {
@@ -96,22 +103,6 @@ void main() async {
     await Permission.locationWhenInUse.request();
     await Permission.locationAlways.request();
 
-    await BackgroundLocationTrackerManager.initialize(
-      backgroundCallback,
-      config: const BackgroundLocationTrackerConfig(
-        loggingEnabled: true,
-        androidConfig: AndroidConfig(
-          notificationIcon: 'explore',
-          trackingInterval: Duration(minutes: 2),
-          distanceFilterMeters: 25,
-        ),
-        iOSConfig: IOSConfig(
-          activityType: ActivityType.AUTOMOTIVE,
-          distanceFilterMeters: 25,
-          restartAfterKill: false,
-        ),
-      ),
-    );
     if (!status.isGranted) {
       // Solicita a permissão
       status = await Permission.location.request();
@@ -151,12 +142,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   var isTracking = false;
   late final StreamSubscription<InternetConnectionStatus> listener;
+  late bool status;
+  SwipeButtonServices swipeButtonServices = SwipeButtonServices();
+  Color blueColor = const Color.fromARGB(255, 0, 8, 42);
 
   @override
   void initState() {
     if (!kIsWeb) {
-      BackgroundLocationTrackerManager.startTracking();
-      _getTrackingStatus();
+      bgLocationTrackerInitialize();
+      //_getTrackingStatus();
       listener = InternetConnectionChecker().onStatusChange.listen((status) {
         final notifier = ConnectionNotifier.of(context);
         notifier.value = status == InternetConnectionStatus.connected;
@@ -173,9 +167,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  Future<void> bgLocationTrackerInitialize() async {
+    await BackgroundLocationTrackerManager.initialize(
+      backgroundCallback,
+      config: const BackgroundLocationTrackerConfig(
+        loggingEnabled: true,
+        androidConfig: AndroidConfig(
+          notificationIcon: 'explore',
+          trackingInterval: Duration(minutes: 2),
+          distanceFilterMeters: 25,
+        ),
+        iOSConfig: IOSConfig(
+          activityType: ActivityType.AUTOMOTIVE,
+          distanceFilterMeters: 25,
+          restartAfterKill: true,
+        ),
+      ),
+    );
+  }
+
   Future<void> _getTrackingStatus() async {
     isTracking = await BackgroundLocationTrackerManager.isTracking();
     setState(() {});
+    debugPrint('Tracking status: $isTracking');
   }
 
   @override
@@ -192,6 +206,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ThemeData themeData;
           if (state is DarkMode) {
             themeData = ThemeData.dark().copyWith(
+              textButtonTheme: TextButtonThemeData(
+                style: ButtonStyle(
+                  textStyle: MaterialStateProperty.resolveWith(
+                      (states) => const TextStyle(color: Colors.white)),
+                ),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ButtonStyle(
+                  textStyle: MaterialStateProperty.resolveWith(
+                      (states) => const TextStyle(color: Colors.white)),
+                ),
+              ),
+              primaryColor: blueColor,
               iconTheme: const IconThemeData(color: Colors.white),
               iconButtonTheme: IconButtonThemeData(
                 style: ButtonStyle(
@@ -204,7 +231,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   selectedItemColor: Colors.blue,
                   unselectedItemColor: Colors.grey),
               colorScheme: const ColorScheme.dark(
-                primary: kIsWeb ? Colors.white : Colors.white,
+                primary: Colors.white,
                 secondary: kIsWeb ? Colors.white : Colors.blue,
               ),
               appBarTheme: const AppBarTheme(
@@ -214,29 +241,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             );
           } else {
             themeData = ThemeData.light().copyWith(
-              colorScheme: const ColorScheme.light(),
+              primaryColor: Colors.blue,
+              colorScheme: ColorScheme.light(primary: blueColor),
             );
           }
           return MultiBlocProvider(
             providers: [
               BlocProvider(
-                create: (context) {
-                  final userBloc = UserBloc(userServices: UserServices());
-                  final user = FirebaseAuth.instance.currentUser;
-                  final uid = user?.uid;
-                  if (uid != null) {
-                    userBloc.add(FetchUserName(uid));
-                  }
-                  return userBloc;
-                },
+                create: (context) => UserBloc(),
               ),
               BlocProvider(
-                create: (context) => UserFotoBloc(
-                  userServices: UserServices(),
-                ),
-              ),
-              BlocProvider<NavigationBloc>(
-                create: (context) => NavigationBloc(),
+                create: (context) => UserFotoBloc(),
               ),
               BlocProvider(
                 create: (context) => AgenteBloc(),
@@ -248,18 +263,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 create: (context) => VeiculoSolicitacaoBloc(),
               ),
               BlocProvider(
-                create: (context) => DashboardBloc(false, false),
-              ),
-              BlocProvider(
                 create: (context) => ContaBancariaBloc(),
               ),
               BlocProvider(
-                create: (context) =>
-                    GetMissaoBloc(missaoServices: MissaoServices()),
+                create: (context) => GetMissaoBloc(),
               ),
               BlocProvider(
-                create: (context) =>
-                    AgentMissionBloc(missaoServices: MissaoServices()),
+                create: (context) => AgentMissionBloc(),
               ),
               BlocProvider(
                 create: (context) => ElevatedButtonBloc(),
@@ -302,6 +312,33 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ),
               BlocProvider(
                 create: (context) => AddUserBloc(),
+              ),
+              BlocProvider(
+                create: (context) => AgenteSolicitacaoBloc(),
+              ),
+              BlocProvider<NavigationBloc>(
+                create: (context) => NavigationBloc(context),
+              ),
+              BlocProvider(
+                create: (context) => DashboardBloc(false, false),
+              ),
+              BlocProvider(
+                create: (context) => QtdMissoesPendentesBloc(),
+              ),
+              BlocProvider(
+                create: (context) => MissoesPendentesBloc(),
+              ),
+              BlocProvider(
+                create: (context) => RelatoriosListBloc(),
+              ),
+              BlocProvider(
+                create: (context) => SwipeButtonBloc(),
+              ),
+              BlocProvider(
+                create: (context) => LoginBloc(LogServices(), UserServices()),
+              ),
+              BlocProvider(
+                create: (context) => EmpresaUsersBloc(),
               ),
               // Adicionar quantos BLoCs precisar aqui
             ],
@@ -512,31 +549,30 @@ class LocationDao {
         debugPrint('Erro ao atualizar localização: $error');
       }
     } else {
-      null;
-    }
+      try {
+        DocumentSnapshot document =
+            await firestore.collection('User Name').doc(userId).get();
+        DocumentSnapshot isAgent =
+            await firestore.collection('User infos').doc(userId).get();
 
-    try {
-      DocumentSnapshot document =
-          await firestore.collection('User Name').doc(userId).get();
-      DocumentSnapshot isAgent =
-          await firestore.collection('User infos').doc(userId).get();
+        if (document.exists && isAgent.exists) {
+          Map<String, dynamic> userData =
+              document.data() as Map<String, dynamic>;
+          String nome = userData['Nome'];
 
-      if (document.exists && isAgent.exists) {
-        Map<String, dynamic> userData = document.data() as Map<String, dynamic>;
-        String nome = userData['Nome'];
-
-        await firestore.collection('usersLocations').doc(userId).set({
-          'latitude': currentLocation.latitude,
-          'longitude': currentLocation.longitude,
-          'nome do agente': nome,
-          'uid': userId,
-          'timestamp': timestamp,
-        });
-      } else {
-        debugPrint('Documento não encontrado');
+          await firestore.collection('usersLocations').doc(userId).set({
+            'latitude': currentLocation.latitude,
+            'longitude': currentLocation.longitude,
+            'nome do agente': nome,
+            'uid': userId,
+            'timestamp': timestamp,
+          });
+        } else {
+          debugPrint('Documento não encontrado');
+        }
+      } catch (error) {
+        debugPrint('Erro ao atualizar localização: $error');
       }
-    } catch (error) {
-      debugPrint('Erro ao atualizar localização: $error');
     }
   }
 

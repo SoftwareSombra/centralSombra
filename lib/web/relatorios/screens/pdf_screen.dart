@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-//import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -27,6 +26,7 @@ class PdfScreen extends StatefulWidget {
   final bool tipo;
   final bool cnpj;
   final bool nomeDaEmpresa;
+  final bool local;
   final bool placaCavalo;
   final bool placaCarreta;
   final bool nomeMotorista;
@@ -46,6 +46,7 @@ class PdfScreen extends StatefulWidget {
       required this.tipo,
       required this.cnpj,
       required this.nomeDaEmpresa,
+      required this.local,
       required this.placaCavalo,
       required this.placaCarreta,
       required this.nomeMotorista,
@@ -62,6 +63,8 @@ class PdfScreen extends StatefulWidget {
   @override
   State<PdfScreen> createState() => _PdfScreenState();
 }
+
+Set<Marker> userMarkers = {};
 
 class _PdfScreenState extends State<PdfScreen> {
   final pdf = pw.Document();
@@ -109,8 +112,25 @@ class _PdfScreenState extends State<PdfScreen> {
 
                           final Path path = Path(
                             color: Colors.blue,
-                            points: state.locations!,
+                            points: state.locations!.map((e) {
+                              return Location(e.ponto.latitude, e.ponto.longitude);
+                            }).toList(),
                           );
+
+                          //para cada coordenada da state.locations, criar um marker
+                          for (var location in state.locations!) {
+                            userMarkers.add(
+                              Marker(
+                                locations: [
+                                  Location(location.ponto.latitude,
+                                      location.ponto.longitude)
+                                ],
+                              ),
+                            );
+                          }
+
+                          //transformar em uma lista
+                          List<Marker> markersList = userMarkers.toList();
 
                           //Configurar o StaticMapController
                           final staticMapController = StaticMapController(
@@ -120,8 +140,9 @@ class _PdfScreenState extends State<PdfScreen> {
                             height: 700,
                             zoom: 11,
                             center: state
-                                .middleLocation, // Usar a primeira localização como centro
-                            paths: [path], // Incluir o Path criado
+                                .middleLocation,
+                            //paths: [path],
+                            markers: markersList,
                           );
 
                           final ImageProvider image = staticMapController.image;
@@ -244,6 +265,11 @@ class _PdfScreenState extends State<PdfScreen> {
                                           'Nome da empresa: ',
                                           missao.nomeDaEmpresa,
                                           widget.nomeDaEmpresa,
+                                        ),
+                                        buildDataItem(
+                                          'Local: ',
+                                          missao.local,
+                                          widget.local,
                                         ),
                                         buildDataItem(
                                           'Placa cavalo: ',
@@ -374,7 +400,7 @@ class _PdfScreenState extends State<PdfScreen> {
                                           ),
                                         )
                                       : const SizedBox.shrink(),
-                                      widget.fotosPos
+                                  widget.fotosPos
                                       ? Padding(
                                           padding: EdgeInsets.only(
                                               right: width * 0.15,
@@ -409,7 +435,8 @@ class _PdfScreenState extends State<PdfScreen> {
                                           child: Column(
                                             children: [
                                               if (missao.fotosPosMissao != null)
-                                                for (var foto in missao.fotosPosMissao!)
+                                                for (var foto
+                                                    in missao.fotosPosMissao!)
                                                   buildFotos(foto.url, context),
                                             ],
                                           ),
@@ -685,6 +712,14 @@ class _PdfScreenState extends State<PdfScreen> {
                 pw.Padding(
                   padding: const pw.EdgeInsets.all(8.0),
                   child: buildDataItemPdf(
+                    'Local: ',
+                    missao.local,
+                    widget.local,
+                  ),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(8.0),
+                  child: buildDataItemPdf(
                     'Placa cavalo: ',
                     missao.placaCavalo,
                     widget.placaCavalo,
@@ -787,7 +822,6 @@ class _PdfScreenState extends State<PdfScreen> {
         },
       ),
     );
-    
 
     // Salvar o PDF
     final bytes = await pdf.save();

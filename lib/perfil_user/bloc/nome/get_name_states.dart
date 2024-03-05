@@ -6,8 +6,9 @@ class UserNameLoading extends UserState {}
 
 class UserNameLoaded extends UserState {
   final String name;
+  final String email;
 
-  UserNameLoaded(this.name);
+  UserNameLoaded(this.name, this.email);
 }
 
 class UserNameError extends UserState {

@@ -9,7 +9,7 @@ class VeiculoSolicitacaoBloc
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   VeiculoSolicitacaoBloc() : super(VeiculoSolicitacaoLoading()) {
-    on<FetchVeiculoSolicitacaos>((event, emit) async {
+    on<FetchVeiculoSolicitacoes>((event, emit) async {
 
       emit(VeiculoSolicitacaoLoading());
       try {

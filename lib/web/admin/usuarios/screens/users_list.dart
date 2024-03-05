@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../services/admin_services.dart';
 import '../bloc/users_list_bloc/users_list_bloc.dart';
 import '../bloc/users_list_bloc/users_list_event.dart';
 import '../bloc/users_list_bloc/users_list_state.dart';
-import 'add_user.dart';
 
 class UsersList extends StatelessWidget {
   const UsersList({super.key});
@@ -13,7 +11,8 @@ class UsersList extends StatelessWidget {
   List<DataColumn> get columns => const [
         DataColumn(label: Text('Nome')),
         DataColumn(label: Text('UID')),
-        DataColumn(label: Text('Ver detalhes')),
+        DataColumn(label: Text('Email')),
+        DataColumn(label: Text('Opções')),
       ];
 
   @override
@@ -48,28 +47,37 @@ class UsersList extends StatelessWidget {
                 child: state.users.isNotEmpty
                     ? PaginatedDataTable(
                         columns: columns,
-                        source: EmpresaDataSource(users: state.users),
+                        source: EmpresaDataSource(
+                            users: state.users, context: context),
                         header: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('users'),
+                            const Text('Usuários cadastrados'),
                             SizedBox(
-                              width: width * 0.4,
-                              height: 40,
+                              width: width * 0.2,
+                              height: 31,
                               child: TextFormField(
-                                decoration: const InputDecoration(
+                                cursorHeight: 12,
+                                decoration: InputDecoration(
                                   labelText: 'Buscar usuário pelo nome',
                                   labelStyle: TextStyle(
-                                      color: Colors.grey, fontSize: 12),
-                                  suffixIcon: Icon(Icons.search),
+                                      color: Colors.grey[500], fontSize: 12),
+                                  suffixIcon: Icon(
+                                    Icons.search,
+                                    size: 20,
+                                    color: Colors.grey[500]!,
+                                  ),
                                   border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[500]!),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[500]!),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[500]!),
                                   ),
                                 ),
                               ),
@@ -93,24 +101,29 @@ class UsersList extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AddUser(),
-        ),
-      );
-        },
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => AddUser(),
+      //       ),
+      //     );
+      //   },
+      //   backgroundColor: Colors.blue.withOpacity(0.11),
+      //   child: const Icon(
+      //     Icons.add,
+      //     color: Colors.white,
+      //   ),
+      // ),
     );
   }
 }
 
 class EmpresaDataSource extends DataTableSource {
   List<Usuario> users;
-  EmpresaDataSource({required this.users});
+  BuildContext context;
+  EmpresaDataSource({required this.users, required this.context});
 
   @override
   DataRow? getRow(int index) {
@@ -122,19 +135,22 @@ class EmpresaDataSource extends DataTableSource {
 
     return DataRow.byIndex(
       index: index,
+      color: const MaterialStatePropertyAll(
+        Color.fromARGB(255, 3, 9, 18),
+      ),
       cells: [
         DataCell(
           Row(
             children: [
-              Checkbox(
-                value: false,
-                onChanged: (value) {
-                  value = !value!;
-                },
-              ),
-              const SizedBox(
-                width: 2,
-              ),
+              // Checkbox(
+              //   value: false,
+              //   onChanged: (value) {
+              //     value = !value!;
+              //   },
+              // ),
+              // const SizedBox(
+              //   width: 2,
+              // ),
               SelectableText(user.nome),
             ],
           ),
@@ -143,12 +159,67 @@ class EmpresaDataSource extends DataTableSource {
           SelectableText(user.uid),
         ),
         DataCell(
-          IconButton(
-            // Adicione um IconButton para ver detalhes
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: () {
-              // Navegue para a tela de detalhes
-            },
+          SelectableText(user.email!),
+        ),
+        DataCell(
+          Row(
+            children: [
+              MouseRegion(
+                cursor: MaterialStateMouseCursor.clickable,
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.delete,
+                        color: Colors.red.withOpacity(0.8),
+                        size: 15,
+                      ),
+                      const SizedBox(
+                        height: 1,
+                      ),
+                      const Text(
+                        'Excluir',
+                        style: TextStyle(
+                          //color: Colors.red,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              MouseRegion(
+                cursor: MaterialStateMouseCursor.clickable,
+                child: GestureDetector(
+                  onTap: () {},
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.arrow_forward_outlined,
+                        size: 15,
+                      ),
+                      SizedBox(
+                        height: 1,
+                      ),
+                      Text(
+                        'Detalhes',
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

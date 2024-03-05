@@ -23,7 +23,7 @@ class VeiculosSolicitacoes extends StatelessWidget {
       ),
       body: BlocProvider(
         create: (context) =>
-            VeiculoSolicitacaoBloc()..add(FetchVeiculoSolicitacaos()),
+            VeiculoSolicitacaoBloc()..add(FetchVeiculoSolicitacoes()),
         child: BlocBuilder<VeiculoSolicitacaoBloc, VeiculoSolicitacaoState>(
           builder: (context, state) {
             if (state is VeiculoSolicitacaoLoading) {
@@ -137,7 +137,7 @@ class _VeiculoCardState extends State<VeiculoCard> {
     await veiculoServices.solicitacaoRemove(
         widget.veiculo.uid, widget.veiculo.placa);
     if (context.mounted) {
-      context.read<VeiculoSolicitacaoBloc>().add(FetchVeiculoSolicitacaos());
+      context.read<VeiculoSolicitacaoBloc>().add(FetchVeiculoSolicitacoes());
     }
   }
 
@@ -182,7 +182,7 @@ class _VeiculoCardState extends State<VeiculoCard> {
         if (context.mounted) {
           context
               .read<VeiculoSolicitacaoBloc>()
-              .add(FetchVeiculoSolicitacaos());
+              .add(FetchVeiculoSolicitacoes());
         }
         // Chama a função de aprovação parcial para campos não reprovados
         // Adicione a lógica conforme necessário

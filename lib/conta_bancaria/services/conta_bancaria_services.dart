@@ -213,4 +213,29 @@ class ContaBancariaServices {
       return {};
     }
   }
+
+  Future<bool> existeDocDoAgenteAguardandoAprovacao(String uid) async {
+    try {
+      var documento = await firestore
+          .collection('Solicitação Conta Bancária')
+          .doc(uid)
+          .get();
+      return documento.exists;
+    } catch (e) {
+      debugPrint("Erro ao buscar os dados aguardando aprovação: $e");
+      return false;
+    }
+  }
+
+  Stream<bool> existeDocumentoAguardandoAprovacao() {
+    try {
+      return firestore
+          .collection('Solicitação Conta Bancária')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.isNotEmpty);
+    } catch (e) {
+      debugPrint("Erro ao buscar os dados aguardando aprovação: $e");
+      return Stream.value(false);
+    }
+  }
 }

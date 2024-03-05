@@ -63,6 +63,12 @@ class UserServices {
         await firestore
             .collection('FCM Tokens')
             .doc(uid)
+            .set({
+          'sinc': 'sinc',
+        });
+        await firestore
+            .collection('FCM Tokens')
+            .doc(uid)
             .collection('tokens')
             .doc(token)
             .set({
@@ -243,6 +249,8 @@ class UserServices {
 
   Future<String?> getName() async {
     final user = FirebaseAuth.instance.currentUser;
+    final userUid = user?.uid;
+    debugPrint("userUid: $userUid");
     if (user != null) {
       return user.displayName ?? 'Nome não disponível';
     } else {

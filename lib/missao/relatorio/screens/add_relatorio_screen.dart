@@ -3,12 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:sombra_testes/autenticacao/screens/tratamento/error_snackbar.dart';
 import 'package:sombra_testes/autenticacao/screens/tratamento/success_snackbar.dart';
+import 'package:sombra_testes/home/screens/home_screen.dart';
 import 'package:sombra_testes/missao/bloc/agente/agente_bloc.dart';
 import 'package:sombra_testes/missao/bloc/agente/events.dart';
+import 'package:sombra_testes/missao/screens/missao_screen.dart';
 import 'package:sombra_testes/missao/services/missao_services.dart';
 
+import '../../../mapa/screens/mapa.dart';
 import '../../model/missao_model.dart';
 
 class AddRelatorioScreen extends StatefulWidget {
@@ -174,6 +178,8 @@ class _AddRelatorioScreenState extends State<AddRelatorioScreen> {
         debugPrint('imageData: ${imageData[i]}');
         if (imageData[i]['image'] != null) {
           String filePath = imageData[i]['image'].path;
+          final base64 =
+              await missaoServices.imageToBase64(filePath);
           // final bytes = imageData[i]['image'].readAsBytesSync();
           // final base64Image = base64Encode(bytes);
           // debugPrint('imageData: ${imageData[i]}');
@@ -191,11 +197,13 @@ class _AddRelatorioScreenState extends State<AddRelatorioScreen> {
           // debugPrint('snapshot: $snapshot');
           // final downloadUrl = await snapshot.ref.getDownloadURL();
           // debugPrint('downloadUrl: $downloadUrl');
-          fotosPosMissao.add(Foto(
-            caption: imageData[i]['controller'].text,
-            url: filePath,
-            timestamp: Timestamp.now(),
-          ));
+          fotosPosMissao.add(
+            Foto(
+              caption: imageData[i]['controller'].text,
+              url: base64,
+              timestamp: Timestamp.now(),
+            ),
+          );
         }
       }
       debugPrint('fotosPosMissao: $fotosPosMissao');
@@ -218,7 +226,10 @@ class _AddRelatorioScreenState extends State<AddRelatorioScreen> {
         mensagemDeSucesso.showSuccessSnackbar(
             context, 'Relatório enviado com sucesso');
         context.read<AgentMissionBloc>().add(FetchMission());
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        PersistentNavBarNavigator.pushNewScreen(
+          context,
+          screen: const SearchScreen(),
+        );
       } else {
         if (context.mounted) {
           setState(() {

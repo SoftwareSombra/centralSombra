@@ -14,7 +14,12 @@ class AgenteServices {
   Future<bool> preAddUserInfos(
     String uid,
     String nome,
-    String endereco,
+    String logradouro,
+    String numero,
+    String complemento,
+    String bairro,
+    String cidade,
+    String estado,
     String cep,
     String celular,
     String rg,
@@ -61,7 +66,7 @@ class AgenteServices {
       //debugPrint de todos os dados
       debugPrint('uid: $uid');
       debugPrint('nome: $nome');
-      debugPrint('endereco: $endereco');
+      debugPrint('endereco: $logradouro, $numero, $bairro, $cidade, $estado');
       debugPrint('cep: $cep');
       debugPrint('celular: $celular');
       debugPrint('rg: $rg');
@@ -76,10 +81,15 @@ class AgenteServices {
       var dio = Dio();
       try {
         var response = await dio.post(
-            'https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/preAddDocumentosDoAgente',
+            'https://southamerica-east1-sombratestes.cloudfunctions.net/preAddDocumentosDoAgente',
             data: {
               'uid': uid,
-              'endereco': endereco,
+              'logradouro': logradouro,
+              'numero': numero,
+              'complemento': complemento,
+              'bairro': bairro,
+              'cidade': cidade,
+              'estado': estado,
               'cep': cep,
               'celular': celular,
               'rg': rg,
@@ -97,7 +107,11 @@ class AgenteServices {
 
         print(response.data);
       } catch (e) {
-        print(e);
+        if (e is DioException) {
+          print('Erro na função preAddUserInfos: ${e.error}${e.response}');
+        } else {
+          print('Erro na função preAddUserInfos: $e');
+        }
         return false;
       }
 
@@ -118,9 +132,31 @@ class AgenteServices {
     }
   }
 
+  Future<bool> excluirPendencias(String uid) async {
+    try {
+      await firestore
+          .collection('Infos agentes aguardando aprovação')
+          .doc(uid)
+          .delete();
+      await firestore
+          .collection('Infos agentes dados rejeitados')
+          .doc(uid)
+          .delete();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> addUserInfos(
     String uid,
-    String endereco,
+    //String endereco,
+    String logradouro,
+    String numero,
+    String bairro,
+    String cidade,
+    String estado,
+    String complemento,
     String cep,
     String celular,
     String rg,
@@ -134,7 +170,13 @@ class AgenteServices {
     try {
       await firestore.collection('User infos').doc(uid).set({
         'uid': uid,
-        'Endereço': endereco,
+        //'Endereço': endereco,
+        'logradouro': logradouro,
+        'numero': numero,
+        'bairro': bairro,
+        'cidade': cidade,
+        'estado': estado,
+        'complemento': complemento,
         'Cep': cep,
         'Celular': celular,
         'RG': rg,
@@ -164,7 +206,7 @@ class AgenteServices {
     }
   }
 
-  Future<bool> agenteCadastrado(String uid) async {
+  Future<bool> isAgent(String uid) async {
     try {
       final agente = await firestore.collection('User infos').doc(uid).get();
       if (agente.exists) {
@@ -212,11 +254,20 @@ class AgenteServices {
   }
 
   bool validarRG(String rg) {
-    // Remove todos os caracteres não numéricos.
-    rg = rg.replaceAll(RegExp(r'\D'), '');
+    // Remove espaços em branco e caracteres especiais
+    String rgLimpo = rg.replaceAll(RegExp(r'[^0-9A-Za-z]'), '');
 
-    // Verifica se o RG tem entre 7 a 9 dígitos.
-    return rg.length >= 7 && rg.length <= 9;
+    // Verifica o comprimento mínimo e máximo esperado para um RG
+    // Considerando a possibilidade de RGs com 7 a 9 dígitos/números e possíveis letras
+    if (rgLimpo.length < 7 || rgLimpo.length > 9) {
+      return false;
+    }
+
+    // Verificação básica de formato válido (números e até uma letra)
+    // Esta expressão regular permite RGs que combinem números e uma letra (opcionalmente no final)
+    bool formatoValido = RegExp(r'^[0-9]+[A-Za-z]?$').hasMatch(rgLimpo);
+
+    return formatoValido;
   }
 
   bool validarNumeroCelular(String numero) {
@@ -235,8 +286,6 @@ class AgenteServices {
     if (cepNumerico.length != 8) {
       return false;
     }
-    // Aqui você poderia adicionar verificações adicionais, como faixa de valores
-    // ou uma consulta a uma API de CEPs.
 
     return true;
   }
@@ -244,10 +293,17 @@ class AgenteServices {
   Future<bool> aprovacaoParcial(
     String uid, [
     String? nome,
-    String? endereco,
+    //String? endereco,
+    String? logradouro,
+    String? numero,
+    String? bairro,
+    String? cidade,
+    String? estado,
+    String? complemento,
     String? cep,
     String? celular,
     String? rg,
+    String? cpf,
     String? rgFotoFrenteUrl,
     String? rgFotoVersoUrl,
     String? compResidFotoUrl,
@@ -261,10 +317,17 @@ class AgenteServices {
         "uid": uid,
         "timestamp": timestamp,
         if (nome != null) "Nome": nome,
-        if (endereco != null) "Endereço": endereco,
+        //if (endereco != null) "Endereço": endereco,
+        if (logradouro != null) "logradouro": logradouro,
+        if (numero != null) "numero": numero,
+        if (bairro != null) "bairro": bairro,
+        if (cidade != null) "cidade": cidade,
+        if (estado != null) "estado": estado,
+        if (complemento != null) "complemento": complemento,
         if (cep != null) "Cep": cep,
         if (celular != null) "Celular": celular,
         if (rg != null) "RG": rg,
+        if (cpf != null) "CPF": cpf,
         if (rgFotoFrenteUrl != null) "RG frente": rgFotoFrenteUrl,
         if (rgFotoVersoUrl != null) "RG verso": rgFotoVersoUrl,
         if (compResidFotoUrl != null)
@@ -292,10 +355,17 @@ class AgenteServices {
   Future<bool> rejeicaoParcial(
     String uid, [
     String? nome,
-    String? endereco,
+    //String? endereco,
+    String? logradouro,
+    String? numero,
+    String? bairro,
+    String? cidade,
+    String? estado,
+    String? complemento,
     String? cep,
     String? celular,
     String? rg,
+    String? cpf,
     String? rgFotoFrenteUrl,
     String? rgFotoVersoUrl,
     String? compResidFotoUrl,
@@ -309,10 +379,17 @@ class AgenteServices {
         "uid": uid,
         "timestamp": timestamp,
         if (nome != null) "Nome": nome,
-        if (endereco != null) "Endereço": endereco,
+        //if (endereco != null) "Endereço": endereco,
+        if (logradouro != null) "logradouro": logradouro,
+        if (numero != null) "numero": numero,
+        if (bairro != null) "bairro": bairro,
+        if (cidade != null) "cidade": cidade,
+        if (estado != null) "estado": estado,
+        if (complemento != null) "complemento": complemento,
         if (cep != null) "Cep": cep,
         if (celular != null) "Celular": celular,
         if (rg != null) "RG": rg,
+        if (cpf != null) "CPF": cpf,
         if (rgFotoFrenteUrl != null) "RG frente": rgFotoFrenteUrl,
         if (rgFotoVersoUrl != null) "RG verso": rgFotoVersoUrl,
         if (compResidFotoUrl != null)
@@ -345,8 +422,8 @@ class AgenteServices {
           .get();
       if (documento.exists) {
         var dados = documento.data();
-        dados?.remove('uid');
-        dados?.remove('timestamp');
+        //dados?.remove('uid');
+        //dados?.remove('timestamp');
         return dados ?? {};
       } else {
         return {};
@@ -376,6 +453,18 @@ class AgenteServices {
     } catch (e) {
       print("Erro ao buscar os dados rejeitados: $e");
       return {};
+    }
+  }
+
+  Stream<bool> existeDocumentoAguardandoAprovacao() {
+    try {
+      return firestore
+          .collection('Aprovação de user infos')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.isNotEmpty);
+    } catch (e) {
+      debugPrint("Erro ao buscar os dados aguardando aprovação: $e");
+      return Stream.value(false);
     }
   }
 }

@@ -83,7 +83,7 @@ class ChatServices {
 
     for (String token in userTokens) {
       await firebaseMessagingService.sendNotification(
-          token, 'Nova mensagem', body.text);
+          token, 'Nova mensagem', body.text, null);
     }
 
     body.clear();
@@ -232,6 +232,23 @@ class ChatServices {
         .collection('Chat')
         .orderBy('lastMessageTimestamp', descending: true)
         .snapshots();
+  }
+
+  Stream<bool> notificacaoChat() {
+    return FirebaseFirestore.instance
+        .collection('Chat')
+        .snapshots()
+        .map((snapshot) {
+      for (var doc in snapshot.docs) {
+        debugPrint('doc: ${doc.id}');
+        if (doc.data()['unreadCount'] > 0) {
+          debugPrint('Notificação Chat: true');
+          return true;
+        }
+      }
+      debugPrint('Notificação Chat: false');
+      return false;
+    });
   }
 
   Stream<int> getUsersMissionConversationsUnreadCount(String missaoId) {
