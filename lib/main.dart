@@ -102,6 +102,8 @@ void main() async {
     await Permission.location.request();
     await Permission.locationWhenInUse.request();
     await Permission.locationAlways.request();
+    //* permissao para gravar audio
+    await Permission.microphone.request();
 
     if (!status.isGranted) {
       // Solicita a permissão

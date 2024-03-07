@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -8,8 +9,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:chatview/chatview.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String uid;
-  const ChatScreen({super.key, required this.uid});
+  final String? uid;
+  const ChatScreen({super.key, this.uid});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -26,14 +27,14 @@ class ChatScreen extends StatefulWidget {
 
 String fotoUrl =
     'https://firebasestorage.googleapis.com/v0/b/sombratestes.appspot.com/o/FotoNull%2FfotoDePerfilNull.jpg?alt=media&token=bec8dce5-1251-418a-821d-0ded68cf42e7';
-List<Message> messageList = [
-  Message(
-    id: '1',
-    createdAt: DateTime.now(),
-    message: 'Olá, como posso te ajudar?',
-    sendBy: '456',
-  ),
-];
+// List<Message> messageList = [
+//   // Message(
+//   //   id: '1',
+//   //   createdAt: DateTime.now(),
+//   //   message: 'Olá, como posso te ajudar?',
+//   //   sendBy: '456',
+//   // ),
+// ];
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController msgController = TextEditingController();
@@ -48,6 +49,11 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isDarkTheme = true;
   late ChatUser currentUser;
   late ChatController _chatController;
+  List<Message> messageList = [];
+  late StreamSubscription _messagesSubscription;
+  FirebaseAuth auth = FirebaseAuth.instance;
+  late User? user;
+  late String? uid;
 
   void _showHideTypingIndicator() {
     _chatController.setTypingIndicator = !_chatController.showTypingIndicator;
@@ -56,38 +62,71 @@ class _ChatScreenState extends State<ChatScreen> {
   Stream<QuerySnapshot<Map<String, dynamic>>> getConversationMessages() {
     return FirebaseFirestore.instance
         .collection('Chat')
-        .doc(widget.uid)
+        .doc(uid!)
         .collection('Mensagens')
         .orderBy('Timestamp', descending: false)
         .snapshots();
   }
 
-  Stream<List<Message>> startListeningForNewMessages(String chat) {
-    print('-------- chegou aqui, startListeningForNewMessages --------');
+  void startListeningForNewMessages(String chat) {
+    _chatController.messageStreamController.stream.listen((event) {
+      print('event: $event');
+    });
 
-     final messages =FirebaseFirestore.instance
+    //_messagesSubscription.cancel();
+
+    _messagesSubscription = FirebaseFirestore.instance
         .collection('Chat teste')
         .doc(chat)
         .collection('Mensagens')
-        .orderBy('Timestamp', descending: false)
+        .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snapshot) {
-          debugPrint('snapshot: $snapshot');
-      List<Message> newMessages = snapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Message.fromJson(data);
-      }).toList();
-      debugPrint('newMessages: $newMessages');
-      messageList.addAll(newMessages);
-      _chatController.messageStreamController.sink.add(messageList);
-      return newMessages;
+        .listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        // Verifica se o tipo da alteração é uma adição
+        if (change.type == DocumentChangeType.added) {
+          // Converte o documento adicionado em uma mensagem
+          var message =
+              Message.fromJson(change.doc.data() as Map<String, dynamic>);
+          // Adiciona a mensagem à lista de mensagens
+          setState(() {
+            messageList.add(message);
+          });
+        }
+      }
     });
 
-    setState(() {
-      messageList = messageList;
-    });
-    return messages;
-    //return Stream.empty();
+    // Stream<List<Message>> startListeningForNewMessages(String chat) {
+    //   print('-------- chegou aqui, startListeningForNewMessages --------');
+    //   _chatController.messageStreamController.stream.listen((event) {
+    //     print('event: $event');
+    //   });
+
+    //   return FirebaseFirestore.instance
+    //       .collection('Chat teste')
+    //       .doc(chat)
+    //       .collection('Mensagens').orderBy('createdAt', descending: false)
+    //       .snapshots()
+    //       .map((snapshot) {
+    //     debugPrint('snapshot: $snapshot');
+    //     //verificar se o snapshot está vazio
+    //     if (snapshot.docs.isEmpty) {
+    //       debugPrint('snapshot.docs: ${snapshot.docs}');
+    //       return [];
+    //     } else {
+    //       debugPrint('snapshot.docs: ${snapshot.docs}');
+    //     }
+    //     List<Message> newMessages = snapshot.docs.map((doc) {
+    //       Map<String, dynamic> data = doc.data();
+    //       debugPrint('data: $data');
+    //       return Message.fromJson(data);
+    //     }).toList();
+    //     debugPrint('newMessages: $newMessages');
+    //     messageList.addAll(newMessages);
+    //     _chatController.messageStreamController.sink.add(messageList);
+    //     //_chatController.messageStreamController.add(messageList);
+    //     return newMessages;
+    //   });
 
     //     .listen(
     //   (snapshot) {
@@ -166,13 +205,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    user = auth.currentUser;
+    uid = user!.uid;
     //getConversationMessages();
     chatStatus.isInChatScreen = true;
     firebaseMessaging = FirebaseMessaging.instance;
+    // getCurrentChatUser().then((_) {
+    //   chatController(uid!);
+    //   startListeningForNewMessages(uid!);
+    // });
+    chatController(uid!);
     getCurrentChatUser();
-    chatController(widget.uid);
-    _chatController.messageStreamController
-        .addStream(startListeningForNewMessages(widget.uid));
+
+    startListeningForNewMessages(uid!);
     // Checa e atualiza o FCM Token se necessário
     // _checkAndUpdateFcmToken();
     super.initState();
@@ -184,6 +229,7 @@ class _ChatScreenState extends State<ChatScreen> {
     controller.dispose();
     chatStatus.isInChatScreen = false;
     _chatController.dispose();
+    _messagesSubscription.cancel();
     super.dispose();
   }
 
@@ -199,7 +245,13 @@ class _ChatScreenState extends State<ChatScreen> {
       //   title: const Text('Chat'),
       //   centerTitle: true,
       // ),
-      body: ChatView(
+      body: Center(child: Container(
+        color: Color.fromARGB(255, 0, 20, 50),
+      constraints: BoxConstraints(
+        maxWidth: 700,
+        maxHeight: MediaQuery.of(context).size.height,
+      ),
+    child: ChatView(
         //loadMoreData:
         currentUser: currentUser,
         chatController: _chatController,
@@ -222,7 +274,8 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         appBar: ChatViewAppBar(
           elevation: theme.elevation,
-          backGroundColor: theme.appBarColor,
+          //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
+          backGroundColor: Color.fromARGB(255, 0, 6, 15),
           //profilePicture: fotoUrl,
           backArrowColor: theme.backArrowColor,
           chatTitle: "Central",
@@ -242,7 +295,8 @@ class _ChatScreenState extends State<ChatScreen> {
               fontSize: 17,
             ),
           ),
-          backgroundColor: Color.fromARGB(255, 0, 9, 27),
+          //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
+          backgroundColor: Color.fromARGB(255, 0, 6, 15),
         ),
         sendMessageConfig: SendMessageConfiguration(
           imagePickerIconsConfig: ImagePickerIconsConfiguration(
@@ -373,7 +427,7 @@ class _ChatScreenState extends State<ChatScreen> {
           replyIconColor: theme.swipeToReplyIconColor,
         ),
       ),
-    );
+    ),),);
   }
 
   void _onSendTap(
@@ -394,13 +448,16 @@ class _ChatScreenState extends State<ChatScreen> {
         sendBy: currentUser.id,
         replyMessage: replyMessage,
         messageType: messageType,
+        voiceMessageDuration: MessageType.voice == messageType
+            ? const Duration(minutes: 10).inSeconds
+            : null,
       ),
-      widget.uid,
+      uid!,
     );
     //enviar para o firestore
     // await FirebaseFirestore.instance
     //     .collection('Chat teste')
-    //     .doc(widget.uid)
+    //     .doc(uid!)
     //     .collection('Mensagens')
     //     .doc()
     //     .set({
@@ -412,7 +469,7 @@ class _ChatScreenState extends State<ChatScreen> {
     //     replyMessage: replyMessage,
     //     messageType: messageType,
     //   ).toJson().toString(),
-    //   'User uid': widget.uid,
+    //   'User uid': uid!,
     //   'Timestamp': FieldValue.serverTimestamp(),
     // });
 

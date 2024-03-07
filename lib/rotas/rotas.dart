@@ -26,7 +26,11 @@ class Rotas {
     '/login': (_) => LoginScreen(),
     //'/cadastro': (_) => const CadastroScreen(),
     '/redefinirsenha': (_) => RedefinirSenha(),
-    '/home': (_) => kIsWeb ? WebLoginHome() : NavBar(),
+    //'/home': (_) => kIsWeb ? WebLoginHome() : NavBar(),
+    '/home': (_) {
+      //final String uid = ModalRoute.of(_)!.settings.arguments as String;
+      return ChatScreen();
+    },
     '/chat': (_) {
       final String uid = ModalRoute.of(_)!.settings.arguments as String;
       return ChatScreen(uid: uid);
