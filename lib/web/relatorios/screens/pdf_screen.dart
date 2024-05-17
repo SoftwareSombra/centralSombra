@@ -12,15 +12,24 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:printing/printing.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:sombra_testes/chat_view/chatview.dart';
 import 'dart:html' as html;
 import 'dart:ui' as ui;
+import '../../../chat_view/src/models/message.dart';
+import '../../../chat_view/src/values/enumaration.dart';
 import '../../../missao/model/missao_model.dart';
 import '../bloc/mission_details_bloc.dart';
 import '../bloc/mission_details_event.dart';
 import '../bloc/mission_details_state.dart';
 
 class PdfScreen extends StatefulWidget {
+  final MissaoRelatorio missao;
+  final double? distanciaValue;
+  final ImageProvider<Object>? mapUrl;
+  final dynamic locations;
+  final List<Message>? messages;
   final String missaoId;
   final String agenteId;
   final bool tipo;
@@ -39,8 +48,14 @@ class PdfScreen extends StatefulWidget {
   final bool mapa;
   final bool fotos;
   final bool fotosPos;
+  final bool showMessages;
   const PdfScreen(
       {super.key,
+      required this.missao,
+      this.distanciaValue,
+      this.mapUrl,
+      this.locations,
+      this.messages,
       required this.missaoId,
       required this.agenteId,
       required this.tipo,
@@ -58,7 +73,8 @@ class PdfScreen extends StatefulWidget {
       required this.distancia,
       required this.mapa,
       required this.fotos,
-      required this.fotosPos});
+      required this.fotosPos,
+      required this.showMessages});
 
   @override
   State<PdfScreen> createState() => _PdfScreenState();
@@ -73,393 +89,37 @@ class _PdfScreenState extends State<PdfScreen> {
 
   @override
   void initState() {
-    context
-        .read<MissionDetailsBloc>()
-        .add(FetchMissionDetails(widget.agenteId, widget.missaoId));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return RepaintBoundary(
-      key: _repaintBoundaryKey,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text('Relatório de Missão'),
+    return AlertDialog(
+      title: Text('Download PDF'),
+      content: Text('Deseja baixar o arquivo PDF?'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            generateAndDownloadPdf(widget.missao,
+                distancia: widget.distancia ? widget.distanciaValue : null,
+                image:
+                    widget.mapa && widget.mapUrl != null ? widget.mapUrl : null,
+                locations: widget.mapa ? widget.locations : null,
+                messages: widget.showMessages ? widget.messages : null);
+          },
+          child: const Text('Baixar'),
         ),
-        body: SingleChildScrollView(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    BlocBuilder<MissionDetailsBloc, MissionDetailsState>(
-                      builder: (context, state) {
-                        debugPrint(state.toString());
-                        if (state is MissionDetailsLoading) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (state is MissionDetailsNoRouteFound) {
-                          return const Center(
-                              child: Text('Nenhum percurso feito'));
-                        }
-                        if (state is MissionDetailsLoaded) {
-                          // Acessando a missão carregada
-                          MissaoRelatorio missao = state.missoes;
-
-                          final Path path = Path(
-                            color: Colors.blue,
-                            points: state.locations!.map((e) {
-                              return Location(e.ponto.latitude, e.ponto.longitude);
-                            }).toList(),
-                          );
-
-                          //para cada coordenada da state.locations, criar um marker
-                          for (var location in state.locations!) {
-                            userMarkers.add(
-                              Marker(
-                                locations: [
-                                  Location(location.ponto.latitude,
-                                      location.ponto.longitude)
-                                ],
-                              ),
-                            );
-                          }
-
-                          //transformar em uma lista
-                          List<Marker> markersList = userMarkers.toList();
-
-                          //Configurar o StaticMapController
-                          final staticMapController = StaticMapController(
-                            googleApiKey:
-                                "AIzaSyBGozAuPStyTlmF22-zku_I-8gcX3EMfm4",
-                            width: 1000,
-                            height: 700,
-                            zoom: 11,
-                            center: state
-                                .middleLocation,
-                            //paths: [path],
-                            markers: markersList,
-                          );
-
-                          final ImageProvider image = staticMapController.image;
-
-                          // Construindo linhas da tabela com os dados da missão
-                          return Column(
-                            children: [
-                              ResponsiveRowColumn(
-                                layout: ResponsiveBreakpoints.of(context)
-                                        .smallerThan(DESKTOP)
-                                    ? ResponsiveRowColumnType.COLUMN
-                                    : ResponsiveRowColumnType.ROW,
-                                rowMainAxisAlignment: MainAxisAlignment.start,
-                                rowPadding: EdgeInsets.only(
-                                    left: width * 0.1,
-                                    top: 10,
-                                    bottom: 20,
-                                    right: width * 0.1),
-                                columnPadding: const EdgeInsets.all(8.0),
-                                columnSpacing: 20.0,
-                                children: [
-                                  ResponsiveRowColumnItem(
-                                    child: SizedBox(
-                                      height: 100,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Image.asset(
-                                            'assets/images/escudo.png'),
-                                      ),
-                                    ),
-                                  ),
-                                  ResponsiveRowColumnItem(
-                                    rowFlex: 1,
-                                    rowFit: FlexFit.tight,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Relatório de missão',
-                                          style: TextStyle(
-                                              fontFamily:
-                                                  AutofillHints.jobTitle,
-                                              fontSize: 26,
-                                              fontWeight: FontWeight.bold,
-                                              color: canvasColor),
-                                        ),
-                                        SelectableText(
-                                          'Id: ${widget.missaoId}',
-                                          style: TextStyle(
-                                              fontFamily:
-                                                  AutofillHints.jobTitle,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: canvasColor),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  if (ResponsiveBreakpoints.of(context)
-                                      .largerThan(MOBILE))
-                                    const ResponsiveRowColumnItem(
-                                      child: Spacer(),
-                                    ),
-                                  // Botão no final
-                                  ResponsiveRowColumnItem(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        generateAndDownloadPdf(
-                                          missao,
-                                          distancia: widget.distancia
-                                              ? state.distancia
-                                              : null,
-                                          image: widget.mapa ? image : null,
-                                          locations: widget.mapa
-                                              ? state.locations
-                                              : null,
-                                        );
-                                      },
-                                      child: const Text('Baixar'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        left: width * 0.15,
-                                        right: width * 0.15),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Dados:',
-                                          style: TextStyle(
-                                              fontFamily:
-                                                  AutofillHints.jobTitle,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black),
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        buildDataItem(
-                                          'Tipo: ',
-                                          missao.tipo,
-                                          widget.tipo,
-                                        ),
-                                        buildDataItem(
-                                          'CNPJ: ',
-                                          missao.cnpj,
-                                          widget.cnpj,
-                                        ),
-                                        buildDataItem(
-                                          'Nome da empresa: ',
-                                          missao.nomeDaEmpresa,
-                                          widget.nomeDaEmpresa,
-                                        ),
-                                        buildDataItem(
-                                          'Local: ',
-                                          missao.local,
-                                          widget.local,
-                                        ),
-                                        buildDataItem(
-                                          'Placa cavalo: ',
-                                          missao.placaCavalo,
-                                          widget.placaCavalo,
-                                        ),
-                                        buildDataItem(
-                                          'Placa carreta: ',
-                                          missao.placaCarreta,
-                                          widget.placaCarreta,
-                                        ),
-                                        buildDataItem(
-                                          'Nome do motorista: ',
-                                          missao.motorista,
-                                          widget.nomeMotorista,
-                                        ),
-                                        buildDataItem(
-                                          'Cor: ',
-                                          missao.corVeiculo,
-                                          widget.cor,
-                                        ),
-                                        buildDataItem(
-                                          'Observações: ',
-                                          missao.observacao,
-                                          widget.obs,
-                                        ),
-                                        buildDataItem(
-                                          'Início: ',
-                                          missao.inicio != null
-                                              ? DateFormat(
-                                                      'dd/MM/yyyy HH:mm:ss')
-                                                  .format(
-                                                      missao.inicio!.toDate())
-                                              : null,
-                                          widget.inicio,
-                                        ),
-                                        buildDataItem(
-                                          'Fim: ',
-                                          missao.fim != null
-                                              ? DateFormat(
-                                                      'dd/MM/yyyy HH:mm:ss')
-                                                  .format(missao.fim!.toDate())
-                                              : null,
-                                          widget.fim,
-                                        ),
-                                        buildDataItem(
-                                          'Informações: ',
-                                          missao.infos,
-                                          widget.infos,
-                                        ),
-                                        buildDataItem(
-                                          'Distância: ',
-                                          state.distancia != null
-                                              ? '${state.distancia!.toStringAsFixed(2)}km'
-                                              : null,
-                                          widget.distancia,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Column(
-                                    children: [
-                                      state.locations!.isEmpty
-                                          ? const Center(
-                                              child:
-                                                  Text('Nenhum percurso feito'),
-                                            )
-                                          : widget.mapa
-                                              ? Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: width * 0.15,
-                                                      top: 20,
-                                                      bottom: 20,
-                                                      left: width * 0.15),
-                                                  child: SizedBox(
-                                                    height: MediaQuery.of(
-                                                                context)
-                                                            .size
-                                                            .height *
-                                                        0.7, // 70% da altura da tela, por exemplo
-                                                    child: Image(image: image),
-                                                  ),
-                                                )
-                                              : const SizedBox.shrink(),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
-                                    ],
-                                  ),
-                                  widget.fotos
-                                      ? Padding(
-                                          padding: EdgeInsets.only(
-                                              right: width * 0.15,
-                                              top: 20,
-                                              left: width * 0.15),
-                                          child: const Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Fotos:',
-                                                style: TextStyle(
-                                                    fontFamily:
-                                                        AutofillHints.jobTitle,
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                  widget.fotos
-                                      ? Padding(
-                                          padding: EdgeInsets.only(
-                                              right: width * 0.15,
-                                              bottom: 20,
-                                              left: width * 0.15),
-                                          child: Column(
-                                            children: [
-                                              if (missao.fotos != null)
-                                                for (var foto in missao.fotos!)
-                                                  buildFotos(foto.url, context),
-                                            ],
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                  widget.fotosPos
-                                      ? Padding(
-                                          padding: EdgeInsets.only(
-                                              right: width * 0.15,
-                                              top: 20,
-                                              left: width * 0.15),
-                                          child: const Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Fotos após a missão:',
-                                                style: TextStyle(
-                                                    fontFamily:
-                                                        AutofillHints.jobTitle,
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                  widget.fotosPos
-                                      ? Padding(
-                                          padding: EdgeInsets.only(
-                                              right: width * 0.15,
-                                              bottom: 20,
-                                              left: width * 0.15),
-                                          child: Column(
-                                            children: [
-                                              if (missao.fotosPosMissao != null)
-                                                for (var foto
-                                                    in missao.fotosPosMissao!)
-                                                  buildFotos(foto.url, context),
-                                            ],
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                ],
-                              ),
-                            ],
-                          );
-                        }
-                        if (state is MissionDetailsError) {
-                          return Center(child: Text('Erro: ${state.message}'));
-                        }
-                        return Container(); // Estado inicial ou desconhecido
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ],
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text(
+            'Cancelar',
+            style: TextStyle(color: Colors.red),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -481,49 +141,49 @@ class _PdfScreenState extends State<PdfScreen> {
     }
   }
 
-  Future<void> _takeScreenshot() async {
-    try {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (context.mounted) {
-        RenderRepaintBoundary boundary = _repaintBoundaryKey.currentContext!
-            .findRenderObject() as RenderRepaintBoundary;
+  // Future<void> _takeScreenshot() async {
+  //   try {
+  //     await Future.delayed(const Duration(milliseconds: 100));
+  //     if (context.mounted) {
+  //       RenderRepaintBoundary boundary = _repaintBoundaryKey.currentContext!
+  //           .findRenderObject() as RenderRepaintBoundary;
 
-        double pixelRatio = MediaQuery.of(context).devicePixelRatio;
-        ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
-        ByteData? byteData =
-            await image.toByteData(format: ui.ImageByteFormat.png);
-        Uint8List imgBytes = byteData!.buffer.asUint8List();
+  //       double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+  //       ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
+  //       ByteData? byteData =
+  //           await image.toByteData(format: ui.ImageByteFormat.png);
+  //       Uint8List imgBytes = byteData!.buffer.asUint8List();
 
-        // Criar um PDF e adicionar a imagem
-        final pdf = pw.Document();
-        final imagePdf = pw.MemoryImage(imgBytes);
+  //       // Criar um PDF e adicionar a imagem
+  //       final pdf = pw.Document();
+  //       final imagePdf = pw.MemoryImage(imgBytes);
 
-        // Ajuste o tamanho da página com base no tamanho da imagem capturada
-        pdf.addPage(pw.Page(
-          pageFormat: PdfPageFormat(
-            image.width.toDouble() / pixelRatio,
-            image.height.toDouble() / pixelRatio,
-          ),
-          build: (pw.Context context) {
-            return pw.Center(
-              child: pw.Image(imagePdf),
-            );
-          },
-        ));
+  //       // Ajuste o tamanho da página com base no tamanho da imagem capturada
+  //       pdf.addPage(pw.Page(
+  //         pageFormat: PdfPageFormat(
+  //           image.width.toDouble() / pixelRatio,
+  //           image.height.toDouble() / pixelRatio,
+  //         ),
+  //         build: (pw.Context context) {
+  //           return pw.Center(
+  //             child: pw.Image(imagePdf),
+  //           );
+  //         },
+  //       ));
 
-        // Salvar o PDF
-        Uint8List pdfBytes = await pdf.save();
-        final blob = html.Blob([pdfBytes], 'application/pdf');
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.AnchorElement(href: url)
-          ..setAttribute('download', 'screenshot.pdf')
-          ..click();
-        html.Url.revokeObjectUrl(url);
-      }
-    } catch (e) {
-      debugPrint('Erro ao capturar screenshot: $e');
-    }
-  }
+  //       // Salvar o PDF
+  //       Uint8List pdfBytes = await pdf.save();
+  //       final blob = html.Blob([pdfBytes], 'application/pdf');
+  //       final url = html.Url.createObjectUrlFromBlob(blob);
+  //       final anchor = html.AnchorElement(href: url)
+  //         ..setAttribute('download', 'screenshot.pdf')
+  //         ..click();
+  //       html.Url.revokeObjectUrl(url);
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Erro ao capturar screenshot: $e');
+  //   }
+  // }
 
   Future<pw.ImageProvider> _loadAssetImage(String path) async {
     final byteData = await rootBundle.load(path);
@@ -553,39 +213,128 @@ class _PdfScreenState extends State<PdfScreen> {
     return pw.MemoryImage(imgBytes);
   }
 
-  Future<List<pw.MemoryImage>> convertUrlsToPdfImages(List<String> urls) async {
-    Dio dio = Dio();
+  // Future<List<pw.MemoryImage>> convertUrlsToPdfImages(List<String> urls) async {
+  //   Dio dio = Dio();
 
-    // Uma função auxiliar para baixar cada imagem e convertê-la para um MemoryImage
-    Future<pw.MemoryImage> _fetchImage(String url) async {
-      try {
-        final response = await dio.get<Uint8List>(
-          url,
-          options: Options(responseType: ResponseType.bytes),
-        );
-        return pw.MemoryImage(response.data!);
-      } catch (e) {
-        throw Exception('Erro ao baixar a imagem: $e');
-      }
+  //   // Uma função auxiliar para baixar cada imagem e convertê-la para um MemoryImage
+  //   Future<pw.MemoryImage> _fetchImage(String url) async {
+  //     try {
+  //       final response = await dio.get<Uint8List>(
+  //         url,
+  //         options: Options(responseType: ResponseType.bytes),
+  //       );
+  //       return pw.MemoryImage(response.data!);
+  //     } catch (e) {
+  //       throw Exception('Erro ao baixar a imagem: $e');
+  //     }
+  //   }
+
+  //   // Mapear cada URL para uma Future de MemoryImage e aguardar todas as Futures
+  //   List<pw.MemoryImage> pdfImages = await Future.wait(
+  //     urls.map((url) => _fetchImage(url)),
+  //   );
+
+  //   return pdfImages;
+  // }
+
+  Future<pw.MemoryImage> _fetchImage(String url) async {
+    Dio dio = Dio();
+    try {
+      final response = await dio.get<Uint8List>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return pw.MemoryImage(response.data!);
+    } catch (e) {
+      throw Exception('Erro ao baixar a imagem: $e');
+    }
+  }
+
+  // Future<List<FotoComLegenda>> convertUrlsToPdfImages(
+  //     List<String> urls, List<String> legendas) async {
+  //   List<FotoComLegenda> fotosComLegenda = [];
+  //   for (int i = 0; i < urls.length; i++) {
+  //     final imagem = await _fetchImage(urls[i]);
+  //     fotosComLegenda.add(FotoComLegenda(imagem: imagem, legenda: legendas[i]));
+  //   }
+  //   return fotosComLegenda;
+  // }
+
+  Future<List<FotoComLegenda>> convertUrlsToPdfImages(
+      List<String> urls, List<String> legendas) async {
+    Dio dio = Dio();
+    List<FotoComLegenda> fotosComLegenda = [];
+
+    for (int i = 0; i < urls.length; i++) {
+      final response = await dio.get<Uint8List>(
+        urls[i],
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final imagem = pw.MemoryImage(response.data!);
+      final legenda =
+          legendas[i]; // Supondo que cada URL tenha uma legenda correspondente
+      fotosComLegenda.add(FotoComLegenda(imagem: imagem, legenda: legenda));
     }
 
-    // Mapear cada URL para uma Future de MemoryImage e aguardar todas as Futures
-    List<pw.MemoryImage> pdfImages = await Future.wait(
-      urls.map((url) => _fetchImage(url)),
-    );
+    return fotosComLegenda;
+  }
 
-    return pdfImages;
+  Future<pw.MemoryImage> convertUrlToMemoryImage(String url) async {
+    Dio dio = Dio();
+    final response = await dio.get<Uint8List>(
+      url,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return pw.MemoryImage(response.data!);
   }
 
   Future<void> generateAndDownloadPdf(MissaoRelatorio missao,
-      {distancia, ImageProvider? image, locations}) async {
+      {distancia,
+      ImageProvider? image,
+      locations,
+      List<Message>? messages}) async {
     final pdf = pw.Document();
     final escudo = await _loadAssetImage('assets/images/escudo.png');
     final mapa =
         image != null ? await convertImageProviderToPdfImage(image) : null;
-    final fotos = missao.fotos != null
-        ? await convertUrlsToPdfImages(missao.fotos!.map((e) => e.url).toList())
+    // final fotos = missao.fotos != null
+    //     ? await convertUrlsToPdfImages(missao.fotos!.map((e) => e.url).toList())
+    //     : null;
+    List<FotoComLegenda>? fotosComLegenda = missao.fotos != null
+        ? await convertUrlsToPdfImages(missao.fotos!.map((e) => e.url).toList(),
+            missao.fotos!.map((e) => e.caption).toList())
         : null;
+
+    if (messages != null) {
+      List<Message> updatedMessages = [];
+
+      for (Message message in messages) {
+        if (message.messageType == MessageType.image) {
+          // Converte a URL para uma imagem em memória (MemoryImage)
+          final pdfImage = await convertUrlToMemoryImage(message.message);
+          // Cria uma nova mensagem com a imagem convertida
+          final Message newMessage = Message(
+              pdfImage: pdfImage,
+              message: message.message,
+              createdAt: message.createdAt,
+              sendBy: message.sendBy,
+              autor: message.autor,
+              messageType: MessageType.image,
+              id: message.id,
+              reaction: message.reaction,
+              replyMessage: message.replyMessage,
+              status: message.status,
+              voiceMessageDuration: message.voiceMessageDuration);
+          updatedMessages.add(newMessage);
+        } else {
+          updatedMessages.add(message);
+        }
+      }
+
+      // Substitui a lista original pelas mensagens atualizadas
+      messages = updatedMessages;
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    }
 
     pw.Widget buildDataItemPdf(
       String title,
@@ -601,14 +350,14 @@ class _PdfScreenState extends State<PdfScreen> {
                       pw.TextSpan(
                         text: title,
                         style: pw.TextStyle(
-                          fontSize: 16,
+                          fontSize: 12,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
                       pw.TextSpan(
                         text: data,
                         style: pw.TextStyle(
-                          fontSize: 16,
+                          fontSize: 12,
                           fontWeight: pw.FontWeight.normal,
                         ),
                       ),
@@ -622,22 +371,194 @@ class _PdfScreenState extends State<PdfScreen> {
 
     //transformar cada url em um ImageProvider
 
-    pw.Widget buildFotosPdf(pw.ImageProvider fotoBytes) {
-      return pw.Row(
+    // pw.Widget buildFotosPdf(pw.ImageProvider fotoBytes) {
+    //   return pw.Row(
+    //     mainAxisAlignment: pw.MainAxisAlignment.center,
+    //     children: [
+    //       pw.SizedBox(
+    //         height: 500,
+    //         child: pw.Padding(
+    //           padding: const pw.EdgeInsets.symmetric(vertical: 5.0, horizontal: 20),
+    //           child: pw.Container(
+    //             width: 450,
+    //             height: 500,
+    //             child: pw.Image(fotoBytes),
+    //           ),
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    // }
+
+    pw.Widget buildFotosComLegendaPdf(FotoComLegenda fotoComLegenda) {
+      return pw.Column(
         mainAxisAlignment: pw.MainAxisAlignment.center,
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          pw.SizedBox(
-            height: 500,
-            child: pw.Padding(
-              padding: const pw.EdgeInsets.all(8.0),
-              child: pw.Container(
-                width: 450,
-                height: 500,
-                child: pw.Image(fotoBytes),
+          pw.SizedBox(height: 50),
+          pw.Image(fotoComLegenda.imagem, height: 500, fit: pw.BoxFit.contain),
+          pw.SizedBox(height: 5), // Espaçamento entre a foto e a legenda
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.center,
+            children: [
+              pw.Row(
+                children: [
+                  pw.Text(
+                    'Legenda: ',
+                    style: pw.TextStyle(
+                      fontSize: 11,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.black,
+                    ),
+                  ),
+                  fotoComLegenda.legenda != null
+                      ? pw.Text(
+                          fotoComLegenda.legenda!,
+                          textAlign: pw.TextAlign.left,
+                          style: const pw.TextStyle(
+                            fontSize: 10,
+                            color: PdfColors.black,
+                          ),
+                        )
+                      : pw.SizedBox.shrink()
+                ],
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 250)
+        ],
+      );
+    }
+
+    pw.Widget pdfImageMessageView(
+      pw.MemoryImage url,
+      bool isMessageBySender,
+    ) {
+      return pw.Row(
+        mainAxisSize: pw.MainAxisSize.min,
+        mainAxisAlignment: isMessageBySender
+            ? pw.MainAxisAlignment.end
+            : pw.MainAxisAlignment.start,
+        children: [
+          pw.Stack(
+            children: [
+              pw.Transform.scale(
+                scale: 1.2,
+                alignment: isMessageBySender
+                    ? pw.Alignment.centerRight
+                    : pw.Alignment.centerLeft,
+                child: pw.Container(
+                  padding: pw.EdgeInsets.zero,
+                  margin: pw.EdgeInsets.only(
+                    top: 6,
+                    right: isMessageBySender ? 6 : 0,
+                    left: isMessageBySender ? 0 : 6,
+                    bottom: 0,
+                  ),
+                  height: 200,
+                  width: 150,
+                  child: pw.ClipRRect(
+                    verticalRadius: 15,
+                    horizontalRadius: 15,
+                    child: pw.Image(
+                      url,
+                      fit: pw.BoxFit.fitHeight,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    pw.Widget pdfTextMessageView(String message, bool isMessageBySender) {
+      return pw.Stack(
+        children: [
+          pw.Container(
+            constraints: const pw.BoxConstraints(maxWidth: 200),
+            padding: const pw.EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            margin: const pw.EdgeInsets.fromLTRB(5, 0, 6, 2),
+            decoration: pw.BoxDecoration(
+              color: isMessageBySender
+                  ? const PdfColor.fromInt(0xFF454545)
+                  : const PdfColor.fromInt(0xFF0000FF),
+              borderRadius: pw.BorderRadius.circular(
+                (15),
+              ),
+            ),
+            child: pw.Text(
+              message,
+              style: const pw.TextStyle(
+                color: PdfColor.fromInt(0xFFFFFFFF),
+                fontSize: 16,
               ),
             ),
           ),
         ],
+      );
+    }
+
+    pw.Widget buildChatAgente(List<Message> messages) {
+      return pw.ListView.builder(
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          if (messages[index].messageType.isText) {
+            debugPrint('-----> message index: ${messages[index].message}');
+          } else if (messages[index].messageType == MessageType.voice) {
+            debugPrint('-----> audio');
+          } else if (messages[index].messageType == MessageType.image) {
+            debugPrint(
+                '-----> image message index: ${messages[index].pdfImage.toString()}');
+          }
+          return pw.Center(
+            child: pw.ConstrainedBox(
+              constraints: const pw.BoxConstraints(maxWidth: 400),
+              child: pw.Column(
+                children: [
+                  pw.Row(
+                    mainAxisAlignment: messages[index].autor == 'Atendente'
+                        ? pw.MainAxisAlignment.start
+                        : pw.MainAxisAlignment.end,
+                    children: [
+                      messages[index].messageType == MessageType.text
+                          ?
+                          //pw.Text(messages[index].message)
+                          pdfTextMessageView(messages[index].message,
+                              messages[index].autor == 'Atendente')
+                          : messages[index].messageType == MessageType.image
+                              ?
+                              // pw.Image(messages[index].pdfImage!,
+                              //     height: 150, fit: pw.BoxFit.contain)
+                              pdfImageMessageView(messages[index].pdfImage!,
+                                  messages[index].autor == 'Atendente')
+                              :
+                              //pw.Text('---- audio ----')
+                              pdfTextMessageView('---- audio ----',
+                                  messages[index].autor == 'Atendente')
+                    ],
+                  ),
+                  pw.SizedBox(height: 10),
+                  pw.Row(
+                    mainAxisAlignment: messages[index].autor == 'Atendente'
+                        ? pw.MainAxisAlignment.start
+                        : pw.MainAxisAlignment.end,
+                    children: [
+                      pw.Text(
+                          '${DateFormat('dd/MM/yyy', 'pt_BR').format(messages[index].createdAt)} - ${DateFormat('HH:mm', 'pt_BR').format(messages[index].createdAt)}',
+                          style: const pw.TextStyle(color: PdfColors.grey, fontSize: 11))
+                    ],
+                  ),
+                  pw.SizedBox(height: 15),
+                ],
+              ),
+            ),
+          );
+        },
       );
     }
 
@@ -652,9 +573,9 @@ class _PdfScreenState extends State<PdfScreen> {
             pw.Row(
               children: [
                 pw.SizedBox(
-                  height: 100,
+                  height: 60,
                   child: pw.Padding(
-                    padding: const pw.EdgeInsets.all(16.0),
+                    padding: const pw.EdgeInsets.all(10.0),
                     child: pw.Image(escudo),
                   ),
                 ),
@@ -663,30 +584,33 @@ class _PdfScreenState extends State<PdfScreen> {
                   children: [
                     pw.Text(
                       'Relatório de Missão',
-                      style: const pw.TextStyle(fontSize: 26),
+                      style: const pw.TextStyle(fontSize: 15),
                     ),
                     pw.Text(
                       'ID: ${widget.missaoId}',
-                      style: const pw.TextStyle(fontSize: 16),
+                      style: const pw.TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
               ],
             ),
 
+            pw.SizedBox(height: 20),
+
             // Dados da missão
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
+                // pw.Padding(
+                //   padding: const pw.EdgeInsets.symmetric(vertical: 5.0, horizontal: 20),
+                //   child: pw.Text(
+                //     'Dados:',
+                //     style: const pw.TextStyle(fontSize: 18),
+                //   ),
+                // ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
-                  child: pw.Text(
-                    'Dados:',
-                    style: const pw.TextStyle(fontSize: 20),
-                  ),
-                ),
-                pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Tipo: ',
                     missao.tipo,
@@ -694,7 +618,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'CNPJ: ',
                     missao.cnpj,
@@ -702,7 +627,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Nome da empresa: ',
                     missao.nomeDaEmpresa,
@@ -710,7 +636,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Local: ',
                     missao.local,
@@ -718,7 +645,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Placa cavalo: ',
                     missao.placaCavalo,
@@ -726,7 +654,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Placa carreta: ',
                     missao.placaCarreta,
@@ -734,7 +663,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Nome do motorista: ',
                     missao.motorista,
@@ -742,7 +672,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Cor: ',
                     missao.corVeiculo,
@@ -750,7 +681,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Observações: ',
                     missao.observacao,
@@ -758,7 +690,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Início: ',
                     missao.inicio != null
@@ -769,18 +702,20 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Fim: ',
-                    missao.fim != null
+                    missao.serverFim != null
                         ? DateFormat('dd/MM/yyyy HH:mm:ss')
-                            .format(missao.fim!.toDate())
+                            .format(missao.serverFim!.toDate())
                         : null,
                     widget.fim,
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Informações: ',
                     missao.infos,
@@ -788,7 +723,8 @@ class _PdfScreenState extends State<PdfScreen> {
                   ),
                 ),
                 pw.Padding(
-                  padding: const pw.EdgeInsets.all(8.0),
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
                     'Distância: ',
                     distancia != null
@@ -802,22 +738,71 @@ class _PdfScreenState extends State<PdfScreen> {
 
             // Mapa (Se aplicável)
             if (widget.mapa && mapa != null)
-              pw.Padding(
-                padding: const pw.EdgeInsets.all(8.0),
-                child: pw.Container(
-                  height: 600,
-                  width: 500,
-                  child: pw.Image(mapa),
-                ),
-              ),
-
-            // Fotos (Se aplicável)
-            if (widget.fotos && fotos != null)
-              pw.Column(
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  for (var foto in fotos) buildFotosPdf(foto),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.symmetric(
+                        vertical: 5.0, horizontal: 20),
+                    child: pw.Container(
+                      height: 600,
+                      width: 500,
+                      child: pw.Image(mapa),
+                    ),
+                  ),
                 ],
               ),
+            // if (widget.fotos && fotosComLegenda != null)
+            //   pw.Row(
+            //     mainAxisAlignment: pw.MainAxisAlignment.center,
+            //     children: [
+            //       pw.Padding(
+            //         padding: const pw.EdgeInsets.symmetric(
+            //             vertical: 10, horizontal: 50),
+            //         child: pw.Text(
+            //           'FOTOS',
+            //           style: const pw.TextStyle(fontSize: 20),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // if (widget.fotos && fotosComLegenda != null)
+            //   pw.SizedBox(
+            //     height: 25,
+            //   ),
+            if (widget.fotos && fotosComLegenda != null)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  for (var fotoComLegenda in fotosComLegenda)
+                    buildFotosComLegendaPdf(fotoComLegenda),
+                ],
+              ),
+            if (messages != null && widget.showMessages)
+              pw.SizedBox(
+                height: 50,
+              ),
+            if (messages != null && widget.showMessages)
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                children: [
+                  pw.Padding(
+                    padding:
+                        pw.EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                    child: pw.Text(
+                      'CHAT',
+                      style: const pw.TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ],
+              ),
+            if (messages != null && widget.showMessages)
+              pw.SizedBox(
+                height: 25,
+              ),
+            if (messages != null && widget.showMessages)
+              buildChatAgente(messages)
           ];
         },
       ),
@@ -827,8 +812,12 @@ class _PdfScreenState extends State<PdfScreen> {
     final bytes = await pdf.save();
 
     // Chama downloadFile() para baixar o arquivo PDF
-    downloadFile(
-        bytes, 'application/pdf', 'relatorio_missao_${widget.missaoId}.pdf');
+    // downloadFile(
+    //     bytes, 'application/pdf', 'relatorio_missao_${widget.missaoId}.pdf');
+
+    await Printing.layoutPdf(
+      onLayout: (format) => pdf.save(),
+    );
   }
 
   void downloadFile(Uint8List fileBytes, String mimeType, String defaultName) {
@@ -844,29 +833,51 @@ class _PdfScreenState extends State<PdfScreen> {
     html.Url.revokeObjectUrl(url); // Libera o objeto URL após o download
   }
 
-  Widget buildFotos(url, context) {
+  Widget buildFotos(url, caption, context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        SizedBox(
-          height: height * 0.6,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () => showImageDialog(context, url),
-              child: Container(
-                width: width * 0.5,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(url),
-                    fit: BoxFit.cover,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: height * 0.6,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () => showImageDialog(context, url),
+                  child: Container(
+                    width: width * 0.5,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(url),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        //legenda
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Text(
+              'Legenda: ',
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+            ),
+            Text(
+              caption,
+              style: const TextStyle(color: Colors.black),
+            ),
+          ],
         ),
       ],
     );
@@ -919,4 +930,11 @@ Widget buildDataItem(String title, String? data, bool isChecked,
           ],
         )
       : const SizedBox.shrink();
+}
+
+class FotoComLegenda {
+  final pw.MemoryImage imagem;
+  final String? legenda;
+
+  FotoComLegenda({required this.imagem, this.legenda});
 }

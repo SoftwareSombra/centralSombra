@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:js_interop';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tuple/tuple.dart';
+import 'package:uuid/uuid.dart';
 import '../../agente/model/agente_model.dart';
 import '../../agente/services/agente_services.dart';
 import '../../sqfLite/missao/model/missao_db_model.dart';
@@ -20,7 +23,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 import '../model/missao_solicitada.dart';
 
 class MissaoServices {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final user = FirebaseAuth.instance.currentUser;
+  final uid = FirebaseAuth.instance.currentUser!.uid;
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   //final uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -75,6 +80,89 @@ class MissaoServices {
       return 'Chamado criado com sucesso';
     } catch (e) {
       return 'Erro ao criar chamado';
+    }
+  }
+
+  Future<String> criarSolicitacao(
+      cnpj,
+      nomeDaEmpresa,
+      tipo,
+      missaoLatitude,
+      missaoLongitude,
+      placaCavalo,
+      placaCarreta,
+      motorista,
+      corVeiculo,
+      observacao,
+      {local}) async {
+    const uuid = Uuid();
+    final missaoId = uuid.v1();
+    //final uid = user!.uid;
+    final timestamp = FieldValue.serverTimestamp();
+
+    try {
+      local ??= await getAddressFromLatLng(missaoLatitude, missaoLongitude);
+
+      await firestore
+          .collection('Missões solicitadas')
+          .doc(missaoId)
+          .set({'sinc': 'sinc'});
+      await firestore
+          .collection('Missões solicitadas')
+          .doc(missaoId)
+          .collection('Empresa')
+          .doc(cnpj)
+          .set({
+        'cnpj': cnpj,
+        'nome da empresa': nomeDaEmpresa,
+        'missaoId': missaoId,
+        'tipo de missao': tipo,
+        'timestamp': timestamp,
+        'userUid': uid,
+        'missaoLatitude': missaoLatitude,
+        'missaoLongitude': missaoLongitude,
+        'local': local,
+        'placaCavalo': placaCavalo,
+        'placaCarreta': placaCarreta,
+        'motorista': motorista,
+        'corVeiculo': corVeiculo,
+        'observacao': observacao,
+      });
+      return 'Agente solicitado com sucesso';
+    } catch (e) {
+      return 'Erro ao solicitar agente';
+    }
+  }
+
+  Future<String?> getAddressFromLatLng(
+      double latitude, double longitude) async {
+    const String apiKey = 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU';
+    const String baseUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
+
+    try {
+      var response = await Dio().get(baseUrl, queryParameters: {
+        'latlng': '$latitude,$longitude',
+        'key': apiKey,
+      });
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.toString());
+
+        // Verifica se obteve alguma resposta
+        if (data['results'].isNotEmpty) {
+          // Retorna o endereço formatado
+          return data['results'][0]['formatted_address'];
+        } else {
+          debugPrint('Nenhum endereço encontrado.');
+          return null;
+        }
+      } else {
+        debugPrint('Erro ao obter o endereço: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erro ao fazer a requisição: $e');
+      return null;
     }
   }
 
@@ -256,6 +344,7 @@ class MissaoServices {
         'missaoLongitude': missaoLongitude,
         'local': local,
         'inicio': timestamp,
+        'agente': nome,
       });
       await firestore.collection('Missões').doc(missaoId).set({
         'cnpj': cnpj,
@@ -631,7 +720,8 @@ class MissaoServices {
         'missaoLatitude': missaoLatitude,
         'missaoLongitude': missaoLongitude,
         'fim': timestamp,
-        'relatorio': true
+        'relatorio': true,
+        'finalizadaPor': 'Agente'
       });
       return 'Missão finalizada com sucesso';
     } catch (e) {
@@ -890,6 +980,88 @@ class MissaoServices {
     List<Map> missao = await db.query(MissaoFinalizadaTable.tableName);
 
     return missao.isNotEmpty;
+  }
+
+  Future<bool> forcarEncerrarMissao(
+      cnpj,
+      nomedaEmpresa,
+      placaCavalo,
+      placaCarreta,
+      motorista,
+      corVeiculo,
+      observacao,
+      uid,
+      userLatitude,
+      userLongitude,
+      userFinalLatitude,
+      userFinalLongitude,
+      missaoLatitude,
+      missaoLongitude,
+      tipo,
+      missaoId,
+      local,
+      agente) async {
+    try {
+      await firestore.collection('Missões aceitas').doc(uid).delete();
+      await firestore
+          .collection('Empresa')
+          .doc(cnpj)
+          .collection('Missões ativas')
+          .doc(missaoId)
+          .delete();
+      final timestamp = FieldValue.serverTimestamp();
+      await firestore
+          .collection('Missões concluídas')
+          .doc(uid)
+          .collection('Missão')
+          .doc(missaoId)
+          .set({
+        'cnpj': cnpj,
+        'nome da empresa': nomedaEmpresa,
+        'placaCavalo': placaCavalo,
+        'placaCarreta': placaCarreta,
+        'motorista': motorista,
+        'corVeiculo': corVeiculo,
+        'observacao': observacao,
+        'tipo de missao': tipo,
+        'missaoID': missaoId,
+        'userUid': uid,
+        'userLatitude': userLatitude,
+        'userLongitude': userLongitude,
+        'userFinalLatitude': userFinalLatitude,
+        'userFinalLongitude': userFinalLongitude,
+        'missaoLatitude': missaoLatitude,
+        'missaoLongitude': missaoLongitude,
+        'fim': timestamp,
+        'relatorio': true,
+        'finalizadaPor': 'Central'
+      });
+      await relatorioMissaoRequest(
+          cnpj,
+          nomedaEmpresa,
+          placaCavalo,
+          placaCarreta,
+          motorista,
+          corVeiculo,
+          observacao,
+          uid,
+          missaoId,
+          agente,
+          tipo,
+          userLatitude,
+          userLongitude,
+          userFinalLatitude,
+          userFinalLongitude,
+          missaoLatitude,
+          missaoLongitude,
+          local,
+          'Central');
+      debugPrint('missao encerrada com sucesso');
+    } catch (e) {
+      debugPrint('=== erro ao encerrar missao: $e =====');
+      return false;
+    }
+    return true;
   }
 
   // Future<bool> relatorioPendente(String uid) async {
@@ -1222,6 +1394,8 @@ class MissaoServices {
       userFinalLongitude,
       missaoLatitude,
       missaoLongitude,
+      local,
+      finalizador,
       inicio,
       fim,
       {List<Map<String, dynamic>>? fotosComLegendas,
@@ -1250,6 +1424,8 @@ class MissaoServices {
         'userFinalLongitude': userFinalLongitude,
         'missaoLatitude': missaoLatitude,
         'missaoLongitude': missaoLongitude,
+        'local': local,
+        'finalizadaPor': finalizador,
         'inicio': inicio,
         'fim': fim,
         'serverFim': serverTime,
@@ -1301,6 +1477,7 @@ class MissaoServices {
       missaoLatitude,
       missaoLongitude,
       local,
+      finalizador,
       //inicio,
       {List<Map<String, dynamic>>? fotosComLegendas,
       infos,
@@ -1332,6 +1509,7 @@ class MissaoServices {
         'missaoLongitude': missaoLongitude,
         'local': local,
         'fim': fim,
+        'finalizadaPor': finalizador
         //'inicio': inicio,
       });
 
@@ -1345,9 +1523,33 @@ class MissaoServices {
         print('Falha na requisição: Status code ${response.statusCode}');
         return false;
       }
-    } catch (e) {
-      print('Exceção capturada ao enviar foto: $e');
+    } on FirebaseFunctionsException catch (e) {
+      // Verifica se há detalhes adicionais na exceção
+      if (e.details != null) {
+        debugPrint("Error details: ${e.details}");
+      }
+      debugPrint("FirebaseFunctionsException: ${e.code}, ${e.message}");
+      debugPrint(e.stackTrace.toString());
       return false;
+      //e.message!;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        debugPrint(
+            'Erro no servidor: ${e.response!.statusCode}, ${e.response!.data}');
+        return false;
+      } else {
+        debugPrint('Erro de rede ou configuração: ${e.message}');
+        return false;
+      }
+    } on Exception catch (e) {
+      debugPrint("General Exception: $e, ${e.toString()}, ${e.jsify()}");
+      return false;
+      //e.toString();
+    } catch (e, s) {
+      debugPrint("Unknown error: $e");
+      debugPrint("Stack trace: $s");
+      return false;
+      //e.toString();
     }
   }
 
@@ -1370,6 +1572,7 @@ class MissaoServices {
       missaoLatitude,
       missaoLongitude,
       local,
+      finalizador,
       {List<Map<String, dynamic>>? fotosComLegendas,
       infos,
       fim}) async {
@@ -1396,6 +1599,7 @@ class MissaoServices {
         RelatorioTable.columnMissaoLatitude: missaoLatitude,
         RelatorioTable.columnMissaoLongitude: missaoLongitude,
         RelatorioTable.columnLocal: local,
+        RelatorioTable.columnFinalizador: finalizador,
         //RelatorioTable.columnInicio: inicio,
         RelatorioTable.columnFim: DateTime.now().toIso8601String(),
       });
@@ -1428,6 +1632,7 @@ class MissaoServices {
       missaoLatitude,
       missaoLongitude,
       local,
+      finalizador,
       {List<Map<String, dynamic>>? fotosComLegendas,
       infos,
       fim}) async {
@@ -1454,6 +1659,7 @@ class MissaoServices {
             missaoLatitude,
             missaoLongitude,
             local,
+            finalizador,
             fotosComLegendas: fotosComLegendas,
             infos: infos,
           );
@@ -1490,6 +1696,7 @@ class MissaoServices {
             missaoLatitude,
             missaoLongitude,
             local,
+            finalizador,
             //inicio,
             fim: fim,
             fotosComLegendas: fotosComLegendas,
@@ -1544,6 +1751,7 @@ class MissaoServices {
           relatorio[RelatorioTable.columnMissaoLatitude],
           relatorio[RelatorioTable.columnMissaoLongitude],
           relatorio[RelatorioTable.columnLocal],
+          relatorio[RelatorioTable.columnFinalizador],
           fim: relatorio[RelatorioTable.columnFim],
           infos: relatorio[RelatorioTable.columnInfos],
         );
@@ -1893,7 +2101,6 @@ class MissaoServices {
   }
 
   Future<bool> verificarSeAgenteEstaDisponivel(String uid) async {
-
     final result = await firestore.collection('status').doc(uid).get();
     if (!result.exists) {
       return false;
@@ -1965,6 +2172,27 @@ class MissaoServices {
     debugPrint('Missões solicitadas encontradas: ${missoes.length}');
     return missoes;
   }
+
+  // Stream<bool> missoesSolicitadasStream() {
+  //   debugPrint('chegou aqui !!!!!');
+  //   return FirebaseFirestore.instance
+  //       .collection('Missões solicitadas')
+  //       .snapshots()
+  //       .map((snapshot) {
+  //     for (var doc in snapshot.docs) {
+  //       debugPrint('doc: ${doc.id}');
+  //       final hasMission = FirebaseFirestore.instance
+  //           .collection('Missões solicitadas')
+  //           .doc(doc.id)
+  //           .collection('Empresa')
+  //           .snapshots()
+
+  //           //stream para saber se tem documento dentro da Collection Empresa ou não e retorn
+  //     }
+  //     debugPrint('Notificação Chat: false');
+  //     return false;
+  //   });
+  // }
 
   Future<bool> excluirMissaoSolicitada(String missaoId, String cnpj) async {
     try {

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../../../autenticacao/screens/tratamento/success_snackbar.dart';
-import '../../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
 import '../../../screens/add_cargos.dart';
 import '../../bloc/add_user_bloc/bloc/add_user_bloc.dart';
 import '../../bloc/add_user_bloc/bloc/add_user_event.dart';
@@ -11,22 +9,51 @@ import '../../bloc/add_user_bloc/bloc/add_user_state.dart';
 import '../../bloc/users_list_bloc/users_list_bloc.dart';
 import '../../bloc/users_list_bloc/users_list_event.dart';
 
-class FormAddUser extends StatelessWidget {
-  final TextEditingController nameController;
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
+class FormAddUser extends StatefulWidget {
   final GlobalKey<FormState> formKey;
 
-  FormAddUser(
-      {super.key,
-      required this.nameController,
-      required this.emailController,
-      required this.passwordController,
-      required this.formKey});
+  const FormAddUser({super.key, required this.formKey});
 
+  @override
+  State<FormAddUser> createState() => _FormAddUserState();
+}
+
+class _FormAddUserState extends State<FormAddUser> {
   final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
   final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
   final AddUserBloc registerBloc = AddUserBloc();
+  String? selectedOption;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool _isButtonEnabled = false;
+  String pass = '1234567';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
+
+  void _updateButtonState() async {
+    bool nameField = nameController.text.isNotEmpty;
+    bool emailField = emailController.text.isNotEmpty;
+    bool selectedOptionField = selectedOption != null;
+
+    setState(() {
+      if (nameField && emailField && selectedOptionField) {
+        _isButtonEnabled = true;
+      } else {
+        _isButtonEnabled = false;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +69,7 @@ class FormAddUser extends StatelessWidget {
                 context, 'Conta criada com sucesso.');
           }
           context.read<UsersListBloc>().add(FetchUsersList());
-          showRegistrationSuccessModal(context, state.uid);
+          //showRegistrationSuccessModal(context, state.uid);
         }
         if (state is RegisterUserFailure) {
           tratamentoDeErros.showErrorSnackbar(context, state.error);
@@ -50,11 +77,14 @@ class FormAddUser extends StatelessWidget {
       },
       builder: (context, state) {
         return Form(
-          key: formKey,
+          key: widget.formKey,
           child: Column(
             children: <Widget>[
               TextFormField(
                 controller: nameController,
+                onChanged: (value) {
+                  _updateButtonState();
+                },
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
                 validator: (value) {
@@ -84,6 +114,9 @@ class FormAddUser extends StatelessWidget {
               const SizedBox(height: 10),
               TextFormField(
                 controller: emailController,
+                onChanged: (value) {
+                  _updateButtonState();
+                },
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
                 validator: (value) {
@@ -110,48 +143,51 @@ class FormAddUser extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                style: const TextStyle(color: Colors.white),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua senha.';
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Senha',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  prefixIcon: Icon(
-                    Icons.lock,
-                    color: Colors.grey,
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Radio<String>(
+                    value: 'Administrador',
+                    groupValue: selectedOption,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedOption = value;
+                        _updateButtonState();
+                      });
+                    },
                   ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  const Text('Administrador'),
+                  const SizedBox(width: 10),
+                  Radio<String>(
+                    value: 'Operador',
+                    groupValue: selectedOption,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedOption = value;
+                        _updateButtonState();
+                      });
+                    },
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                ),
+                  const Text('Operador'),
+                ],
               ),
               const SizedBox(height: 20),
               state is RegisterUserLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: () async {
-                        if (formKey.currentState!.validate()) {
-                          registerBloc.add(RegisterUserEvent(
-                            nameController.text,
-                            emailController.text,
-                            passwordController.text,
-                          ));
-                        }
-                      },
+                      onPressed: _isButtonEnabled
+                          ? () async {
+                              if (widget.formKey.currentState!.validate()) {
+                                registerBloc.add(RegisterUserEvent(
+                                  nameController.text,
+                                  emailController.text,
+                                  pass,
+                                  cargo: selectedOption,
+                                ));
+                              }
+                            }
+                          : null,
                       child: const Text('Cadastrar'),
                     ),
             ],
@@ -188,7 +224,9 @@ class FormAddUser extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 5,),
+              const SizedBox(
+                height: 5,
+              ),
               const Text('Adicionar cargo?'),
               SizedBox(height: height * 0.1),
               Row(

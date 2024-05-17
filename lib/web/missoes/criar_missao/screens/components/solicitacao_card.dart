@@ -8,10 +8,16 @@ import '../../../../../missao/bloc/missao_solicitacao_card/missao_solicitacao_ca
 import '../../../../../missao/model/missao_solicitada.dart';
 import '../../../../../missao/screens/criar_missao_screen.dart';
 
-class SolicitacaoMissaoCard extends StatelessWidget {
+class SolicitacaoMissaoCard extends StatefulWidget {
   final MissaoSolicitada missaoSolicitada;
-  const SolicitacaoMissaoCard({super.key, required this.missaoSolicitada});
+  final BuildContext? initialContext;
+  const SolicitacaoMissaoCard(
+      {super.key, required this.missaoSolicitada, this.initialContext});
+  @override
+  State<SolicitacaoMissaoCard> createState() => _SolicitacaoMissaoCardState();
+}
 
+class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
 
   void mostrarListaAgentes(BuildContext context) {
@@ -19,7 +25,7 @@ class SolicitacaoMissaoCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return ListaAgentesModal(
-          missaoSolicitada: missaoSolicitada,
+          missaoSolicitada: widget.missaoSolicitada,
         );
       },
     );
@@ -27,67 +33,80 @@ class SolicitacaoMissaoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<MissaoSolicitacaoCardBloc>().add(
-          BuscarMissao(
-            missaoId: missaoSolicitada.missaoId,
-          ),
-        );
-    return Padding(
+    // context.read<MissaoSolicitacaoCardBloc>().add(
+    //       BuscarMissao(
+    //         missaoId: widget.missaoSolicitada.missaoId,
+    //       ),
+    //     );
+    return 
+    Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: BlocBuilder<MissaoSolicitacaoCardBloc, MissaoSolicitacaoCardState>(
-        builder: (context, state) {
-          if (state is MissaoSolicitacaoCardLoading) {
-            return Card(
-              elevation: 1,
-              margin: const EdgeInsets.all(8.0),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  //mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //texts
-                    Text(missaoSolicitada.tipo),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            );
-          } else if (state is MissaoSolicitacaoCardError) {
-            return Card(
-              elevation: 4,
-              margin: const EdgeInsets.all(8.0),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  //mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //texts
-                    Text(missaoSolicitada.tipo),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(state.message),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            );
-          } else if (state is MissaoJaSolicitadaCard) {
-            return
+      child: 
+       //BlocBuilder<MissaoSolicitacaoCardBloc, MissaoSolicitacaoCardState>(
+      //   builder: (context, state) {
+      //     if (state is MissaoSolicitacaoCardLoading) {
+            //return  
+          //   Container(
+          //     height: 310,
+          //     decoration: BoxDecoration(
+          //       gradient: LinearGradient(
+          //         begin: Alignment.centerLeft,
+          //         end: Alignment.centerRight,
+          //         colors: [
+          //           canvasColor.withOpacity(0.3),
+          //           canvasColor.withOpacity(0.33),
+          //           canvasColor.withOpacity(0.35),
+          //           canvasColor.withOpacity(0.38),
+          //           canvasColor.withOpacity(0.4),
+          //           canvasColor.withOpacity(0.43),
+          //           canvasColor.withOpacity(0.45),
+          //           canvasColor.withOpacity(0.48),
+          //           canvasColor.withOpacity(0.5),
+          //           canvasColor.withOpacity(0.53),
+          //           canvasColor.withOpacity(0.55),
+          //           canvasColor.withOpacity(0.58),
+          //         ],
+          //       ),
+          //       borderRadius: BorderRadius.circular(10),
+          //       border: Border.all(
+          //         color: Colors.blue.withOpacity(0.1),
+          //         width: 0.5,
+          //       ),
+          //       boxShadow: [
+          //         BoxShadow(
+          //           color: canvasColor.withOpacity(0.1),
+          //           blurRadius: 10,
+          //         )
+          //       ],
+          //       //color: Colors.blue,
+          //     ),
+          //     child: const Center(
+          //       child: CircularProgressIndicator(),
+          //     ),
+          //   );
+          // } 
+          // else if (state is MissaoSolicitacaoCardError) {
+          //   return Card(
+          //     elevation: 4,
+          //     margin: const EdgeInsets.all(8.0),
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(20.0),
+          //       child: Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         //mainAxisAlignment: MainAxisAlignment.center,
+          //         children: [
+          //           Row(
+          //             mainAxisAlignment: MainAxisAlignment.center,
+          //             children: [
+          //               Text(state.message),
+          //             ],
+          //           )
+          //         ],
+          //       ),
+          //     ),
+          //   );
+          // } else if (state is MissaoJaSolicitadaCard) {
+          //   return
                 // Card(
                 //   elevation: 4,
                 //   margin: const EdgeInsets.all(8.0),
@@ -118,9 +137,10 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                 //     ),
                 //   ),
                 // );
-                const SizedBox.shrink();
-          }
-          return Container(
+          //       const SizedBox.shrink();
+          // }
+          //return 
+          Container(
             height: 310,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -160,10 +180,10 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 //mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'MISSÃO SOLICITADA:',
                         style: TextStyle(
                           fontSize: 16,
@@ -172,37 +192,41 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                         ),
                       ),
                       //icone de expandir
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Bootstrap.plus_circle,
-                          size: 16,
-                        ),
-                        //padding: const EdgeInsets.all(0),
+                      Icon(
+                        Bootstrap.plus_circle,
+                        size: 16,
                       ),
+                      //padding: const EdgeInsets.all(0),
                     ],
                   ),
 
                   // const SizedBox(
                   //   height: 3,
                   // ),
-                  Text(
-                    'Em: ${DateFormat('dd/MM/yyyy').format(missaoSolicitada.timestamp)}'
-                    ' às ${DateFormat('kk:mm').format(missaoSolicitada.timestamp)}h',
+                  SelectableText(
+                    'Em: ${DateFormat('dd/MM/yyyy').format(widget.missaoSolicitada.timestamp)}'
+                    ' às ${DateFormat('kk:mm').format(widget.missaoSolicitada.timestamp)}h',
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.grey,
                     ),
                   ),
-                  Text(
-                    'Tipo: ${missaoSolicitada.tipo}',
+                  SelectableText(
+                    'Tipo: ${widget.missaoSolicitada.tipo}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SelectableText(
+                    'Id: ${widget.missaoSolicitada.missaoId}',
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.grey,
                     ),
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 20,
                   ),
                   //texts
                   //Text('Empresa: ${missaoSolicitada.nomeDaEmpresa}'),
@@ -225,7 +249,7 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                                 fontSize: 13, fontWeight: FontWeight.w300),
                           ),
                           Text(
-                            missaoSolicitada.nomeDaEmpresa,
+                            widget.missaoSolicitada.nomeDaEmpresa,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -263,7 +287,7 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.2,
                             child: Text(
-                              missaoSolicitada.local,
+                              widget.missaoSolicitada.local,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -302,18 +326,21 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => MapAddMissao(
-                                cnpj: missaoSolicitada.cnpj,
-                                nomeDaEmpresa: missaoSolicitada.nomeDaEmpresa,
-                                placaCavalo: missaoSolicitada.placaCavalo,
-                                placaCarreta: missaoSolicitada.placaCarreta,
-                                motorista: missaoSolicitada.motorista,
-                                corVeiculo: missaoSolicitada.corVeiculo,
-                                observacao: missaoSolicitada.observacao,
-                                latitude: missaoSolicitada.latitude,
-                                longitude: missaoSolicitada.longitude,
-                                local: missaoSolicitada.local,
-                                tipo: missaoSolicitada.tipo,
-                                missaoId: missaoSolicitada.missaoId,
+                                cnpj: widget.missaoSolicitada.cnpj,
+                                nomeDaEmpresa:
+                                    widget.missaoSolicitada.nomeDaEmpresa,
+                                placaCavalo:
+                                    widget.missaoSolicitada.placaCavalo,
+                                placaCarreta:
+                                    widget.missaoSolicitada.placaCarreta,
+                                motorista: widget.missaoSolicitada.motorista,
+                                corVeiculo: widget.missaoSolicitada.corVeiculo,
+                                observacao: widget.missaoSolicitada.observacao,
+                                latitude: widget.missaoSolicitada.latitude,
+                                longitude: widget.missaoSolicitada.longitude,
+                                local: widget.missaoSolicitada.local,
+                                tipo: widget.missaoSolicitada.tipo,
+                                missaoId: widget.missaoSolicitada.missaoId,
                               ),
                             ),
                           );
@@ -410,8 +437,8 @@ class SolicitacaoMissaoCard extends StatelessWidget {
                 ],
               ),
             ),
-          );
-        },
+          //);
+        //},
       ),
     );
   }

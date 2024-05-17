@@ -1,4 +1,5 @@
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
+import '../../../chat_view/src/models/message.dart';
 import '../../../missao/model/missao_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 
@@ -19,6 +20,7 @@ final class MissionDetailsLoaded extends MissionDetailsState {
   final List<CoordenadaComTimestamp>? locations;
   final Location? middleLocation;
   final double? distancia;
+  List<Message>? messages;
   MissionDetailsLoaded(
       this.missoes,
       this.initialPosition,
@@ -27,7 +29,8 @@ final class MissionDetailsLoaded extends MissionDetailsState {
       this.pontoInicial,
       this.locations,
       this.middleLocation,
-      this.distancia);
+      this.distancia,
+      this.messages);
 }
 
 final class MissionDetailsNoRouteFound extends MissionDetailsState {}

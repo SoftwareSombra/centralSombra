@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tuple/tuple.dart';
 import '../../../../../../autenticacao/services/user_services.dart';
+import '../../../../services/admin_services.dart';
 import 'add_user_event.dart';
 import 'add_user_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +15,8 @@ class AddUserBloc extends Bloc<AddUserEvent, AddUserState> {
   void _performRegistration(
       RegisterUserEvent event, Emitter<AddUserState> emit) async {
     UserServices userServices = UserServices();
+    AdminServices adminServices = AdminServices();
+
     if (!userServices.isEmailValid(event.email)) {
       emit(RegisterUserFailure('Por favor, insira um email válido.'));
       return;
@@ -32,7 +35,13 @@ class AddUserBloc extends Bloc<AddUserEvent, AddUserState> {
       if (isRegisterSuccessful.item1) {
         debugPrint('chegou aqui, sucesso');
         debugPrint('isRegisterSuccessful: ${isRegisterSuccessful.item2}');
-        //await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(milliseconds: 100));
+        await adminServices.editDisplayName(isRegisterSuccessful.item2, event.name);
+        if (event.cargo != null) {
+          event.cargo == 'Administrador'
+              ? adminServices.addAdmin(isRegisterSuccessful.item2, nome: event.name)
+              : adminServices.addOperador(isRegisterSuccessful.item2, nome: event.name);
+        }
         emit(RegisterUserSuccess(isRegisterSuccessful.item2));
       } else {
         emit(RegisterUserFailure(

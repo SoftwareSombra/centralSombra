@@ -40,7 +40,7 @@ class SolicitacoesComponent extends StatelessWidget {
                   'Solicitações',
                   'Cadastro',
                   Icons.person,
-                  CadastroListDialog(),
+                  const CadastroListDialog(),
                   context,
                   AgenteServices().existeDocumentoAguardandoAprovacao(),
                 ),

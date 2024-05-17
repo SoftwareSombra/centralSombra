@@ -21,3 +21,23 @@ Future<bool> isUpdateAvailable() async {
   // Compare as versões.
   return currentVersion.compareTo(latestVersion!) < 0;
 }
+
+Future<bool> isWebUpdateAvailable() async {
+  // Obtenha a versão atual do aplicativo.
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  String currentVersion = packageInfo.version;
+  debugPrint(currentVersion);
+
+  // Consulte o Firestore para obter a versão mais recente.
+  DocumentSnapshot snapshot = await FirebaseFirestore.instance
+      .collection('config')
+      .doc('latestVersion')
+      .get();
+
+  String? latestVersion =
+      (snapshot.data() as Map<String, dynamic>)['versao atual web'];
+      debugPrint(latestVersion);
+
+  // Compare as versões.
+  return currentVersion.compareTo(latestVersion!) < 0;
+}

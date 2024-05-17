@@ -203,7 +203,7 @@ class _MissaoScreenState extends State<MissaoScreen> {
     await FirebaseFirestore.instance
         .collection('Chat missão')
         .doc(widget.missao.missaoId)
-        .update({'userUnreadCount': 0});
+        .set({'userUnreadCount': 0}, SetOptions(merge: true));
   }
 
   void _updateChat() {
@@ -1116,6 +1116,7 @@ class _MissaoScreenState extends State<MissaoScreen> {
         widget.missao.missaoLatitude,
         widget.missao.missaoLongitude,
         widget.missao.local,
+        'Agente',
         fim: DateTime.now().toIso8601String(),
       );
       debugPrint("Final local: ${finalLocal.item2}");

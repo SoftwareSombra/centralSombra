@@ -27,7 +27,7 @@ class Empresa {
     this.observacao = '',
   });
 
-  factory Empresa.fromFirestore(Map<String, dynamic> data, String id) {
+  factory Empresa.fromFirestore(Map<String, dynamic> data) {
     return Empresa(
       nomeEmpresa: data['Nome da empresa'],
       cnpj: data['CNPJ'],
@@ -42,5 +42,21 @@ class Empresa {
       logo: data['Logo'],
       observacao: data['Observação'],
     );
+  }
+
+  Map<String, dynamic> toFirestore(Empresa empresa) {
+    return {
+      'Nome da empresa': empresa.nomeEmpresa,
+      'CNPJ': empresa.cnpj,
+      'Endereço': empresa.endereco,
+      'Telefone': empresa.telefone,
+      'Email': empresa.email,
+      'Representante legal nome': empresa.representanteLegalNome,
+      'Representante legal CPF': empresa.representanteLegalCpf,
+      'Prazo do contrato inicio': empresa.prazoContratoInicio,
+      'Prazo do contrato fim': empresa.prazoContratoFim,
+      'Logo': empresa.logo,
+      'Observação': empresa.observacao,
+    };
   }
 }

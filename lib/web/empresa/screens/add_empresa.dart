@@ -71,6 +71,7 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
           : prazoContratoFim ?? DateTime.now(),
       firstDate: DateTime(2023),
       lastDate: DateTime(2040),
+      locale: const Locale('pt', 'BR'),
     );
     if (picked != null &&
         picked != (isStartDate ? prazoContratoInicio : prazoContratoFim)) {

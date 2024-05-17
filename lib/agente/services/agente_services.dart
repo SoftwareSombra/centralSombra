@@ -164,7 +164,8 @@ class AgenteServices {
     String? rgFotoFrenteUrl,
     String? rgFotoVersoUrl,
     String? compResidFotoUrl,
-    Timestamp timestamp,
+    dynamic //Timestamp ou DateTime
+        timestamp,
     String nome,
   ) async {
     try {

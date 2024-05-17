@@ -2,20 +2,29 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
+import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../../../autenticacao/services/user_services.dart';
+import '../../../missao/services/missao_services.dart';
+import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
 
 class RealTimeMapScreen extends StatefulWidget {
   final String missaoId;
   final double missaoLatitude;
   final double missaoLongitude;
+  final Map<String, dynamic> missionData;
   const RealTimeMapScreen(
       {super.key,
       required this.missaoId,
       required this.missaoLatitude,
-      required this.missaoLongitude});
+      required this.missaoLongitude,
+      required this.missionData});
 
   @override
   State<RealTimeMapScreen> createState() => _RealTimeMapScreenState();
@@ -30,6 +39,11 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
   // ignore: unused_field
   Uint8List? _userIcon;
   UserServices userServices = UserServices();
+  MissaoServices missaoServices = MissaoServices();
+  double? newLat;
+  double? newLng;
+  MensagemDeSucesso msgDeSucesso = MensagemDeSucesso();
+  TratamentoDeErros tratamento = TratamentoDeErros();
 
   @override
   void initState() {
@@ -146,8 +160,10 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
               markerId: const MarkerId('current_location'),
               position: LatLng(data['latitude'], data['longitude']),
             );
+            newLat = data['latitude'];
+            newLng = data['longitude'];
             var missionMarker = Marker(
-              infoWindow: const InfoWindow(title: 'Local da Missão'),
+                infoWindow: const InfoWindow(title: 'Local da Missão'),
                 markerId: const MarkerId('mission_location'),
                 position:
                     LatLng(widget.missaoLatitude, widget.missaoLongitude));
@@ -157,6 +173,87 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
           });
         }
       },
+    );
+  }
+
+  void encerrarMissaoDialog() {
+    showDialog(
+      context: context,
+      builder: ((context) => AlertDialog(
+            title: const Text('Atenção'),
+            content: const Text('Deseja realmente encerrar a missão?'),
+            actions: [
+              BlocBuilder<ElevatedButtonBloc, ElevatedButtonBlocState>(
+                builder: (context, state) {
+                  if (state is ElevatedButtonBlocLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            context
+                                .read<ElevatedButtonBloc>()
+                                .add(ElevatedButtonPressed());
+                            debugPrint(widget.missionData.toString());
+                            bool sucesso =
+                                await missaoServices.forcarEncerrarMissao(
+                              widget.missionData['cnpj'],
+                              widget.missionData['nome da empresa'],
+                              widget.missionData['placaCavalo'],
+                              widget.missionData['placaCarreta'],
+                              widget.missionData['motorista'],
+                              widget.missionData['corVeiculo'],
+                              widget.missionData['observacao'],
+                              widget.missionData['userUid'],
+                              widget.missionData['userLatitude'],
+                              widget.missionData['userLongitude'],
+                              //widget.data['userFinalLatitude'],
+                              //widget.data['userFinalLongitude'],
+                              newLat,
+                              newLng,
+                              widget.missionData['missaoLatitude'],
+                              widget.missionData['missaoLongitude'],
+                              widget.missionData['tipo de missao'],
+                              widget.missionData['missaoID'],
+                              widget.missionData['local'],
+                              widget.missionData['agente'] ?? 'Não informado',
+                            );
+                            if (sucesso && context.mounted) {
+                              context
+                                  .read<ElevatedButtonBloc>()
+                                  .add(ElevatedButtonActionCompleted());
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                              msgDeSucesso.showSuccessSnackbar(
+                                  context, 'Missão finalizada com sucesso');
+                              //BlocProvider.of<>(context).add(());
+                            } else if (!sucesso && context.mounted) {
+                              context
+                                  .read<ElevatedButtonBloc>()
+                                  .add(ElevatedButtonActionCompleted());
+                              tratamento.showErrorSnackbar(
+                                  context, 'Erro, tente novamente');
+                            }
+                          },
+                          child: const Text('Sim'),
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
+            ],
+          )),
     );
   }
 
@@ -170,7 +267,26 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Posição do agente'),
+        title: const Text(
+          'POSIÇÃO DO AGENTE',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  encerrarMissaoDialog();
+                },
+                child: const Text(
+                  'Encerrar missão',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: GoogleMap(
         onMapCreated: (GoogleMapController controller) {

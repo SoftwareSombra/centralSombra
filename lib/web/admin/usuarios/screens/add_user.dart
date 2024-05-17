@@ -20,14 +20,14 @@ class AddUser extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         appBar: AppBar(
           title: const Text(
-            'Cadastro',
+            '',
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
-          backgroundColor: Colors.black,
+          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         ),
         body: BlocConsumer<AddUserBloc, AddUserState>(
           listener: (context, state) {
@@ -43,11 +43,21 @@ class AddUser extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    FormAddUser(
-                      nameController: _nameController,
-                      emailController: _emailController,
-                      passwordController: _passwordController,
-                      formKey: formKey,
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Preencha os campos abaixo para criar um novo usuário.',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: FormAddUser(
+                        formKey: formKey,
+                      ),
                     ),
                   ],
                 ),

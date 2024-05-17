@@ -9,7 +9,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:sombra_testes/agente/bloc/get_user/agente_bloc.dart';
@@ -38,6 +42,7 @@ import 'missao/bloc/missoes_pendentes/missoes_pendentes_bloc.dart';
 import 'missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import 'missao/bloc/missoes_solicitadas/missoes_solicitadas_bloc.dart';
 import 'missao/model/missao_model.dart';
+import 'missao/services/missao_services.dart';
 import 'notificacoes/fcm.dart';
 import 'notificacoes/notificacoess.dart';
 import 'perfil_user/bloc/foto/user/user_foto_bloc.dart';
@@ -55,6 +60,7 @@ import 'veiculos/bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_b
 import 'versao_service.dart';
 import 'web/admin/agentes/bloc/agentes_list_bloc.dart';
 import 'web/admin/bloc/roles_bloc.dart';
+import 'web/admin/notificacoes/blocs/avisos/avisos_bloc_bloc.dart';
 import 'web/admin/usuarios/bloc/add_user_bloc/bloc/add_user_bloc.dart';
 import 'web/admin/usuarios/bloc/users_list_bloc/users_list_bloc.dart';
 import 'web/empresa/bloc/empresa_user_bloc/empresa_users_bloc.dart';
@@ -65,26 +71,32 @@ import 'web/relatorios/bloc/mission_details_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await initializeDateFormatting('pt_BR', null);
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   bool updateRequired = await isUpdateAvailable();
+  bool webupdateRequired = await isWebUpdateAvailable();
 
   final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   bool hasConnection = true;
 
+  await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
   if (!kIsWeb) {
-    await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
     hasConnection = await InternetConnectionChecker().hasConnection;
 
     await Workmanager().initialize(
@@ -98,7 +110,7 @@ void main() async {
     );
 
     var status = await Permission.location.status;
-    await Permission.location.status;
+    //await Permission.location.status;
     await Permission.location.request();
     await Permission.locationWhenInUse.request();
     await Permission.locationAlways.request();
@@ -123,13 +135,23 @@ void main() async {
   service.initialize();
 
   if (kIsWeb) {
-    runApp(MyApp());
+    if (webupdateRequired) {
+      runApp(const VersionErrorApp());
+    } else {
+      runApp(const MyApp());
+      service.tokenRefresh();
+    }
   } else {
     if (updateRequired) {
       runApp(const VersionErrorApp());
     } else {
-      runApp(ConnectionNotifier(
-          notifier: ValueNotifier(hasConnection), child: const MyApp()));
+      runApp(
+        ConnectionNotifier(
+          notifier: ValueNotifier(hasConnection),
+          child: const MyApp(),
+        ),
+      );
+      service.tokenRefresh();
     }
   }
 }
@@ -147,9 +169,22 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late bool status;
   SwipeButtonServices swipeButtonServices = SwipeButtonServices();
   Color blueColor = const Color.fromARGB(255, 0, 8, 42);
+  final FlutterLocalization localization = FlutterLocalization.instance;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    localization.init(
+      mapLocales: [
+        const MapLocale(
+          'pt',
+          ({
+            'pt': 'Português',
+          }),
+        ),
+      ],
+      initLanguageCode: 'pt',
+    );
     if (!kIsWeb) {
       bgLocationTrackerInitialize();
       //_getTrackingStatus();
@@ -163,6 +198,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     if (!kIsWeb) {
       listener.cancel();
     }
@@ -325,7 +361,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 create: (context) => DashboardBloc(false, false),
               ),
               BlocProvider(
-                create: (context) => QtdMissoesPendentesBloc(),
+                create: (context) => QtdMissoesPendentesBloc(MissaoServices()),
               ),
               BlocProvider(
                 create: (context) => MissoesPendentesBloc(),
@@ -342,9 +378,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               BlocProvider(
                 create: (context) => EmpresaUsersBloc(),
               ),
+              BlocProvider(
+                create: (context) => AvisosBloc(),
+              ),
               // Adicionar quantos BLoCs precisar aqui
             ],
             child: MaterialApp(
+              localizationsDelegates: localization.localizationsDelegates,
+              supportedLocales: const [
+                Locale('pt', 'BR'),
+              ],
               builder: (context, child) => ResponsiveBreakpoints.builder(
                 child: child!,
                 breakpoints: [
@@ -600,6 +643,11 @@ class LocationDao {
 
     final timestamp = DateTime.now();
     LatLng currentLocation = LatLng(data.lat, data.lon);
+    final courseAccuracy = data.courseAccuracy;
+    final speed = data.speed;
+    final course = data.course;
+    final horizontalAccuracy = data.horizontalAccuracy;
+    final verticalAccuracy = data.verticalAccuracy;
 
     final String userId = FirebaseAuth.instance.currentUser!.uid;
     final firestore = FirebaseFirestore.instance;
@@ -620,7 +668,11 @@ class LocationDao {
           .set({
         'latitude': currentLocation.latitude,
         'longitude': currentLocation.longitude,
-        //'nome do agente': nome,
+        'courseAccuracy': courseAccuracy,
+        'speed': speed,
+        'course': course,
+        'horizontalAccuracy': horizontalAccuracy,
+        'verticalAccuracy': verticalAccuracy,
         'uid': userId,
         'timestamp': timestamp,
       });

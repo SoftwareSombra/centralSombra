@@ -46,10 +46,9 @@ class _AtendenteMsgState extends State<AtendenteMsg> {
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
-        FirebaseFirestore.instance
-            .collection('Chat')
-            .doc(widget.uid)
-            .update({'unreadCount': 0});
+        FirebaseFirestore.instance.collection('Chat').doc(widget.uid).set({
+          'unreadCount': 0,
+        }, SetOptions(merge: true));
       }
     });
     getConversationMessages();

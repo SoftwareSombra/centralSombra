@@ -6,35 +6,22 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sombra_testes/chat/services/chat_services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:chatview/chatview.dart';
+import '../../chat_view/chatview.dart';
+import '../../notificacoes/fcm.dart';
+import '../../notificacoes/notificacoess.dart';
 
 class ChatScreen extends StatefulWidget {
   final String? uid;
-  const ChatScreen({super.key, this.uid});
+  final String? agenteUid;
+  final String? agenteNome;
+  const ChatScreen({super.key, this.uid, this.agenteUid, this.agenteNome});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-// Future<QuerySnapshot<Map<String, dynamic>>> getConversationMessages(uid) async {
-//   return await FirebaseFirestore.instance
-//       .collection('Chat')
-//       .doc(uid)
-//       .collection('Mensagens')
-//       .orderBy('Timestamp', descending: false)
-//       .get();
-// }
-
 String fotoUrl =
     'https://firebasestorage.googleapis.com/v0/b/sombratestes.appspot.com/o/FotoNull%2FfotoDePerfilNull.jpg?alt=media&token=bec8dce5-1251-418a-821d-0ded68cf42e7';
-// List<Message> messageList = [
-//   // Message(
-//   //   id: '1',
-//   //   createdAt: DateTime.now(),
-//   //   message: 'Olá, como posso te ajudar?',
-//   //   sendBy: '456',
-//   // ),
-// ];
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController msgController = TextEditingController();
@@ -54,6 +41,9 @@ class _ChatScreenState extends State<ChatScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
   late User? user;
   late String? uid;
+  final FirebaseMessagingService firebaseMessagingService =
+      FirebaseMessagingService(NotificationService());
+  late ChatController chatViewController;
 
   void _showHideTypingIndicator() {
     _chatController.setTypingIndicator = !_chatController.showTypingIndicator;
@@ -68,139 +58,49 @@ class _ChatScreenState extends State<ChatScreen> {
         .snapshots();
   }
 
-  void startListeningForNewMessages(String chat) {
-    _chatController.messageStreamController.stream.listen((event) {
-      print('event: $event');
-    });
-
-    //_messagesSubscription.cancel();
-
-    _messagesSubscription = FirebaseFirestore.instance
-        .collection('Chat teste')
-        .doc(chat)
-        .collection('Mensagens')
-        .orderBy('createdAt', descending: false)
-        .snapshots()
-        .listen((snapshot) {
-      for (var change in snapshot.docChanges) {
-        // Verifica se o tipo da alteração é uma adição
-        if (change.type == DocumentChangeType.added) {
-          // Converte o documento adicionado em uma mensagem
-          var message =
-              Message.fromJson(change.doc.data() as Map<String, dynamic>);
-          // Adiciona a mensagem à lista de mensagens
-          setState(() {
-            messageList.add(message);
-          });
-        }
-      }
-    });
-
-    // Stream<List<Message>> startListeningForNewMessages(String chat) {
-    //   print('-------- chegou aqui, startListeningForNewMessages --------');
-    //   _chatController.messageStreamController.stream.listen((event) {
-    //     print('event: $event');
-    //   });
-
-    //   return FirebaseFirestore.instance
-    //       .collection('Chat teste')
-    //       .doc(chat)
-    //       .collection('Mensagens').orderBy('createdAt', descending: false)
-    //       .snapshots()
-    //       .map((snapshot) {
-    //     debugPrint('snapshot: $snapshot');
-    //     //verificar se o snapshot está vazio
-    //     if (snapshot.docs.isEmpty) {
-    //       debugPrint('snapshot.docs: ${snapshot.docs}');
-    //       return [];
-    //     } else {
-    //       debugPrint('snapshot.docs: ${snapshot.docs}');
-    //     }
-    //     List<Message> newMessages = snapshot.docs.map((doc) {
-    //       Map<String, dynamic> data = doc.data();
-    //       debugPrint('data: $data');
-    //       return Message.fromJson(data);
-    //     }).toList();
-    //     debugPrint('newMessages: $newMessages');
-    //     messageList.addAll(newMessages);
-    //     _chatController.messageStreamController.sink.add(messageList);
-    //     //_chatController.messageStreamController.add(messageList);
-    //     return newMessages;
-    //   });
-
-    //     .listen(
-    //   (snapshot) {
-    //     List<Message> newMessages = snapshot.docs.map((doc) {
-    //       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    //       return Message.fromJson(data);
-    //     }).toList();
-
-    //     initialMessageList.addAll(newMessages);
-    //     messageStreamController.sink.add(initialMessageList);
-    //   },
-    // );
-  }
-
-// Stream<List<Message>> getConversationMessages(String uid) {
-//   return FirebaseFirestore.instance
-//       .collection('Chat teste')
-//       .doc(uid)
-//       .collection('Mensagens')
-//       .orderBy('Timestamp', descending: false)
-//       .snapshots()
-//       .map((snapshot) {
-//         return snapshot.docs.map((doc) {
-//           Map<String, dynamic> messageData = doc.data() as Map<String, dynamic>;
-
-//           // Aqui presumimos que a data é armazenada como uma Timestamp do Firestore e precisa ser convertida para DateTime
-//           messageData['createdAt'] = (messageData['createdAt'] as Timestamp).toDate();
-
-//           // Converter de JSON para os objetos e enums específicos
-//           // Isso requer que você tenha lógicas de conversão implementadas para cada tipo complexo ou enum
-//           messageData['messageType'] = convertToMessageType(messageData['message_type']);
-//           messageData['status'] = convertToMessageStatus(messageData['status']);
-//           messageData['reply_message'] = ReplyMessage.fromJson(messageData['reply_message']);
-//           messageData['reaction'] = Reaction.fromJson(messageData['reaction']);
-
-//           return Message.fromJson(messageData);
-//         }).toList();
-//       });
-// }
-
   Future<void> resetUserUnreadCount(String uid) async {
     await FirebaseFirestore.instance
         .collection('Chat')
         .doc(uid)
-        .update({'userUnreadCount': 0});
+        .set({'unreadCount': 0}, SetOptions(merge: true));
   }
 
   Future<void> getCurrentChatUser() async {
     final user = FirebaseAuth.instance.currentUser;
-    final userUid = user?.uid;
     final userName = user?.displayName;
     final userPhoto = user?.photoURL;
     setState(() {
       currentUser = ChatUser(
-        id: userUid!,
+        id: 'Atendente',
         name: userName!,
         profilePhoto: userPhoto!,
       );
     });
   }
 
-  Future<void> chatController(uid) async {
+  Future<void> chatController(uid, agenteUid) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userName = user?.displayName;
     _chatController = ChatController(
       initialMessageList: messageList,
       scrollController: ScrollController(),
-      chatId: uid,
+      chatId: agenteUid,
       chatUsers: [
         ChatUser(
-          id: '456',
-          name: 'Atendente',
+          id: 'Atendente',
+          name: userName!,
           profilePhoto: fotoUrl,
         ),
+        ChatUser(
+          id: widget.agenteUid!,
+          name: widget.agenteNome ?? 'Agente',
+        ),
       ],
+      chatCollection: 'Chat',
     );
+    setState(() {
+      chatViewController = _chatController;
+    });
   }
 
   @override
@@ -214,10 +114,10 @@ class _ChatScreenState extends State<ChatScreen> {
     //   chatController(uid!);
     //   startListeningForNewMessages(uid!);
     // });
-    chatController(uid!);
+    chatController(uid!, widget.agenteUid!);
     getCurrentChatUser();
-
-    startListeningForNewMessages(uid!);
+    chatServices.resetUnreadCount(widget.agenteUid!);
+    chatViewController.startListeningForNewMessages();
     // Checa e atualiza o FCM Token se necessário
     // _checkAndUpdateFcmToken();
     super.initState();
@@ -237,197 +137,207 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final userUid = user?.uid;
-    final userName = user?.displayName;
     resetUserUnreadCount(userUid!);
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 14, 14, 14),
+      //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
+      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       // appBar: AppBar(
       //   title: const Text('Chat'),
       //   centerTitle: true,
       // ),
-      body: Center(child: Container(
-        color: Color.fromARGB(255, 0, 20, 50),
-      constraints: BoxConstraints(
-        maxWidth: 700,
-        maxHeight: MediaQuery.of(context).size.height,
-      ),
-    child: ChatView(
-        //loadMoreData:
-        currentUser: currentUser,
-        chatController: _chatController,
-        onSendTap: _onSendTap,
-        featureActiveConfig: const FeatureActiveConfig(
-          lastSeenAgoBuilderVisibility: false,
-          receiptsBuilderVisibility: true,
-          enableDoubleTapToLike: false,
-        ),
-        chatViewState: ChatViewState.hasMessages,
-        chatViewStateConfig: ChatViewStateConfiguration(
-          loadingWidgetConfig: ChatViewStateWidgetConfiguration(
-            loadingIndicatorColor: theme.outgoingChatBubbleColor,
+      body: Center(
+        child: Container(
+          color: Color.fromARGB(255, 0, 20, 50),
+          constraints: BoxConstraints(
+            maxWidth: 800,
+            maxHeight: MediaQuery.of(context).size.height,
           ),
-          onReloadButtonTap: () {},
-        ),
-        typeIndicatorConfig: TypeIndicatorConfiguration(
-          flashingCircleBrightColor: theme.flashingCircleBrightColor,
-          flashingCircleDarkColor: theme.flashingCircleDarkColor,
-        ),
-        appBar: ChatViewAppBar(
-          elevation: theme.elevation,
-          //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
-          backGroundColor: Color.fromARGB(255, 0, 6, 15),
-          //profilePicture: fotoUrl,
-          backArrowColor: theme.backArrowColor,
-          chatTitle: "Central",
-          chatTitleTextStyle: TextStyle(
-            color: theme.appBarTitleTextStyle,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            letterSpacing: 0.25,
-          ),
-        ),
-        chatBackgroundConfig: ChatBackgroundConfiguration(
-          messageTimeIconColor: theme.messageTimeIconColor,
-          messageTimeTextStyle: TextStyle(color: theme.messageTimeTextColor),
-          defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
-            textStyle: TextStyle(
-              color: theme.chatHeaderColor,
-              fontSize: 17,
+          child: ChatView(
+            //loadMoreData:
+            currentUser: currentUser,
+            chatController: _chatController,
+            onSendTap: _onSendTap,
+            featureActiveConfig: const FeatureActiveConfig(
+              lastSeenAgoBuilderVisibility: false,
+              receiptsBuilderVisibility: true,
+              enableDoubleTapToLike: false,
             ),
-          ),
-          //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
-          backgroundColor: Color.fromARGB(255, 0, 6, 15),
-        ),
-        sendMessageConfig: SendMessageConfiguration(
-          imagePickerIconsConfig: ImagePickerIconsConfiguration(
-            cameraIconColor: theme.cameraIconColor,
-            galleryIconColor: theme.galleryIconColor,
-          ),
-          replyMessageColor: theme.replyMessageColor,
-          defaultSendButtonColor: theme.sendButtonColor,
-          replyDialogColor: theme.replyDialogColor,
-          replyTitleColor: theme.replyTitleColor,
-          textFieldBackgroundColor: theme.textFieldBackgroundColor,
-          closeIconColor: theme.closeIconColor,
-          textFieldConfig: TextFieldConfiguration(
-            onMessageTyping: (status) {
-              /// Do with status
-              debugPrint(status.toString());
-            },
-            compositionThresholdTime: const Duration(seconds: 1),
-            textStyle: TextStyle(color: theme.textFieldTextColor),
-          ),
-          micIconColor: theme.replyMicIconColor,
-          voiceRecordingConfiguration: VoiceRecordingConfiguration(
-            backgroundColor: theme.waveformBackgroundColor,
-            recorderIconColor: theme.recordIconColor,
-            waveStyle: WaveStyle(
-              showMiddleLine: false,
-              waveColor: theme.waveColor ?? Colors.white,
-              extendWaveform: true,
-            ),
-          ),
-        ),
-        chatBubbleConfig: ChatBubbleConfiguration(
-          outgoingChatBubbleConfig: ChatBubble(
-            linkPreviewConfig: LinkPreviewConfiguration(
-              backgroundColor: theme.linkPreviewOutgoingChatColor,
-              bodyStyle: theme.outgoingChatLinkBodyStyle,
-              titleStyle: theme.outgoingChatLinkTitleStyle,
-            ),
-            receiptsWidgetConfig:
-                const ReceiptsWidgetConfig(showReceiptsIn: ShowReceiptsIn.all),
-            color: theme.outgoingChatBubbleColor,
-          ),
-          inComingChatBubbleConfig: ChatBubble(
-            linkPreviewConfig: LinkPreviewConfiguration(
-              linkStyle: TextStyle(
-                color: theme.inComingChatBubbleTextColor,
-                decoration: TextDecoration.underline,
+            chatViewState: ChatViewState.hasMessages,
+            chatViewStateConfig: ChatViewStateConfiguration(
+              loadingWidgetConfig: ChatViewStateWidgetConfiguration(
+                loadingIndicatorColor: theme.outgoingChatBubbleColor,
               ),
-              backgroundColor: theme.linkPreviewIncomingChatColor,
-              bodyStyle: theme.incomingChatLinkBodyStyle,
-              titleStyle: theme.incomingChatLinkTitleStyle,
+              onReloadButtonTap: () {},
             ),
-            textStyle: TextStyle(color: theme.inComingChatBubbleTextColor),
-            onMessageRead: (message) {
-              /// send your message reciepts to the other client
-              debugPrint('Message Read');
-            },
-            senderNameTextStyle:
-                TextStyle(color: theme.inComingChatBubbleTextColor),
-            color: theme.inComingChatBubbleColor,
-          ),
-        ),
-        replyPopupConfig: ReplyPopupConfiguration(
-          backgroundColor: theme.replyPopupColor,
-          buttonTextStyle: TextStyle(color: theme.replyPopupButtonColor),
-          topBorderColor: theme.replyPopupTopBorderColor,
-        ),
-        reactionPopupConfig: ReactionPopupConfiguration(
-          shadow: BoxShadow(
-            color: isDarkTheme ? Colors.black54 : Colors.grey.shade400,
-            blurRadius: 20,
-          ),
-          backgroundColor: theme.reactionPopupColor,
-        ),
-        messageConfig: MessageConfiguration(
-          messageReactionConfig: MessageReactionConfiguration(
-            backgroundColor: theme.messageReactionBackGroundColor,
-            borderColor: theme.messageReactionBackGroundColor,
-            reactedUserCountTextStyle:
-                TextStyle(color: theme.inComingChatBubbleTextColor),
-            reactionCountTextStyle:
-                TextStyle(color: theme.inComingChatBubbleTextColor),
-            reactionsBottomSheetConfig: ReactionsBottomSheetConfiguration(
-              backgroundColor: theme.backgroundColor,
-              reactedUserTextStyle: TextStyle(
-                color: theme.inComingChatBubbleTextColor,
+            typeIndicatorConfig: TypeIndicatorConfiguration(
+              flashingCircleBrightColor: theme.flashingCircleBrightColor,
+              flashingCircleDarkColor: theme.flashingCircleDarkColor,
+            ),
+            appBar: ChatViewAppBar(
+              padding: const EdgeInsets.only(top: 15, bottom: 10),
+              elevation: theme.elevation,
+              //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
+              backGroundColor: Color.fromARGB(255, 0, 6, 15),
+              profilePicture: fotoUrl,
+              backArrowColor: theme.backArrowColor,
+              chatTitle: widget.agenteNome ?? 'Agente',
+              chatTitleTextStyle: TextStyle(
+                color: theme.appBarTitleTextStyle,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 0.25,
               ),
-              reactionWidgetDecoration: BoxDecoration(
+            ),
+            chatBackgroundConfig: ChatBackgroundConfiguration(
+              messageTimeIconColor: theme.messageTimeIconColor,
+              messageTimeTextStyle:
+                  TextStyle(color: theme.messageTimeTextColor),
+              defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
+                textStyle: TextStyle(
+                  color: theme.chatHeaderColor,
+                  fontSize: 17,
+                ),
+              ),
+              //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
+              backgroundColor: Color.fromARGB(255, 0, 6, 15),
+            ),
+            sendMessageConfig: SendMessageConfiguration(
+              imagePickerIconsConfig: ImagePickerIconsConfiguration(
+                cameraIconColor: theme.cameraIconColor,
+                galleryIconColor: theme.galleryIconColor,
+              ),
+              replyMessageColor: theme.replyMessageColor,
+              defaultSendButtonColor: theme.sendButtonColor,
+              replyDialogColor: theme.replyDialogColor,
+              replyTitleColor: theme.replyTitleColor,
+              textFieldBackgroundColor: theme.textFieldBackgroundColor,
+              closeIconColor: theme.closeIconColor,
+              textFieldConfig: TextFieldConfiguration(
+                onMessageTyping: (status) {
+                  /// Do with status
+                  debugPrint(status.toString());
+                },
+                compositionThresholdTime: const Duration(seconds: 1),
+                textStyle: TextStyle(color: theme.textFieldTextColor),
+              ),
+              micIconColor: theme.replyMicIconColor,
+              voiceRecordingConfiguration: VoiceRecordingConfiguration(
+                backgroundColor: theme.waveformBackgroundColor,
+                recorderIconColor: theme.recordIconColor,
+                waveStyle: WaveStyle(
+                  showMiddleLine: false,
+                  waveColor: theme.waveColor ?? Colors.white,
+                  extendWaveform: true,
+                ),
+              ),
+            ),
+            chatBubbleConfig: ChatBubbleConfiguration(
+              outgoingChatBubbleConfig: ChatBubble(
+                linkPreviewConfig: LinkPreviewConfiguration(
+                  backgroundColor: theme.linkPreviewOutgoingChatColor,
+                  bodyStyle: theme.outgoingChatLinkBodyStyle,
+                  titleStyle: theme.outgoingChatLinkTitleStyle,
+                ),
+                receiptsWidgetConfig: const ReceiptsWidgetConfig(
+                    showReceiptsIn: ShowReceiptsIn.all),
+                color: theme.outgoingChatBubbleColor,
+              ),
+              inComingChatBubbleConfig: ChatBubble(
+                linkPreviewConfig: LinkPreviewConfiguration(
+                  linkStyle: TextStyle(
+                    color: theme.inComingChatBubbleTextColor,
+                    decoration: TextDecoration.underline,
+                  ),
+                  backgroundColor: theme.linkPreviewIncomingChatColor,
+                  bodyStyle: theme.incomingChatLinkBodyStyle,
+                  titleStyle: theme.incomingChatLinkTitleStyle,
+                ),
+                textStyle: TextStyle(color: theme.inComingChatBubbleTextColor),
+                onMessageRead: (message) {
+                  /// send your message reciepts to the other client
+                  debugPrint('Message Read');
+                },
+                
+                senderNameTextStyle:
+                    TextStyle(color: theme.inComingChatBubbleTextColor),
                 color: theme.inComingChatBubbleColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDarkTheme ? Colors.black12 : Colors.grey.shade200,
-                    offset: const Offset(0, 20),
-                    blurRadius: 40,
-                  )
-                ],
-                borderRadius: BorderRadius.circular(10),
               ),
             ),
-          ),
-          imageMessageConfig: ImageMessageConfiguration(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-            shareIconConfig: ShareIconConfiguration(
-              defaultIconBackgroundColor: theme.shareIconBackgroundColor,
-              defaultIconColor: theme.shareIconColor,
+            replyPopupConfig: ReplyPopupConfiguration(
+              backgroundColor: theme.replyPopupColor,
+              buttonTextStyle: TextStyle(color: theme.replyPopupButtonColor),
+              topBorderColor: theme.replyPopupTopBorderColor,
+            ),
+            reactionPopupConfig: ReactionPopupConfiguration(
+              shadow: BoxShadow(
+                color: isDarkTheme ? Colors.black54 : Colors.grey.shade400,
+                blurRadius: 20,
+              ),
+              backgroundColor: theme.reactionPopupColor,
+            ),
+            messageConfig: MessageConfiguration(
+              messageReactionConfig: MessageReactionConfiguration(
+                backgroundColor: theme.messageReactionBackGroundColor,
+                borderColor: theme.messageReactionBackGroundColor,
+                reactedUserCountTextStyle:
+                    TextStyle(color: theme.inComingChatBubbleTextColor),
+                reactionCountTextStyle:
+                    TextStyle(color: theme.inComingChatBubbleTextColor),
+                reactionsBottomSheetConfig: ReactionsBottomSheetConfiguration(
+                  backgroundColor: theme.backgroundColor,
+                  reactedUserTextStyle: TextStyle(
+                    color: theme.inComingChatBubbleTextColor,
+                  ),
+                  reactionWidgetDecoration: BoxDecoration(
+                    color: theme.inComingChatBubbleColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            isDarkTheme ? Colors.black12 : Colors.grey.shade200,
+                        offset: const Offset(0, 20),
+                        blurRadius: 40,
+                      )
+                    ],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              imageMessageConfig: ImageMessageConfiguration(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                shareIconConfig: ShareIconConfiguration(
+                  defaultIconBackgroundColor: theme.shareIconBackgroundColor,
+                  defaultIconColor: theme.shareIconColor,
+                  onPressed: (p0) {},
+                ),
+              ),
+            ),
+            // profileCircleConfig: ProfileCircleConfiguration(
+            //   profileImageUrl: fotoUrl,
+            // ),
+            repliedMessageConfig: RepliedMessageConfiguration(
+              backgroundColor: theme.repliedMessageColor,
+              verticalBarColor: theme.verticalBarColor,
+              repliedMsgAutoScrollConfig: RepliedMsgAutoScrollConfig(
+                enableHighlightRepliedMsg: true,
+                highlightColor: Colors.pinkAccent.shade100,
+                highlightScale: 1.1,
+              ),
+              textStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.25,
+              ),
+              replyTitleTextStyle:
+                  TextStyle(color: theme.repliedTitleTextColor),
+            ),
+            swipeToReplyConfig: SwipeToReplyConfiguration(
+              replyIconColor: theme.swipeToReplyIconColor,
             ),
           ),
         ),
-        profileCircleConfig: ProfileCircleConfiguration(
-          profileImageUrl: fotoUrl,
-        ),
-        repliedMessageConfig: RepliedMessageConfiguration(
-          backgroundColor: theme.repliedMessageColor,
-          verticalBarColor: theme.verticalBarColor,
-          repliedMsgAutoScrollConfig: RepliedMsgAutoScrollConfig(
-            enableHighlightRepliedMsg: true,
-            highlightColor: Colors.pinkAccent.shade100,
-            highlightScale: 1.1,
-          ),
-          textStyle: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.25,
-          ),
-          replyTitleTextStyle: TextStyle(color: theme.repliedTitleTextColor),
-        ),
-        swipeToReplyConfig: SwipeToReplyConfiguration(
-          replyIconColor: theme.swipeToReplyIconColor,
-        ),
       ),
-    ),),);
+    );
   }
 
   void _onSendTap(
@@ -440,7 +350,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final lastid = messageList.isEmpty ? '0' : messageList.last.id;
     final id = int.parse(lastid) + 1;
-    _chatController.sendMessageToFirestore(
+    await _chatController.sendMessageToFirestore(
       Message(
         id: id.toString(),
         createdAt: DateTime.now(),
@@ -451,28 +361,23 @@ class _ChatScreenState extends State<ChatScreen> {
         voiceMessageDuration: MessageType.voice == messageType
             ? const Duration(minutes: 10).inSeconds
             : null,
+        autor: 'Atendente',
       ),
-      uid!,
     );
-    //enviar para o firestore
-    // await FirebaseFirestore.instance
-    //     .collection('Chat teste')
-    //     .doc(uid!)
-    //     .collection('Mensagens')
-    //     .doc()
-    //     .set({
-    //   'Mensagem': Message(
-    //     id: id.toString(),
-    //     createdAt: DateTime.now(),
-    //     message: message,
-    //     sendBy: currentUser.id,
-    //     replyMessage: replyMessage,
-    //     messageType: messageType,
-    //   ).toJson().toString(),
-    //   'User uid': uid!,
-    //   'Timestamp': FieldValue.serverTimestamp(),
-    // });
 
+    // Enviar a notificação usando o token FCM.
+    debugPrint('Enviando notificação');
+    debugPrint('agenteUid: ${widget.agenteUid}');
+    List<String> userTokens =
+        await chatServices.fetchUserTokens(widget.agenteUid!);
+
+    debugPrint('userTokens: $userTokens');
+
+    for (String token in userTokens) {
+      debugPrint('Token: $token');
+      await firebaseMessagingService.sendNotification(
+          token, 'Nova mensagem', message, null);
+    }
     Future.delayed(const Duration(milliseconds: 300), () {
       _chatController.initialMessageList.last.setStatus =
           MessageStatus.undelivered;
@@ -495,163 +400,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-//     Column(
-//   children: [
-//     Container(
-//       padding: const EdgeInsets.all(16.0),
-//       margin: const EdgeInsets.all(16.0),
-//       decoration: BoxDecoration(
-//         color: Colors.grey,
-//         borderRadius: BorderRadius.circular(10),
-//       ),
-//       child: const Column(
-//         children: [
-//           Text(
-//             'Você está em um chat com a central',
-//             style: TextStyle(fontSize: 15),
-//           ),
-//           Text(
-//             'e será atendido em breve.',
-//             style: TextStyle(fontSize: 15),
-//           ),
-//         ],
-//       ),
-//     ),
-//     Expanded(
-//       child: StreamBuilder<QuerySnapshot>(
-//         stream: getConversationMessages(),
-//         builder: (BuildContext context,
-//             AsyncSnapshot<QuerySnapshot> snapshot) {
-//           if (snapshot.hasError) {
-//             return Text('Erro: ${snapshot.error}');
-//           }
-
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return const CircularProgressIndicator();
-//           }
-
-//           if (firstLoad) {
-//             WidgetsBinding.instance.addPostFrameCallback((_) {
-//               controller.jumpTo(controller.position.maxScrollExtent);
-//             });
-//             firstLoad = false;
-//           }
-
-//           return Listener(
-//             onPointerDown: (_) {
-//               FocusScope.of(context).unfocus();
-//             },
-//             child: ListView.builder(
-//               controller: controller,
-//               itemCount: snapshot.data!.docs.length,
-//               itemBuilder: (context, index) {
-//                 Map<String, dynamic> data = snapshot.data!.docs[index]
-//                     .data() as Map<String, dynamic>;
-//                 final autor = data['User uid'];
-//                 final messageText = data['Mensagem'];
-//                 final isCurrentUser = autor == userUid;
-//                 return MessageBubble(
-//                   message: messageText,
-//                   sender: autor,
-//                   isCurrentUser: isCurrentUser,
-//                 );
-//               },
-//             ),
-//           );
-//         },
-//       ),
-//     ),
-//     Padding(
-//       padding: const EdgeInsets.all(30.0),
-//       child: Align(
-//         alignment: Alignment.bottomCenter,
-//         child: Row(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Expanded(
-//               child: LayoutBuilder(
-//                 builder:
-//                     (BuildContext context, BoxConstraints constraints) {
-//                   return Center(
-//                     child: TextFormField(
-//                       controller: msgController,
-//                       minLines: 1,
-//                       maxLines: 5,
-//                       maxLength: 500,
-//                       decoration: InputDecoration(
-//                         labelText: 'Digite sua mensagem aqui',
-//                         enabledBorder: OutlineInputBorder(
-//                           borderSide:
-//                               const BorderSide(color: Colors.grey),
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                         contentPadding: const EdgeInsets.symmetric(
-//                           vertical: 10.0,
-//                           horizontal: 10.0,
-//                         ),
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//             const SizedBox(
-//               width: 10,
-//             ),
-//             ValueListenableBuilder(
-//               valueListenable: isSubmitting,
-//               builder: (context, bool value, child) {
-//                 return Stack(
-//                   alignment: Alignment.center,
-//                   children: [
-//                     value
-//                         ? const CircularProgressIndicator()
-//                         : RawMaterialButton(
-//                             onPressed: value
-//                                 ? null
-//                                 : () async {
-//                                     isSubmitting.value = true;
-//                                     if (msgController.text
-//                                         .trim()
-//                                         .isNotEmpty) {
-//                                       await chatServices.addMsg(
-//                                           msgController,
-//                                           userName,
-//                                           userUid);
-//                                     }
-//                                     isSubmitting.value = false;
-//                                     controller.animateTo(
-//                                       controller.position.maxScrollExtent,
-//                                       duration: const Duration(
-//                                           milliseconds: 300),
-//                                       curve: Curves.easeOut,
-//                                     );
-//                                   },
-//                             shape: const CircleBorder(),
-//                             fillColor: Colors.blue,
-//                             constraints: const BoxConstraints.expand(
-//                                 width: 40, height: 40),
-//                             child: const Icon(
-//                               Icons.send,
-//                               color: Colors.white,
-//                             ),
-//                           ),
-//                     if (value) const CircularProgressIndicator(),
-//                   ],
-//                 );
-//               },
-//             ),
-//           ],
-//         ),
-//       ),
-//     ),
-//   ],
-// ),
-//     );
-//   }
-// }
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 class MessageBubble extends StatelessWidget {
   final String? message;
@@ -731,7 +480,7 @@ class MessageBubble extends StatelessWidget {
 
   Future<bool> _loadImage(String imageUrl) async {
     try {
-      await NetworkImage(imageUrl).resolve(const ImageConfiguration());
+      NetworkImage(imageUrl).resolve(const ImageConfiguration());
       return true; // Imagem carregada com sucesso
     } catch (e) {
       return false; // Erro ao carregar a imagem

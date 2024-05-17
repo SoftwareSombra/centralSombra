@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_grid/responsive_grid.dart';
+import '../../../web/admin/services/admin_services.dart';
 import '../../../web/missoes/criar_missao/screens/components/missoes_pendentes_card.dart';
 import '../../bloc/missoes_pendentes/missoes_pendentes_bloc.dart';
 import '../../bloc/missoes_pendentes/missoes_pendentes_event.dart';
@@ -15,10 +17,29 @@ class MissoesPendentesScreen extends StatefulWidget {
 }
 
 class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
+  AdminServices adminServices = AdminServices();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  String funcao = 'carregando...';
+  String nome = 'carregando...';
+
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ModalRoute.of(context)?.settings.arguments == true) {
+        context.read<MissoesPendentesBloc>().add(BuscarMissoesPendentes());
+      }
+    });
+    nome = auth.currentUser!.displayName!;
     context.read<MissoesPendentesBloc>().add(BuscarMissoesPendentes());
+    buscarFuncao();
     super.initState();
+  }
+
+  Future<void> buscarFuncao() async {
+    final getFunction = await adminServices.getUserRole();
+    setState(() {
+      funcao = getFunction;
+    });
   }
 
   @override
@@ -46,7 +67,7 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                 rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
                 //rowPadding: const EdgeInsets.symmetric(horizontal: 100),
                 children: [
-                  const ResponsiveRowColumnItem(
+                  ResponsiveRowColumnItem(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -62,11 +83,11 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Nome do usuário',
+                              nome,
                               style: TextStyle(fontSize: 14),
                             ),
                             Text(
-                              'Função',
+                              funcao,
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 11),
                             ),
@@ -205,11 +226,12 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                                   rowSegments: rowSegments,
                                   children: [
                                     for (var missao in state.missoes)
-                                       ResponsiveGridCol(
+                                      ResponsiveGridCol(
                                         xs: 3,
                                         md: 2,
                                         child: MissaoPendenteCard(
                                           missaoSolicitada: missao,
+                                          initialContext: context,
                                         ),
                                       ),
                                   ],

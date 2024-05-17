@@ -14,6 +14,7 @@ class CustomNotification {
 class NotificationService {
   late FlutterLocalNotificationsPlugin localNotificationsPlugin;
   late AndroidNotificationDetails androidDetails;
+  late DarwinNotificationDetails iosDetails;
 
   NotificationService() {
     localNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -47,7 +48,17 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.max,
       enableVibration: true,
+      playSound: true,
+      enableLights: true,
+      showWhen: true,
     );
+
+    // iosDetails = const DarwinNotificationDetails(
+    //   presentAlert: true,
+    //   presentBadge: true,
+    //   presentSound: true,
+    //   badgeNumber: 1,
+    // );
 
     localNotificationsPlugin.show(
       notification.id,
@@ -55,6 +66,7 @@ class NotificationService {
       notification.body,
       NotificationDetails(
         android: androidDetails,
+        //iOS: iosDetails,
       ),
       payload: notification.payload,
     );

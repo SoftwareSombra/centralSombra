@@ -53,6 +53,7 @@ class MissoesPendentesContainer extends StatelessWidget {
   const MissoesPendentesContainer({super.key});
 
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
+  final TextStyle defaultStyle = const TextStyle(fontSize: 100);
 
   @override
   Widget build(BuildContext context) {
@@ -152,42 +153,34 @@ class MissoesPendentesContainer extends StatelessWidget {
                                       if (qtdState
                                           is QtdMissoesPendentesLoading) {
                                         return const CircularProgressIndicator();
-                                      }
-                                      if (qtdState
+                                      } else if (qtdState
                                           is QtdMissoesPendentesLoaded) {
                                         return AutoSizeText(
-                                          qtdState.qtd.toString(),
-                                          maxFontSize: 41,
-                                          minFontSize: 18,
-                                          style: const TextStyle(fontSize: 100),
-                                        );
-                                      }
-                                      if (qtdState
+                                            qtdState.qtd.toString(),
+                                            maxFontSize: 41,
+                                            minFontSize: 18,
+                                            style: defaultStyle);
+                                      } else if (qtdState
                                           is QtdMissoesPendentesEmpty) {
-                                        return const AutoSizeText(
-                                          '0',
-                                          maxFontSize: 41,
-                                          minFontSize: 18,
-                                          style: TextStyle(fontSize: 100),
-                                        );
-                                      }
-                                      if (qtdState
+                                        return AutoSizeText('0',
+                                            maxFontSize: 41,
+                                            minFontSize: 18,
+                                            style: defaultStyle);
+                                      } else if (qtdState
                                           is QtdMissoesPendentesError) {
-                                        return const AutoSizeText(
-                                          'Erro, atualize a página',
+                                        return AutoSizeText(
+                                            'Erro, atualize a página',
+                                            maxFontSize: 12,
+                                            minFontSize: 9,
+                                            maxLines: 2,
+                                            style: defaultStyle);
+                                      }
+                                      // Tratamento do estado inicial ou qualquer outro estado não capturado
+                                      return AutoSizeText('Atualize a página',
                                           maxFontSize: 12,
                                           minFontSize: 9,
                                           maxLines: 2,
-                                          style: TextStyle(fontSize: 100),
-                                        );
-                                      }
-                                      return const AutoSizeText(
-                                        'Atualize a página',
-                                        maxFontSize: 12,
-                                        minFontSize: 9,
-                                        maxLines: 2,
-                                        style: TextStyle(fontSize: 100),
-                                      );
+                                          style: defaultStyle);
                                     },
                                   )
                                 ],
@@ -208,7 +201,7 @@ class MissoesPendentesContainer extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MissoesPendentesScreen(),
+            builder: (context) => const MissoesPendentesScreen(),
           ),
         );
       },

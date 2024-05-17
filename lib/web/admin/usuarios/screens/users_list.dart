@@ -1,27 +1,64 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sombra_testes/web/admin/usuarios/screens/add_user.dart';
+import 'package:sombra_testes/web/admin/usuarios/screens/profile_screen.dart';
+import '../../../../autenticacao/screens/tratamento/error_snackbar.dart';
+import '../../../../autenticacao/screens/tratamento/success_snackbar.dart';
+import '../../../../paginated_data_table/paginated_data_table.dart';
+import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
+import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
+import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
 import '../../services/admin_services.dart';
 import '../bloc/users_list_bloc/users_list_bloc.dart';
 import '../bloc/users_list_bloc/users_list_event.dart';
 import '../bloc/users_list_bloc/users_list_state.dart';
 
-class UsersList extends StatelessWidget {
+class UsersList extends StatefulWidget {
   const UsersList({super.key});
 
+  @override
+  State<UsersList> createState() => _UsersListState();
+}
+
+class _UsersListState extends State<UsersList> {
+  final canvasColor = const Color.fromARGB(255, 0, 15, 42);
+  TextEditingController searchController = TextEditingController();
+  List<Usuario> users = [];
   List<DataColumn> get columns => const [
         DataColumn(label: Text('Nome')),
         DataColumn(label: Text('UID')),
         DataColumn(label: Text('Email')),
         DataColumn(label: Text('Opções')),
       ];
+  List<Usuario> filtrarUsuarios(List<Usuario> usuarios, String searchText) {
+    searchText = searchText.toLowerCase();
+    return usuarios.where((usuarios) {
+      return usuarios.nome.toLowerCase().contains(searchText);
+    }).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<UsersListBloc>(context).add(FetchUsersList());
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<UsersListBloc>(context).add(FetchUsersList());
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      ),
       body: BlocBuilder<UsersListBloc, UsersListState>(
         builder: (context, state) {
           if (state is UsersListInitial) {
@@ -41,58 +78,93 @@ class UsersList extends StatelessWidget {
               child: Text('Nenhum user cadastrado'),
             );
           } else if (state is UsersListLoaded) {
-            return Center(
-              child: Container(
-                width: width * 0.99,
-                child: state.users.isNotEmpty
-                    ? PaginatedDataTable(
-                        columns: columns,
-                        source: EmpresaDataSource(
-                            users: state.users, context: context),
-                        header: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Usuários cadastrados'),
-                            SizedBox(
-                              width: width * 0.2,
-                              height: 31,
-                              child: TextFormField(
-                                cursorHeight: 12,
-                                decoration: InputDecoration(
-                                  labelText: 'Buscar usuário pelo nome',
-                                  labelStyle: TextStyle(
-                                      color: Colors.grey[500], fontSize: 12),
-                                  suffixIcon: Icon(
-                                    Icons.search,
-                                    size: 20,
-                                    color: Colors.grey[500]!,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[500]!),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[500]!),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[500]!),
-                                  ),
-                                ),
-                              ),
+            users = state.users;
+
+            List<Usuario> usuariosFiltrados =
+                filtrarUsuarios(users, searchController.text);
+
+            return Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 15),
+                      child: SizedBox(
+                        width: width * 0.4,
+                        height: 40,
+                        child: TextFormField(
+                          controller: searchController,
+                          cursorHeight: 15,
+                          decoration: InputDecoration(
+                            labelText: 'Buscar usuário pelo nome',
+                            labelStyle: TextStyle(
+                                color: Colors.grey[500], fontSize: 12),
+                            suffixIcon: Icon(
+                              Icons.search,
+                              size: 20,
+                              color: Colors.grey[500]!,
                             ),
-                          ],
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[500]!),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[500]!),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[500]!),
+                            ),
+                          ),
+                          onChanged: (text) {
+                            setState(() {
+                              //relatorios = filtrarRelatorios();
+                            });
+                          },
                         ),
-                        columnSpacing: MediaQuery.of(context).size.width * 0.05,
-                        showCheckboxColumn: true,
-                        rowsPerPage:
-                            state.users.length < 10 ? state.users.length : 10,
-                      )
-                    : const Center(
-                        child: Text('Nenhum user cadastrado'),
                       ),
-              ),
+                    ),
+                  ],
+                ),
+                Container(
+                  color: const Color.fromARGB(255, 3, 9, 18),
+                  width: width * 0.99,
+                  child: usuariosFiltrados.isNotEmpty
+                      ? PaginatedDataTable2(
+                          colors: [
+                            canvasColor.withOpacity(0.3),
+                            canvasColor.withOpacity(0.33),
+                            canvasColor.withOpacity(0.35),
+                            canvasColor.withOpacity(0.38),
+                            canvasColor.withOpacity(0.4),
+                            canvasColor.withOpacity(0.43),
+                            canvasColor.withOpacity(0.45),
+                            canvasColor.withOpacity(0.48),
+                            canvasColor.withOpacity(0.5),
+                            canvasColor.withOpacity(0.53),
+                            canvasColor.withOpacity(0.55),
+                            canvasColor.withOpacity(0.58),
+                          ],
+                          columns: columns,
+                          source: EmpresaDataSource(
+                              users: usuariosFiltrados, context: context),
+                          header: const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Usuários'),
+                            ],
+                          ),
+                          columnSpacing:
+                              MediaQuery.of(context).size.width * 0.05,
+                          showCheckboxColumn: true,
+                          rowsPerPage:
+                              state.users.length < 10 ? state.users.length : 10,
+                        )
+                      : const Center(
+                          child: Text('Nenhum user cadastrado'),
+                        ),
+                ),
+              ],
             );
           } else {
             return const Center(
@@ -101,21 +173,21 @@ class UsersList extends StatelessWidget {
           }
         },
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) => AddUser(),
-      //       ),
-      //     );
-      //   },
-      //   backgroundColor: Colors.blue.withOpacity(0.11),
-      //   child: const Icon(
-      //     Icons.add,
-      //     color: Colors.white,
-      //   ),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddUser(),
+            ),
+          );
+        },
+        backgroundColor: Colors.blue.withOpacity(0.11),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+      ),
     );
   }
 }
@@ -124,6 +196,67 @@ class EmpresaDataSource extends DataTableSource {
   List<Usuario> users;
   BuildContext context;
   EmpresaDataSource({required this.users, required this.context});
+
+  final AdminServices adminServices = AdminServices();
+  final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
+  final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
+
+  void _showDialog(Usuario usuario) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          title: const Text('Confirmação'),
+          content: const Text('Deseja realmente excluir este usuário?'),
+          actions: <Widget>[
+            BlocBuilder<ElevatedButtonBloc, ElevatedButtonBlocState>(
+              builder: (buttonContext, buttonState) {
+                return buttonState is ElevatedButtonBlocLoading
+                    ? const CircularProgressIndicator()
+                    : Row(
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              buttonContext.read<ElevatedButtonBloc>().add(
+                                    ElevatedButtonPressed(),
+                                  );
+                              final delete =
+                                  await adminServices.deleteUser(usuario.uid);
+                              if (context.mounted) {
+                                if (delete) {
+                                  mensagemDeSucesso.showSuccessSnackbar(
+                                      context, 'Usuário excluído com sucesso.');
+                                } else {
+                                  tratamentoDeErros.showErrorSnackbar(context,
+                                      'Erro ao excluir usuário, tente novamente.');
+                                }
+                                context
+                                    .read<UsersListBloc>()
+                                    .add(FetchUsersList());
+                                buttonContext.read<ElevatedButtonBloc>().add(
+                                      ElevatedButtonReset(),
+                                    );
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: const Text('Confirmar'),
+                          ),
+                        ],
+                      );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   DataRow? getRow(int index) {
@@ -167,7 +300,9 @@ class EmpresaDataSource extends DataTableSource {
               MouseRegion(
                 cursor: MaterialStateMouseCursor.clickable,
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    _showDialog(user);
+                  },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -197,7 +332,16 @@ class EmpresaDataSource extends DataTableSource {
               MouseRegion(
                 cursor: MaterialStateMouseCursor.clickable,
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserProfileScreen(
+                          user: user,
+                        ),
+                      ),
+                    );
+                  },
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,

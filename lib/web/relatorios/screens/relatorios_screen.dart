@@ -1,3 +1,5 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -5,22 +7,30 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:sombra_testes/web/relatorios/bloc/list/relatorios_list_bloc.dart';
 import 'package:sombra_testes/web/relatorios/screens/detalhes_missao_select.dart';
 import '../../../missao/model/missao_model.dart';
+import '../../../paginated_data_table/paginated_data_table.dart';
+import '../../admin/services/admin_services.dart';
 import '../bloc/list/relatorios_list_event.dart';
 import '../bloc/list/relatorios_list_state.dart';
 import '../services/relatorio_services.dart';
 
 class RelatoriosScreen extends StatefulWidget {
-  const RelatoriosScreen({super.key});
+  final String cargo;
+  final String nome;
+  const RelatoriosScreen({super.key, required this.cargo, required this.nome});
 
   @override
   State<RelatoriosScreen> createState() => _RelatoriosScreenState();
 }
 
-String? _selectedFilterOption;
-
 class _RelatoriosScreenState extends State<RelatoriosScreen> {
   final missoesConcluidasFuture = RelatorioServices().buscarTodosRelatorios();
   final canvasColor = const Color.fromARGB(255, 0, 15, 42);
+  AdminServices adminServices = AdminServices();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  //String funcao = 'carregando...';
+  //String nome = 'carregando...';
+  TextEditingController searchController = TextEditingController();
+  List<MissaoRelatorio?> relatorios = [];
 
   List<DataColumn> get columns => const [
         DataColumn(label: Text('Tipo')),
@@ -33,13 +43,36 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
   @override
   void initState() {
     super.initState();
+    //nome = auth.currentUser!.displayName!;
     BlocProvider.of<RelatoriosListBloc>(context).add(BuscarRelatoriosEvent());
+    //buscarFuncao();
+  }
+
+  List<MissaoRelatorio?> filtrarRelatorios(
+      List<MissaoRelatorio?> relatorios, String searchText) {
+    searchText = searchText.toLowerCase();
+    return relatorios.where((relatorio) {
+      return relatorio?.missaoId.toLowerCase().contains(searchText) ?? false;
+    }).toList();
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
+
+  // Future<void> buscarFuncao() async {
+  //   final getFunction = await adminServices.getUserRole();
+  //   setState(() {
+  //     funcao = getFunction;
+  //   });
+  // }
+
+  @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
     debugPrint('chegou aqui');
 
     return Scaffold(
@@ -47,172 +80,197 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       ),
-      body: SingleChildScrollView(
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
+      body: BlocBuilder<RelatoriosListBloc, RelatoriosListState>(
+        builder: (context, state) {
+          if (state is RelatoriosListInitial) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is RelatoriosListLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is RelatoriosListError) {
+            return Center(
+              child: Text(state.message),
+            );
+          } else if (state is RelatoriosListEmpty) {
+            return const Center(
+              child: Text('Nenhum relatório encontrado'),
+            );
+          } else if (state is RelatoriosListLoaded) {
+            relatorios = state.relatorios;
+
+            // Filtra a lista com base no texto atual no campo de pesquisa
+            List<MissaoRelatorio?> relatoriosFiltrados =
+                filtrarRelatorios(relatorios, searchController.text);
+
+            return SingleChildScrollView(
+              child: Row(
                 children: [
-                  // ResponsiveRowColumn(
-                  //   layout:
-                  //       ResponsiveBreakpoints.of(context).smallerThan(DESKTOP)
-                  //           ? ResponsiveRowColumnType.COLUMN
-                  //           : ResponsiveRowColumnType.ROW,
-                  //   rowMainAxisAlignment: MainAxisAlignment.start,
-                  //   children: const [
-                  //     ResponsiveRowColumnItem(
-                  //       child: Padding(
-                  //         padding: EdgeInsets.symmetric(
-                  //             horizontal: 100, vertical: 15),
-                  //         child: Text(
-                  //           'Buscar missões:',
-                  //           style: TextStyle(
-                  //               fontWeight: FontWeight.w400, fontSize: 16),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width * 0.084,
-                        right: MediaQuery.of(context).size.width * 0.08,
-                        bottom: 20),
-                    child: ResponsiveRowColumn(
-                      layout:
-                          ResponsiveBreakpoints.of(context).smallerThan(DESKTOP)
-                              ? ResponsiveRowColumnType.COLUMN
-                              : ResponsiveRowColumnType.ROW,
-                      rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //rowPadding: const EdgeInsets.symmetric(horizontal: 100),
+                  Expanded(
+                    child: Column(
                       children: [
-                        const ResponsiveRowColumnItem(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width * 0.084,
+                              right: MediaQuery.of(context).size.width * 0.08,
+                              bottom: 20),
+                          child: ResponsiveRowColumn(
+                            layout: ResponsiveBreakpoints.of(context)
+                                    .smallerThan(DESKTOP)
+                                ? ResponsiveRowColumnType.COLUMN
+                                : ResponsiveRowColumnType.ROW,
+                            rowMainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                            //rowPadding: const EdgeInsets.symmetric(horizontal: 100),
                             children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundImage: AssetImage(
-                                    'assets/images/fotoDePerfilNull.jpg'),
+                              ResponsiveRowColumnItem(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage: AssetImage(
+                                          'assets/images/fotoDePerfilNull.jpg'),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          widget.nome,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        Text(
+                                          widget.cargo,
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 11),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
-                              SizedBox(
-                                width: 10,
+                              ResponsiveRowColumnItem(
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: width * 0.2,
+                                      height: 40,
+                                      child: TextFormField(
+                                        controller: searchController,
+                                        cursorHeight: 15,
+                                        decoration: InputDecoration(
+                                          labelText: 'Buscar missão pelo ID',
+                                          labelStyle: TextStyle(
+                                              color: Colors.grey[500],
+                                              fontSize: 12),
+                                          suffixIcon: Icon(
+                                            Icons.search,
+                                            size: 20,
+                                            color: Colors.grey[500]!,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey[500]!),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey[500]!),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey[500]!),
+                                          ),
+                                        ),
+                                        onChanged: (text) {
+                                          setState(() {
+                                            //relatorios = filtrarRelatorios();
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 0),
+                                      child: IconButton(
+                                        icon: Icon(
+                                          Icons.filter_list,
+                                          color: Colors.grey[500]!,
+                                          size: 25,
+                                        ),
+                                        onPressed: () {
+                                          // Coloque a lógica do filtro aqui
+                                        },
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 10),
+                                      child: IconButton(
+                                        icon: Icon(
+                                          Icons.refresh_outlined,
+                                          color: Colors.grey[500]!,
+                                          size: 25,
+                                        ),
+                                        onPressed: () {
+                                          context
+                                              .read<RelatoriosListBloc>()
+                                              .add(BuscarRelatoriosEvent());
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Nome do usuário',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    'Função',
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 11),
-                                  ),
-                                ],
-                              )
                             ],
                           ),
                         ),
-                        ResponsiveRowColumnItem(
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: width * 0.2,
-                                height: 31,
-                                child: TextFormField(
-                                  cursorHeight: 12,
-                                  decoration: InputDecoration(
-                                    labelText: 'Buscar missão pelo ID',
-                                    labelStyle: TextStyle(
-                                        color: Colors.grey[500], fontSize: 12),
-                                    suffixIcon: Icon(
-                                      Icons.search,
-                                      size: 20,
-                                      color: Colors.grey[500]!,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[500]!),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[500]!),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[500]!),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 0),
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.filter_list,
-                                    color: Colors.grey[500]!,
-                                    size: 25,
-                                  ),
-                                  onPressed: () {
-                                    // Coloque a lógica do filtro aqui
-                                  },
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.refresh_outlined,
-                                    color: Colors.grey[500]!,
-                                    size: 25,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              ),
-                            ],
-                          ),
+                        const SizedBox(
+                          height: 20,
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  BlocBuilder<RelatoriosListBloc, RelatoriosListState>(
-                    builder: (context, state) {
-                      if (state is RelatoriosListInitial) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (state is RelatoriosListLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (state is RelatoriosListError) {
-                        return Center(
-                          child: Text(state.message),
-                        );
-                      } else if (state is RelatoriosListEmpty) {
-                        return const Center(
-                          child: Text('Nenhum user cadastrado'),
-                        );
-                      } else if (state is RelatoriosListLoaded) {
-                        return Center(
+                        Center(
                           child: Padding(
                             padding: const EdgeInsets.only(right: 15),
                             child: SizedBox(
                               width: width * 0.99,
-                              child: state.relatorios.isNotEmpty
-                                  ? PaginatedDataTable(
+                              child: relatoriosFiltrados.isNotEmpty
+                                  ? PaginatedDataTable2(
+                                      colors: [
+                                        canvasColor.withOpacity(0.3),
+                                        canvasColor.withOpacity(0.33),
+                                        canvasColor.withOpacity(0.35),
+                                        canvasColor.withOpacity(0.38),
+                                        canvasColor.withOpacity(0.4),
+                                        canvasColor.withOpacity(0.43),
+                                        canvasColor.withOpacity(0.45),
+                                        canvasColor.withOpacity(0.48),
+                                        canvasColor.withOpacity(0.5),
+                                        canvasColor.withOpacity(0.53),
+                                        canvasColor.withOpacity(0.55),
+                                        canvasColor.withOpacity(0.58),
+                                      ],
                                       columns: columns,
                                       source: EmpresaDataSource(
-                                        missoes: state.relatorios,
+                                        missoes: relatoriosFiltrados,
                                         context: context,
                                       ),
-                                      header:
-                                          const Text('Relatórios de missões'),
+                                      header: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          AutoSizeText(
+                                            'RELATÓRIOS',
+                                            maxFontSize: 20,
+                                            minFontSize: 18,
+                                            style: TextStyle(
+                                                fontSize: 100,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ],
+                                      ),
                                       columnSpacing:
                                           MediaQuery.of(context).size.width *
                                               0.05,
@@ -222,159 +280,24 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                                           : 10,
                                     )
                                   : const Center(
-                                      child: Text('Nenhum user cadastrado'),
+                                      child:
+                                          Text('Nenhum relatório disponível'),
                                     ),
                             ),
                           ),
-                        );
-                      } else {
-                        return const Center(
-                          child: Text('Recarregue a página'),
-                        );
-                      }
-                    },
+                        ),
+                      ],
+                    ),
                   ),
-                  // ResponsiveRowColumnItem(
-                  //   child: Padding(
-                  //     padding: EdgeInsets.symmetric(horizontal: width * 0.0),
-                  //     child: FutureBuilder<List<MissaoRelatorio?>>(
-                  //       future: missoesConcluidasFuture,
-                  //       builder: (BuildContext context,
-                  //           AsyncSnapshot<List<MissaoRelatorio?>> snapshot) {
-                  //         if (snapshot.hasError) {
-                  //           return Center(
-                  //               child: Text('Erro: ${snapshot.error}'));
-                  //         }
-
-                  //         if (snapshot.connectionState ==
-                  //             ConnectionState.waiting) {
-                  //           return const Center(
-                  //               child: CircularProgressIndicator());
-                  //         }
-
-                  //         if (!snapshot.hasData) {
-                  //           return const Center(
-                  //               child: Text('Nenhum relatório disponível'));
-                  //         }
-
-                  //         final dataSource = EmpresaDataSource(
-                  //             missoes: snapshot.data!
-                  //                 .where((missao) => missao != null)
-                  //                 .toList()
-                  //                 .cast<MissaoRelatorio>());
-
-                  //         return PaginatedDataTable(
-                  //           columns: columns,
-                  //           source: dataSource,
-                  //           header: const Text('Relatórios de missões'),
-                  //           actions: [
-                  //             IconButton(
-                  //               icon: const Icon(Icons.refresh),
-                  //               onPressed: () {
-                  //                 setState(() {
-                  //                   // Atualize a lista de missões
-                  //                 });
-                  //               },
-                  //             ),
-                  //           ],
-                  //           rowsPerPage: dataSource.missoes.length < 10 ? dataSource.missoes.length : 10,
-                  //           availableRowsPerPage: const [10, 20, 50],
-                  //           columnSpacing: MediaQuery.of(context).size.width * 0.05,
-                  //           onRowsPerPageChanged: (int? value) {
-                  //             // Atualize o número de linhas por página
-                  //           },
-                  //         );
-
-                  // List<TableRow> missionRows =
-                  //     snapshot.data!.map((MissaoRelatorio? missao) {
-                  //   // Verifica se o objeto Missao não é nulo
-                  //   if (missao != null) {
-                  //     return TableRow(
-                  //       children: [
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: Text(missao
-                  //               .tipo), // Substitua 'tipo' pelo campo correspondente na sua classe Missao
-                  //         ),
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: Text(missao.inicio != null
-                  //               ? DateFormat('dd/MM/yyyy HH:mm')
-                  //                   .format(missao.inicio!.toDate())
-                  //               : 'N/A'),
-                  //         ),
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: Text(missao
-                  //               .missaoId), // Substitua 'id' pelo campo correspondente na sua classe Missao
-                  //         ),
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: TextButton(
-                  //             onPressed: () {
-                  //               Navigator.push(
-                  //                 context,
-                  //                 MaterialPageRoute(
-                  //                   builder: (context) =>
-                  //                       MissionDetails(
-                  //                     missaoId: missao.missaoId,
-                  //                     agenteId: missao.uid,
-                  //                   ),
-                  //                 ),
-                  //               );
-                  //             },
-                  //             child: const Text('Ver detalhes'),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     );
-                  //   } else {
-                  //     return TableRow(children: [
-                  //       Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: const Text('Dados não disponíveis')),
-                  //       // Outros containers vazios ou com textos placeholder podem ser adicionados aqui
-                  //     ]);
-                  //   }
-                  // }).toList();
-
-                  // return Table(
-                  //   border: TableBorder.all(),
-                  //   columnWidths: const {
-                  //     0: FractionColumnWidth(0.25),
-                  //     1: FractionColumnWidth(0.25),
-                  //     2: FractionColumnWidth(0.25),
-                  //     3: FractionColumnWidth(0.25),
-                  //   },
-                  //   children: [
-                  //     TableRow(
-                  //       children: [
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: const Text('Tipo'),
-                  //         ),
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: const Text('Data de início'),
-                  //         ),
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: const Text('ID da missão'),
-                  //         ),
-                  //         Container(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: const Text(''),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     ...missionRows, // Adiciona as linhas de missões aqui
-                  //   ],
-                  // );
                 ],
               ),
-            ),
-          ],
-        ),
+            );
+          } else {
+            return const Center(
+              child: Text('Recarregue a página'),
+            );
+          }
+        },
       ),
     );
   }
@@ -417,7 +340,8 @@ class EmpresaDataSource extends DataTableSource {
         ),
         DataCell(
           SelectableText(missao.serverFim != null
-              ? DateFormat('dd/MM/yyyy HH:mm').format(missao.serverFim!.toDate())
+              ? DateFormat('dd/MM/yyyy HH:mm')
+                  .format(missao.serverFim!.toDate())
               : 'N/A'),
         ),
         DataCell(

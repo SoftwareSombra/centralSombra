@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sombra_testes/chat_view/chatview.dart';
 import 'package:sombra_testes/notificacoes/notificacoess.dart';
 import 'package:sombra_testes/sqfLite/missao/model/missao_db_model.dart';
 import 'package:sombra_testes/sqfLite/missao/services/db_helper.dart';
@@ -10,6 +13,7 @@ import '../../notificacoes/fcm.dart';
 class ChatServices {
   FirebaseMessagingService firebaseMessagingService =
       FirebaseMessagingService(NotificationService());
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   addMsg(
     body,
@@ -76,7 +80,7 @@ class ChatServices {
     await FirebaseFirestore.instance
         .collection('Chat')
         .doc(uid)
-        .update({'unreadCount': FieldValue.increment(1)});
+        .set({'unreadCount': FieldValue.increment(1)}, SetOptions(merge: true));
 
     // Enviar a notificação usando o token FCM.
     List<String> userTokens = await fetchUserTokens(uid);
@@ -203,28 +207,55 @@ class ChatServices {
     }
   }
 
+  Future<void> resetUnreadCount(String uid) async {
+    await FirebaseFirestore.instance.collection('Chat').doc(uid).set({
+      'unreadCount': 0,
+      //'lastMessageTimestamp': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   Future<List<String>> fetchUserTokens(String uid) async {
     List<String> tokens = [];
 
     // Referência à coleção de tokens de um usuário específico
     CollectionReference tokensCollection = FirebaseFirestore.instance
-        .collection('users')
+        .collection('FCM Tokens')
         .doc(uid)
         .collection('tokens');
 
     // Busca todos os documentos da coleção de tokens
     QuerySnapshot tokensSnapshot = await tokensCollection.get();
 
+    debugPrint('Tokens snapshot: ${tokensSnapshot.docs.length}');
+
     // Itera sobre os documentos e extrai o valor do token
     for (QueryDocumentSnapshot tokenDoc in tokensSnapshot.docs) {
       Map<String, dynamic> data = tokenDoc.data() as Map<String, dynamic>;
-      String? token = data['fcmToken'];
+      String? token = data['FCM Token'];
       if (token != null) {
         tokens.add(token);
       }
     }
 
     return tokens;
+  }
+
+  Future<bool> compartilharFotoComCliente(missaoId, fotoUrl, uid) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Fotos compartilhadas')
+          .doc(missaoId)
+          .set({
+        'foto': fotoUrl,
+        'timestamp': FieldValue.serverTimestamp(),
+        'uid': uid,
+        'missaoId': missaoId,
+      });
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao compartilhar foto com cliente: $e');
+      return false;
+    }
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getUsersConversations() {
@@ -235,6 +266,7 @@ class ChatServices {
   }
 
   Stream<bool> notificacaoChat() {
+    debugPrint('chegou aqui !!!!!');
     return FirebaseFirestore.instance
         .collection('Chat')
         .snapshots()
@@ -308,6 +340,57 @@ class ChatServices {
     }
   }
 
+  Future<Map<String, String>> getUserNames(List<String> uids) async {
+    // A coleção de onde você quer buscar os nomes dos usuários
+    final collection = FirebaseFirestore.instance.collection('User Name');
+
+    // Dividindo os uids em lotes de 10, porque Firestore tem um limite para o número de itens na cláusula whereIn
+    final List<Map<String, String>> namesBatch = [];
+    for (var i = 0; i < uids.length; i += 10) {
+      final batchUids =
+          uids.sublist(i, i + 10 > uids.length ? uids.length : i + 10);
+
+      // Realizando a busca
+      final querySnapshot = await collection
+          .where(FieldPath.documentId, whereIn: batchUids)
+          .get();
+
+      // Processando os resultados e adicionando ao mapa
+      for (var doc in querySnapshot.docs) {
+        final uid = doc.id;
+        final name = doc['Nome'] ??
+            ''; // Use um valor padrão ou manipule a ausência de nome como achar melhor
+        namesBatch.add({uid: name});
+      }
+    }
+
+    // Combinando todos os lotes em um único mapa
+    final Map<String, String> names = {};
+    for (var batch in namesBatch) {
+      names.addAll(batch);
+    }
+
+    return names;
+  }
+
+  Future<List<Message>?> buscarChatMissao(String missaoId) async {
+    final get = await firestore
+        .collection('Chat missão')
+        .doc(missaoId)
+        .collection('Mensagens').orderBy('createdAt', descending: false)
+        .get();
+
+    if (get.docs.isEmpty) {
+      return null;
+    } else {
+      final messages = get.docs.map((doc) {
+        return Message.fromJson(doc.data());
+      }).toList();
+
+      return messages;
+    }
+  }
+
   Future<bool> insertChatMissaoCache(
       String userUid,
       String? mensagem,
@@ -370,5 +453,26 @@ class ChatServices {
     } else {
       return false;
     }
+  }
+
+  Future<void> addFcmTokenAdm() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    final user = auth.currentUser;
+    final uid = user?.uid;
+
+    String? token;
+    if (kIsWeb) {
+      token = await FirebaseMessaging.instance.getToken(
+          vapidKey:
+              'BPEMSDicznf8_uGi2RxViOkhH3hidRJo0WT6UzyTpkMB7CfMYHw6h9HfkmVoOP7m95JWTHGgiTdXYk3OquJmpnE');
+    } else {
+      token = await FirebaseMessaging.instance.getToken();
+    }
+    await FirebaseFirestore.instance
+        .collection('FCM Tokens')
+        .doc('Plataforma Sombra')
+        .collection('tokens')
+        .doc(uid)
+        .set({'FCM Token': token});
   }
 }

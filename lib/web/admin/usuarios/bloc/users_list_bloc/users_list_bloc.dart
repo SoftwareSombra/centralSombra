@@ -9,7 +9,8 @@ class UsersListBloc extends Bloc<UsersListEvent, UsersListState> {
       (event, emit) async {
         emit(UsersListLoading());
         try {
-          final users = await AdminServices().getAllUsers();
+          //final users = await AdminServices().getAllUsers();
+          final users = await AdminServices().getAllUsers2();
           if (users != null) {
             emit(UsersListLoaded(users));
           } else {

@@ -1,34 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AgenteAdmList {
-  final String uid;
+   String uid;
   //final String endereco;
-  final String Logradouro;
-  final String Numero;
-  final String Complemento;
-  final String Bairro;
-  final String Cidade;
-  final String Estado;
-  final String cep;
-  final String celular;
-  final String rg;
-  final String cpf;
-  final String? rgFotoFrenteUrl;
-  final String? rgFotoVersoUrl;
-  final String? compResidFotoUrl;
-  final Timestamp timestamp;
-  final String? nivel;
-  final String nome;
+   String logradouro;
+   String numero;
+   String complemento;
+   String bairro;
+   String cidade;
+   String estado;
+   String cep;
+   String celular;
+   String rg;
+   String cpf;
+   String? rgFotoFrenteUrl;
+   String? rgFotoVersoUrl;
+   String? compResidFotoUrl;
+   Timestamp timestamp;
+   String? nivel;
+   String nome;
 
   AgenteAdmList({
     required this.uid,
     //required this.endereco,
-    required this.Logradouro,
-    required this.Numero,
-    required this.Complemento,
-    required this.Bairro,
-    required this.Cidade,
-    required this.Estado,
+    required this.logradouro,
+    required this.numero,
+    required this.complemento,
+    required this.bairro,
+    required this.cidade,
+    required this.estado,
     required this.cep,
     required this.celular,
     required this.rg,
@@ -45,12 +45,12 @@ class AgenteAdmList {
     return AgenteAdmList(
       uid: data['uid'],
       //endereco: data['Endereço'],
-      Logradouro: data['logradouro'],
-      Numero: data['numero'],
-      Complemento: data['complemento'],
-      Bairro: data['bairro'],
-      Cidade: data['cidade'],
-      Estado: data['estado'],
+      logradouro: data['logradouro'],
+      numero: data['numero'],
+      complemento: data['complemento'],
+      bairro: data['bairro'],
+      cidade: data['cidade'],
+      estado: data['estado'],
       cep: data['Cep'],
       celular: data['Celular'],
       rg: data['RG'],
@@ -68,12 +68,12 @@ class AgenteAdmList {
     return {
       'uid': uid,
       //'Endereço': endereco,
-      'logradouro': Logradouro,
-      'numero': Numero,
-      'complemento': Complemento,
-      'bairro': Bairro,
-      'cidade': Cidade,
-      'estado': Estado,
+      'logradouro': logradouro,
+      'numero': numero,
+      'complemento': complemento,
+      'bairro': bairro,
+      'cidade': cidade,
+      'estado': estado,
       'Cep': cep,
       'Celular': celular,
       'RG': rg,

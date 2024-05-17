@@ -46,7 +46,7 @@ class _MissaoChatScreenState extends State<MissaoChatScreen> {
     await FirebaseFirestore.instance
         .collection('Chat missão')
         .doc(widget.missaoId)
-        .update({'userUnreadCount': 0});
+        .set({'userUnreadCount': 0}, SetOptions(merge: true));
   }
 
   @override

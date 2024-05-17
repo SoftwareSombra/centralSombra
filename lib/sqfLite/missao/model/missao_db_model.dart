@@ -45,6 +45,7 @@ class RelatorioTable {
   static const String columnMissaoLatitude = 'missaoLatitude';
   static const String columnMissaoLongitude = 'missaoLongitude';
   static const String columnLocal = 'local';
+  static const String columnFinalizador = 'finalizador';
   static const String columnFim = 'fim';
 
   static String createTableQuery() {
@@ -70,6 +71,7 @@ class RelatorioTable {
         $columnMissaoLatitude TEXT NOT NULL,
         $columnMissaoLongitude TEXT NOT NULL,
         $columnLocal TEXT NOT NULL,
+        $columnFinalizador TEXT NOT NULL,
         $columnFim TEXT
       )
     ''';

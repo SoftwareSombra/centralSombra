@@ -59,18 +59,26 @@ class UserServices {
       }
       final uid = userCredential.user!.uid;
       debugPrint("uid: $uid");
+      await firestore.collection('FCM Tokens').doc(uid).set({
+        'sinc': 'sinc',
+      });
+      await firestore.collection('FCM Tokens').doc('Plataforma Sombra').set({
+        'sinc': 'sinc',
+      });
       if (token != null) {
-        await firestore
-            .collection('FCM Tokens')
-            .doc(uid)
-            .set({
-          'sinc': 'sinc',
-        });
         await firestore
             .collection('FCM Tokens')
             .doc(uid)
             .collection('tokens')
             .doc(token)
+            .set({
+          'FCM Token': token,
+        });
+        await firestore
+            .collection('FCM Tokens')
+            .doc('Plataforma Sombra')
+            .collection('tokens')
+            .doc(uid)
             .set({
           'FCM Token': token,
         });
@@ -124,12 +132,26 @@ class UserServices {
       }
       final uid = userCredential.user!.uid;
       debugPrint("uid: $uid");
+      await firestore.collection('FCM Tokens').doc(uid).set({
+        'sinc': 'sinc',
+      });
+      await firestore.collection('FCM Tokens').doc('Plataforma Sombra').set({
+        'sinc': 'sinc',
+      });
       if (token != null) {
         await firestore
             .collection('FCM Tokens')
             .doc(uid)
             .collection('tokens')
             .doc(token)
+            .set({
+          'FCM Token': token,
+        });
+        await firestore
+            .collection('FCM Tokens')
+            .doc('Plataforma Sombra')
+            .collection('tokens')
+            .doc(uid)
             .set({
           'FCM Token': token,
         });
@@ -155,11 +177,16 @@ class UserServices {
           FirebaseFunctions.instanceFor(region: 'southamerica-east1')
               .httpsCallable('cadastro');
 
+      HttpsCallable newcallable =
+          FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+              .httpsCallable('updateMissingDisplayNames');
+
       final response = await callable.call(<String, dynamic>{
         'nome': name,
         'email': email,
         'senha': password,
       });
+      //await newcallable.call();
       debugPrint("response: ${response.data}");
       final uid = response.data['uid'];
       debugPrint("criado com sucesso");
@@ -272,6 +299,18 @@ class UserServices {
     }
   }
 
+  Future<String?> getUidUserName(String uid) async {
+    try {
+      final snapshot = await firestore.collection('User Name').doc(uid).get();
+      final data = snapshot.data() as Map<String, dynamic>;
+      final nome = data['Nome'];
+      return nome;
+    } catch (e) {
+      debugPrint("Erro ao obter o nome do usuário: $e");
+      return null;
+    }
+  }
+
   Future<String?> getAgenteName() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -369,7 +408,14 @@ class UserServices {
 
   Future<String?> getFCMtoken() async {
     try {
-      final token = await messaging.getToken();
+      String? token;
+      if (kIsWeb) {
+        token = await messaging.getToken(
+            vapidKey:
+                'BPEMSDicznf8_uGi2RxViOkhH3hidRJo0WT6UzyTpkMB7CfMYHw6h9HfkmVoOP7m95JWTHGgiTdXYk3OquJmpnE');
+      } else {
+        token = await messaging.getToken();
+      }
       return token;
     } catch (error) {
       debugPrint("Erro ao tentar obter o FCM token: $error");

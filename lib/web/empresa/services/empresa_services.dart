@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import '../model/empresa_model.dart';
 import '../model/usuario_empresa_model.dart';
 
@@ -39,7 +40,7 @@ class EmpresaServices {
       String nome, String email) async {
     try {
       await firestore
-          .collection('Empresas')
+          .collection('Empresa')
           .doc(cnpj)
           .collection('Usuarios')
           .doc(uid)
@@ -61,12 +62,13 @@ class EmpresaServices {
   Future<List<UsuarioEmpresa>> getUsuariosEmpresa(String cnpj) async {
     try {
       QuerySnapshot querySnapshot = await firestore
-          .collection('Empresas')
+          .collection('Empresa')
           .doc(cnpj)
           .collection('Usuarios')
           .get();
       List<UsuarioEmpresa> usuarios = [];
       for (var doc in querySnapshot.docs) {
+        debugPrint(doc.data().toString());
         usuarios.add(
             UsuarioEmpresa.fromFirestore(doc.data() as Map<String, dynamic>));
       }
@@ -80,7 +82,7 @@ class EmpresaServices {
   Future<bool> deleteUsuarioEmpresa(String cnpj, String uid) async {
     try {
       await firestore
-          .collection('Empresas')
+          .collection('Empresa')
           .doc(cnpj)
           .collection('Usuarios')
           .doc(uid)
@@ -92,13 +94,13 @@ class EmpresaServices {
   }
 
   //funcao para pegar os dados da empresa
-  Future<Empresa> getEmpresa(String cnpj) async {
+  Future<Empresa?> getEmpresa(String cnpj) async {
     try {
       DocumentSnapshot doc =
           await firestore.collection('Empresas').doc(cnpj).get();
-      return Empresa.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+      return Empresa.fromFirestore(doc.data() as Map<String, dynamic>);
     } catch (e) {
-      rethrow;
+      return null;
     }
   }
 
@@ -150,7 +152,7 @@ class EmpresaServices {
       List<Empresa> empresas = [];
       for (var doc in querySnapshot.docs) {
         empresas.add(
-            Empresa.fromFirestore(doc.data() as Map<String, dynamic>, doc.id));
+            Empresa.fromFirestore(doc.data() as Map<String, dynamic>));
       }
       return empresas;
     } catch (e) {

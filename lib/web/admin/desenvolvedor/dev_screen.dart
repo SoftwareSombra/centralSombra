@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
+import '../../../autenticacao/services/user_services.dart';
 import '../services/admin_services.dart';
 
 class DevScreen extends StatelessWidget {
@@ -24,6 +25,7 @@ class DevScreen extends StatelessWidget {
     final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
     final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
     final width = MediaQuery.of(context).size.width;
+    final UserServices userServices = UserServices();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 3, 9, 18),
@@ -52,7 +54,7 @@ class DevScreen extends StatelessWidget {
                   },
                 ),
                 buildElevatedButton(onPressed: () async {
-                  final devResult = await adminServices.addDev(devController);
+                  final devResult = await adminServices.addDev(devController.text.trim());
                   if (context.mounted) {
                     if (devResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -77,7 +79,10 @@ class DevScreen extends StatelessWidget {
                   },
                 ),
                 buildElevatedButton(onPressed: () async {
-                  final admResult = await adminServices.addAdmin(admController);
+                  final userName = await adminServices
+                      .getUserInfos(admController.text.trim());
+                  final admResult = await adminServices.addAdmin(admController.text.trim(),
+                      nome: userName);
                   if (context.mounted) {
                     if (admResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -102,8 +107,10 @@ class DevScreen extends StatelessWidget {
                   },
                 ),
                 buildElevatedButton(onPressed: () async {
-                  final gestorResult =
-                      await adminServices.addGestor(gestorController);
+                  final userName = await adminServices
+                      .getUserInfos(admController.text.trim());
+                  final gestorResult = await adminServices
+                      .addGestor(gestorController.text.trim(), nome: userName);
                   if (context.mounted) {
                     if (gestorResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -128,8 +135,10 @@ class DevScreen extends StatelessWidget {
                   },
                 ),
                 buildElevatedButton(onPressed: () async {
-                  final operadorResult =
-                      await adminServices.addOperador(operadorController);
+                  final userName = await userServices
+                      .getUidUserName(operadorController.text.trim());
+                  final operadorResult = await adminServices
+                      .addOperador(operadorController.text.trim(), nome: userName);
                   if (context.mounted) {
                     if (operadorResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -165,10 +174,13 @@ class DevScreen extends StatelessWidget {
                 ),
                 buildElevatedButton(
                   onPressed: () async {
+                    final userName = await adminServices
+                        .getUserInfos(admController.text.trim());
                     final admClienteResult =
                         await adminServices.addAdminCliente(
-                      admClienteController,
+                      admClienteController.text.trim(),
                       admClienteCnpjController,
+                      nome: userName,
                     );
                     if (context.mounted) {
                       if (admClienteResult) {
@@ -207,10 +219,13 @@ class DevScreen extends StatelessWidget {
                 ),
                 buildElevatedButton(
                   onPressed: () async {
+                    final userName = await adminServices
+                        .getUserInfos(admController.text.trim());
                     final operadorClienteResult =
                         await adminServices.addOperadorCliente(
-                      operadorClienteController,
+                      operadorClienteController.text.trim(),
                       operadorClienteCnpjController,
+                      nome: userName,
                     );
                     if (context.mounted) {
                       if (operadorClienteResult) {

@@ -8,16 +8,20 @@ import 'package:sombra_testes/web/home/notificacao/not_teste.dart';
 import 'package:sombra_testes/web/home/screens/components/second_row.dart';
 import 'package:sombra_testes/web/home/screens/components/solicitacoes.dart';
 import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
-import '../../../chat/screens/admin_chat.dart';
+import '../../../autenticacao/services/user_services.dart';
 import '../../../chat/screens/central_missao_chat.dart';
+import '../../../chat/screens/chat_screen.dart';
 import '../../../chat/screens/missao_cliente.dart';
 import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_event.dart';
+import '../../admin/services/admin_services.dart';
 import '../../missoes/agente/realtime_map.dart';
 import 'components/missoes_ativas.dart';
 
 class HomeLoginWeb extends StatefulWidget {
-  const HomeLoginWeb({super.key});
+  final String cargo;
+  final String nome;
+  const HomeLoginWeb({super.key, required this.cargo, required this.nome});
 
   @override
   State<HomeLoginWeb> createState() => _HomeLoginWebState();
@@ -27,15 +31,31 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
   final NotTesteService notTesteService = NotTesteService();
   final ChatServices chatServices = ChatServices();
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final UserServices userServices = UserServices();
   List<CoordenadaComTimestamp> portoRealRoute = [];
   MissaoServices missaoServices = MissaoServices();
+  AdminServices adminServices = AdminServices();
+  //String funcao = 'carregando...';
+  //String nome = 'carregando...';
 
   @override
   void initState() {
+    //nome = firebaseAuth.currentUser!.displayName!;
     // loadCoordinates();
     super.initState();
-    context.read<QtdMissoesPendentesBloc>().add(BuscarQtdMissoesPendentes());
+    context.read<QtdMissoesPendentesBloc>().add(
+          BuscarQtdMissoesPendentes(),
+        );
+    //buscarFuncao();
+    userServices.addFcmToken();
   }
+
+  // Future<void> buscarFuncao() async {
+  //   final getFunction = await adminServices.getUserRole();
+  //   setState(() {
+  //     funcao = getFunction;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -68,27 +88,28 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                   left: MediaQuery.of(context).size.width * 0.084,
                   right: MediaQuery.of(context).size.width * 0.08,
                   bottom: 20),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 20,
                     backgroundImage:
                         AssetImage('assets/images/fotoDePerfilNull.jpg'),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Nome do usuário',
-                        style: TextStyle(fontSize: 14),
+                        widget.nome,
+                        style: const TextStyle(fontSize: 14),
                       ),
                       Text(
-                        'Função',
-                        style: TextStyle(color: Colors.grey, fontSize: 11),
+                        widget.cargo,
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 11),
                       ),
                     ],
                   )
@@ -157,7 +178,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                     return ListView(
                       children:
                           snapshot.data!.docs.map((DocumentSnapshot document) {
-                        String uid = document.id;
+                        String agenteUid = document.id;
                         Map<String, dynamic> data =
                             document.data() as Map<String, dynamic>;
                         int unreadCount = data['unreadCount'] ?? 0;
@@ -166,7 +187,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                           DocumentSnapshot document = await FirebaseFirestore
                               .instance
                               .collection('Chat')
-                              .doc(uid)
+                              .doc(agenteUid)
                               .get();
 
                           Map<String, dynamic> data =
@@ -179,7 +200,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
 
                           await FirebaseFirestore.instance
                               .collection('Chat')
-                              .doc(uid)
+                              .doc(agenteUid)
                               .set({
                             'unreadCount': 0,
                             'lastMessageTimestamp': lastMessageTimestamp,
@@ -193,7 +214,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                               children: [
                                 Expanded(
                                   child: FutureBuilder<Map<String, String>>(
-                                    future: chatServices.getUserName(uid),
+                                    future: chatServices.getUserName(agenteUid),
                                     builder: (BuildContext context,
                                         AsyncSnapshot<Map<String, String>>
                                             snapshot) {
@@ -234,7 +255,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        AtendenteMsg(uid: uid),
+                                        ChatScreen(agenteUid: agenteUid),
                                   ),
                                 );
                               }
@@ -393,6 +414,8 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                                             builder: (context) =>
                                                 ClienteMissaoChatScreen(
                                               missaoId: data['missaoID'],
+                                              agenteUid: data['agenteUid'],
+                                              agenteNome: data['nome'],
                                             ),
                                           ),
                                         );
@@ -440,6 +463,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                                     missaoId: data['missaoID'],
                                     missaoLatitude: data['missaoLatitude'],
                                     missaoLongitude: data['missaoLongitude'],
+                                    missionData: data,
                                   ),
                                 ),
                               );

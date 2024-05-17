@@ -1,9 +1,10 @@
+import 'package:audioplayers/audioplayers.dart' as audio;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sombra_testes/autenticacao/services/user_services.dart';
@@ -11,6 +12,7 @@ import '../firebase_options.dart';
 import '../rotas/rotas.dart';
 import 'notificacoess.dart';
 
+@pragma('vm:entry-point')
 Future<void> backgroundMessageHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
@@ -75,12 +77,26 @@ class FirebaseMessagingService {
       sound: true,
     );
 
-    final token = await FirebaseMessaging.instance.getToken();
+    String? token;
+    if (kIsWeb) {
+      token = await FirebaseMessaging.instance.getToken(
+          vapidKey:
+              'BPEMSDicznf8_uGi2RxViOkhH3hidRJo0WT6UzyTpkMB7CfMYHw6h9HfkmVoOP7m95JWTHGgiTdXYk3OquJmpnE');
+    } else {
+      token = await FirebaseMessaging.instance.getToken();
+    }
     debugPrint('TOKEN: $token');
   }
 
   _onMessage() async {
     FirebaseMessaging.onMessage.listen((message) async {
+      final audio.AudioPlayer _audioPlayer = audio.AudioPlayer();
+      await _audioPlayer.play(
+        volume: 1,
+        audio.UrlSource(
+            'https://firebasestorage.googleapis.com/v0/b/sombratestes.appspot.com/o/notification-message-incoming.mp3?alt=media&token=f99b5f13-6f86-4c82-b397-58bd95dc3a1a'),
+      );
+
       debugPrint('cheguei aqui');
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
@@ -164,7 +180,7 @@ class FirebaseMessagingService {
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
             'status': 'done',
-            'rota': rota
+            //'rota': rota
           },
           'to': token,
         },
@@ -205,5 +221,23 @@ class FirebaseMessagingService {
     }
 
     return tokens;
+  }
+
+  void tokenRefresh() {
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+      debugPrint('Token atualizado: $token');
+      final String userId = FirebaseAuth.instance.currentUser!.uid;
+      final firestore = FirebaseFirestore.instance;
+
+      await firestore.collection('FCM Tokens').doc('Plataforma Sombra').set({
+        'sinc': 'sinc',
+      });
+      await firestore
+          .collection('FCM Tokens')
+          .doc('Plataforma Sombra')
+          .collection('tokens')
+          .doc(userId)
+          .set({'FCM Token': token});
+    });
   }
 }

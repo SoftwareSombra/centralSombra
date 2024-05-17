@@ -137,246 +137,259 @@ class MissoesAtivasContainer extends StatelessWidget {
                               Map<String, dynamic> data =
                                   document.data()! as Map<String, dynamic>;
                               bool emAndamento = data['emAndamento'];
-                              return MouseRegion(
-                                cursor: MaterialStateMouseCursor.clickable,
-                                child: GestureDetector(
-                                  // child: GradientCard(
-                                  //   gradient: g1,
-                                  //   shape: RoundedRectangleBorder(
-                                  //     borderRadius: BorderRadius.circular(5),
-                                  //   ),
-                                  child: Container(
-                                    //color: Colors.grey[400],
-                                    color: const Color.fromARGB(255, 3, 9, 18)
-                                        .withOpacity(0.5),
-                                    child:
-                                        //   ListTile(
-                                        // title:
-                                        Padding(
-                                      padding: EdgeInsets.all(20),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    //missao id em cinza
-                                                    Row(
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.gps_fixed,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        SelectableText(
-                                                          '${data['missaoID']}',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 12,
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: MouseRegion(
+                                  cursor: MaterialStateMouseCursor.clickable,
+                                  child: GestureDetector(
+                                    // child: GradientCard(
+                                    //   gradient: g1,
+                                    //   shape: RoundedRectangleBorder(
+                                    //     borderRadius: BorderRadius.circular(5),
+                                    //   ),
+                                    child: Container(
+                                      //color: Colors.grey[400],
+                                      color: const Color.fromARGB(255, 3, 9, 18)
+                                          .withOpacity(0.5),
+                                      child:
+                                          //   ListTile(
+                                          // title:
+                                          Padding(
+                                        padding: EdgeInsets.all(20),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      //missao id em cinza
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.gps_fixed,
+                                                            color: Colors.white,
+                                                            size: 20,
                                                           ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        IconButton(
-                                                          onPressed: () {
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        CentralMissaoChatScreen(
-                                                                  missaoId: data[
-                                                                      'missaoID'],
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                          icon: Row(
-                                                            children: [
-                                                              const Icon(
-                                                                Icons.person,
-                                                                size: 20,
-                                                              ),
-                                                              StreamBuilder<
-                                                                  int>(
-                                                                stream: chatServices
-                                                                    .getCentralMissionAgentConversationsUnreadCount(
+                                                          const SizedBox(
+                                                            width: 5,
+                                                          ),
+                                                          SelectableText(
+                                                            '${data['missaoID']}',
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  Colors.grey,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          IconButton(
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          CentralMissaoChatScreen(
+                                                                    missaoId: data[
+                                                                        'missaoID'],
+                                                                    agenteUid: data[
+                                                                        'agenteUid'],
+                                                                    agenteNome:
                                                                         data[
-                                                                            'missaoID']),
-                                                                builder: (BuildContext
-                                                                        context,
-                                                                    AsyncSnapshot<
-                                                                            int>
-                                                                        snapshot) {
-                                                                  if (snapshot
-                                                                          .hasData &&
-                                                                      snapshot.data! >
-                                                                          0) {
-                                                                    return Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              2.0),
-                                                                      child:
-                                                                          Text(
-                                                                        '(${snapshot.data})',
-                                                                        style: const TextStyle(
-                                                                            color: Colors
-                                                                                .red,
-                                                                            fontSize:
-                                                                                15,
-                                                                            fontWeight:
-                                                                                FontWeight.w300),
-                                                                      ),
-                                                                    );
-                                                                  } else {
-                                                                    return const SizedBox
-                                                                        .shrink(); // Se não houver dados ou unreadCount for 0, não mostra nada
-                                                                  }
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 5,
-                                                        ),
-                                                        IconButton(
-                                                          onPressed: () {
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        ClienteMissaoChatScreen(
-                                                                  missaoId: data[
-                                                                      'missaoID'],
+                                                                            'nome'],
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                            );
-                                                          },
-                                                          icon: Row(
-                                                            children: [
-                                                              const Icon(
-                                                                Icons.business,
-                                                                size: 20,
-                                                              ),
-                                                              StreamBuilder<
-                                                                  int>(
-                                                                stream: chatServices
-                                                                    .getCentralMissionClientConversationsUnreadCount(
-                                                                        data[
-                                                                            'missaoID']),
-                                                                builder: (BuildContext
-                                                                        context,
-                                                                    AsyncSnapshot<
-                                                                            int>
-                                                                        snapshot) {
-                                                                  if (snapshot
-                                                                          .hasData &&
-                                                                      snapshot.data! >
-                                                                          0) {
-                                                                    return Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              2.0),
-                                                                      child:
-                                                                          Text(
-                                                                        '(${snapshot.data})',
-                                                                        style: const TextStyle(
-                                                                            color:
-                                                                                Colors.red,
-                                                                            fontWeight: FontWeight.bold),
-                                                                      ),
-                                                                    );
-                                                                  } else {
-                                                                    return const SizedBox
-                                                                        .shrink();
-                                                                  }
-                                                                },
-                                                              ),
-                                                            ],
+                                                              );
+                                                            },
+                                                            icon: Row(
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons.person,
+                                                                  size: 20,
+                                                                ),
+                                                                StreamBuilder<
+                                                                    int>(
+                                                                  stream: chatServices
+                                                                      .getCentralMissionAgentConversationsUnreadCount(
+                                                                          data[
+                                                                              'missaoID']),
+                                                                  builder: (BuildContext
+                                                                          context,
+                                                                      AsyncSnapshot<
+                                                                              int>
+                                                                          snapshot) {
+                                                                    if (snapshot
+                                                                            .hasData &&
+                                                                        snapshot.data! >
+                                                                            0) {
+                                                                      return Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                2.0),
+                                                                        child:
+                                                                            Text(
+                                                                          '(${snapshot.data})',
+                                                                          style: const TextStyle(
+                                                                              color: Colors.red,
+                                                                              fontSize: 15,
+                                                                              fontWeight: FontWeight.w300),
+                                                                        ),
+                                                                      );
+                                                                    } else {
+                                                                      return const SizedBox
+                                                                          .shrink(); // Se não houver dados ou unreadCount for 0, não mostra nada
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
+                                                          const SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                          IconButton(
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          ClienteMissaoChatScreen(
+                                                                    missaoId: data[
+                                                                        'missaoID'],
+                                                                    agenteUid: data[
+                                                                        'agenteUid'],
+                                                                    agenteNome:
+                                                                        data[
+                                                                            'nome'],
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            icon: Row(
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons
+                                                                      .business,
+                                                                  size: 20,
+                                                                ),
+                                                                StreamBuilder<
+                                                                    int>(
+                                                                  stream: chatServices
+                                                                      .getCentralMissionClientConversationsUnreadCount(
+                                                                          data[
+                                                                              'missaoID']),
+                                                                  builder: (BuildContext
+                                                                          context,
+                                                                      AsyncSnapshot<
+                                                                              int>
+                                                                          snapshot) {
+                                                                    if (snapshot
+                                                                            .hasData &&
+                                                                        snapshot.data! >
+                                                                            0) {
+                                                                      return Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                2.0),
+                                                                        child:
+                                                                            Text(
+                                                                          '(${snapshot.data})',
+                                                                          style: const TextStyle(
+                                                                              color: Colors.red,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      );
+                                                                    } else {
+                                                                      return const SizedBox
+                                                                          .shrink();
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  const Text(
+                                                    'Empresa: ',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14,
                                                     ),
-                                                  ],
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                const Text(
-                                                  'Empresa: ',
-                                                  style: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 14,
                                                   ),
-                                                ),
-                                                SelectableText(
-                                                  data['nome da empresa'],
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                const Text(
-                                                  'Local: ',
-                                                  style: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 14,
+                                                  SelectableText(
+                                                    data['nome da empresa'],
                                                   ),
-                                                ),
-                                                SelectableText(
-                                                  data['local'],
-                                                ),
-                                                // emAndamento
-                                                //     ? const Text(
-                                                //         'Em andamento',
-                                                //         style: TextStyle(
-                                                //             color: Colors.grey,
-                                                //             fontSize: 15),
-                                                //       )
-                                                //     : const Text(
-                                                //         'Pendente',
-                                                //         style: TextStyle(
-                                                //             color: Colors.grey,
-                                                //             fontSize: 15),
-                                                //       ),
-                                              ],
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  const Text(
+                                                    'Local: ',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  SelectableText(
+                                                    data['local'],
+                                                  ),
+                                                  // emAndamento
+                                                  //     ? const Text(
+                                                  //         'Em andamento',
+                                                  //         style: TextStyle(
+                                                  //             color: Colors.grey,
+                                                  //             fontSize: 15),
+                                                  //       )
+                                                  //     : const Text(
+                                                  //         'Pendente',
+                                                  //         style: TextStyle(
+                                                  //             color: Colors.grey,
+                                                  //             fontSize: 15),
+                                                  //       ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () async {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RealTimeMapScreen(
-                                          missaoId: data['missaoID'],
-                                          missaoLatitude:
-                                              data['missaoLatitude'],
-                                          missaoLongitude:
-                                              data['missaoLongitude'],
+                                          ],
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
+                                    onTap: () async {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              RealTimeMapScreen(
+                                            missaoId: data['missaoID'],
+                                            missaoLatitude:
+                                                data['missaoLatitude'],
+                                            missaoLongitude:
+                                                data['missaoLongitude'],
+                                            missionData: data
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               );
                             }).toList(),

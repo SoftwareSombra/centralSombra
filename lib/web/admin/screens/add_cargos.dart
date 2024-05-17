@@ -45,9 +45,9 @@ class _AddCargosState extends State<AddCargos> {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text('Adicionar cargos'),
         centerTitle: true,
       ),
@@ -78,7 +78,10 @@ class _AddCargosState extends State<AddCargos> {
                   setState(() {
                     isLoading = true;
                   });
-                  final admResult = await adminServices.addAdmin(admController);
+                  final userName = await adminServices
+                      .getUserInfos(admController.text.trim());
+                  final admResult = await adminServices.addAdmin(admController.text.trim(),
+                      nome: userName);
                   if (context.mounted) {
                     setState(() {
                       isLoading = false;
@@ -109,8 +112,10 @@ class _AddCargosState extends State<AddCargos> {
                   setState(() {
                     isLoading = true;
                   });
-                  final gestorResult =
-                      await adminServices.addGestor(gestorController);
+                  final userName = await adminServices
+                      .getUserInfos(admController.text.trim());
+                  final gestorResult = await adminServices
+                      .addGestor(gestorController.text.trim(), nome: userName);
                   if (context.mounted) {
                     setState(() {
                       isLoading = false;
@@ -141,8 +146,10 @@ class _AddCargosState extends State<AddCargos> {
                   setState(() {
                     isLoading = true;
                   });
-                  final operadorResult =
-                      await adminServices.addOperador(operadorController);
+                  final userName = await adminServices
+                      .getUserInfos(admController.text.trim());
+                  final operadorResult = await adminServices
+                      .addOperador(operadorController.text.trim(), nome: userName);
                   if (context.mounted) {
                     setState(() {
                       isLoading = false;
@@ -158,102 +165,102 @@ class _AddCargosState extends State<AddCargos> {
                   }
                 }),
                 const SizedBox(height: 25),
-                buildTextFieldWithValidation(
-                  campo: 'Administrador cliente',
-                  controller: admClienteController,
-                  label: 'uid',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o uid do usuário';
-                    }
-                    return null;
-                  },
-                ),
-                buildTextFieldWithValidation(
-                  controller: admClienteCnpjController,
-                  label: 'CNPJ',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o CNPJ da empresa';
-                    }
-                    return null;
-                  },
-                ),
-                buildElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      isLoading = true;
-                    });
-                    final admClienteResult =
-                        await adminServices.addAdminCliente(
-                      admClienteController,
-                      admClienteCnpjController,
-                    );
-                    if (context.mounted) {
-                      setState(() {
-                        isLoading = false;
-                      });
-                      if (admClienteResult) {
-                        mensagemDeSucesso.showSuccessSnackbar(
-                            context, 'Cargo adicionado com sucesso');
-                        admClienteController.clear();
-                        admClienteCnpjController.clear();
-                      } else {
-                        tratamentoDeErros.showErrorSnackbar(
-                            context, 'Erro ao adicionar cargo');
-                      }
-                    }
-                  },
-                ),
-                const SizedBox(height: 25),
-                buildTextFieldWithValidation(
-                  campo: 'Operador cliente',
-                  controller: operadorClienteController,
-                  label: 'uid',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o uid do usuário';
-                    }
-                    return null;
-                  },
-                ),
-                buildTextFieldWithValidation(
-                  controller: operadorClienteCnpjController,
-                  label: 'CNPJ',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o CNPJ da empresa';
-                    }
-                    return null;
-                  },
-                ),
-                buildElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      isLoading = true;
-                    });
-                    final operadorClienteResult =
-                        await adminServices.addOperadorCliente(
-                      operadorClienteController,
-                      operadorClienteCnpjController,
-                    );
-                    if (context.mounted) {
-                      setState(() {
-                        isLoading = false;
-                      });
-                      if (operadorClienteResult) {
-                        mensagemDeSucesso.showSuccessSnackbar(
-                            context, 'Cargo adicionado com sucesso');
-                        operadorClienteController.clear();
-                        operadorClienteCnpjController.clear();
-                      } else {
-                        tratamentoDeErros.showErrorSnackbar(
-                            context, 'Erro ao adicionar cargo');
-                      }
-                    }
-                  },
-                ),
-                const SizedBox(height: 25),
+                // buildTextFieldWithValidation(
+                //   campo: 'Administrador cliente',
+                //   controller: admClienteController,
+                //   label: 'uid',
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Por favor, insira o uid do usuário';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                // buildTextFieldWithValidation(
+                //   controller: admClienteCnpjController,
+                //   label: 'CNPJ',
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Por favor, insira o CNPJ da empresa';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                // buildElevatedButton(
+                //   onPressed: () async {
+                //     setState(() {
+                //       isLoading = true;
+                //     });
+                //     final admClienteResult =
+                //         await adminServices.addAdminCliente(
+                //       admClienteController,
+                //       admClienteCnpjController,
+                //     );
+                //     if (context.mounted) {
+                //       setState(() {
+                //         isLoading = false;
+                //       });
+                //       if (admClienteResult) {
+                //         mensagemDeSucesso.showSuccessSnackbar(
+                //             context, 'Cargo adicionado com sucesso');
+                //         admClienteController.clear();
+                //         admClienteCnpjController.clear();
+                //       } else {
+                //         tratamentoDeErros.showErrorSnackbar(
+                //             context, 'Erro ao adicionar cargo');
+                //       }
+                //     }
+                //   },
+                // ),
+                // const SizedBox(height: 25),
+                // buildTextFieldWithValidation(
+                //   campo: 'Operador cliente',
+                //   controller: operadorClienteController,
+                //   label: 'uid',
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Por favor, insira o uid do usuário';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                // buildTextFieldWithValidation(
+                //   controller: operadorClienteCnpjController,
+                //   label: 'CNPJ',
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Por favor, insira o CNPJ da empresa';
+                //     }
+                //     return null;
+                //   },
+                // ),
+                // buildElevatedButton(
+                //   onPressed: () async {
+                //     setState(() {
+                //       isLoading = true;
+                //     });
+                //     final operadorClienteResult =
+                //         await adminServices.addOperadorCliente(
+                //       operadorClienteController,
+                //       operadorClienteCnpjController,
+                //     );
+                //     if (context.mounted) {
+                //       setState(() {
+                //         isLoading = false;
+                //       });
+                //       if (operadorClienteResult) {
+                //         mensagemDeSucesso.showSuccessSnackbar(
+                //             context, 'Cargo adicionado com sucesso');
+                //         operadorClienteController.clear();
+                //         operadorClienteCnpjController.clear();
+                //       } else {
+                //         tratamentoDeErros.showErrorSnackbar(
+                //             context, 'Erro ao adicionar cargo');
+                //       }
+                //     }
+                //   },
+                // ),
+                //const SizedBox(height: 25),
               ],
             ),
           ),
@@ -302,9 +309,9 @@ class _AddCargosState extends State<AddCargos> {
 
   Widget buildElevatedButton({required VoidCallback onPressed}) {
     return ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
-            onPressed: isLoading! ? null : onPressed,
-            child: isLoading! ? const Text('...') : const Text('Adicionar'),
-          );
+      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
+      onPressed: isLoading! ? null : onPressed,
+      child: isLoading! ? const Text('...') : const Text('Adicionar'),
+    );
   }
 }

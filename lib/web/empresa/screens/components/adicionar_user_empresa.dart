@@ -188,14 +188,19 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                       try {
                         debugPrint(cargo);
                         if (cargo == 'administrador') {
-                          debugPrint('uid do adm: ${isRegisterSuccessful.item2}');
+                          debugPrint(
+                              'uid do adm: ${isRegisterSuccessful.item2}');
                           final addAdmin = await adminServices.addAdminCliente(
-                              isRegisterSuccessful.item2, widget.cnpj.toString());
+                              isRegisterSuccessful.item2,
+                              widget.cnpj.toString(),
+                              nome: nome.text.trim());
                           debugPrint(addAdmin.toString());
                         } else if (cargo == 'operador') {
                           final addOperador =
                               await adminServices.addOperadorCliente(
-                                  isRegisterSuccessful.item2.toString(), widget.cnpj.toString());
+                                  isRegisterSuccessful.item2.toString(),
+                                  widget.cnpj.toString(),
+                                  nome: nome.text.trim());
                         }
                         if (context.mounted) {
                           context.read<ElevatedButtonBloc>().add(

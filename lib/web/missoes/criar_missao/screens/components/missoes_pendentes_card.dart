@@ -7,7 +7,8 @@ import '../../../../../missao/screens/criar_missao_screen.dart';
 
 class MissaoPendenteCard extends StatelessWidget {
   final MissaoSolicitada missaoSolicitada;
-  const MissaoPendenteCard({super.key, required this.missaoSolicitada});
+  final BuildContext initialContext;
+  const MissaoPendenteCard({super.key, required this.missaoSolicitada, required this.initialContext});
 
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
 
