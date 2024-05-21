@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -28,6 +29,9 @@ import '../../web/admin/services/admin_services.dart';
 import '../../web/empresa/model/empresa_model.dart';
 import '../../web/empresa/services/empresa_services.dart';
 import '../../web/missoes/criar_missao/screens/components/solicitacao_card.dart';
+import '../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
+import '../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
+import '../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
 import '../bloc/missao_solicitacao_card/missao_solicitacao_card_bloc.dart';
 import '../bloc/missao_solicitacao_card/missao_solicitacao_card_event.dart';
 import '../bloc/missao_solicitacao_card/missao_solicitacao_card_state.dart';
@@ -283,17 +287,1507 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
           if (state is MissoesSolicitadasLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is MissoesSolicitadasEmpty) {
-            return const Center(
-              child: Card(
-                color: Colors.black,
-                elevation: 1,
-                margin: EdgeInsets.all(8.0),
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Text('Nenhuma solicitação encontrada'),
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.08),
+              child: ExpansionTile(
+                //collapsedBackgroundColor: canvasColor.withOpacity(0.3),
+                collapsedBackgroundColor: canvasColor.withOpacity(0.4),
+                initiallyExpanded: false,
+                //borda
+                // collapsedShape: RoundedRectangleBorder(
+                //   borderRadius: BorderRadius.circular(20),
+                // ),
+                //cor do icone
+                collapsedIconColor: Colors.grey[300],
+                //cor do texto
+                collapsedTextColor: Colors.white,
+                //backgroundColor: canvasColor.withOpacity(0.4),
+                backgroundColor: canvasColor.withOpacity(0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
+
+                // decoration: BoxDecoration(
+                //   //color: canvasColor.withOpacity(0.99),
+                //   borderRadius: BorderRadius.circular(20),
+                //   //cor da borda
+                //   border: Border.all(
+                //     color: canvasColor,
+                //     width: 2,
+                //   ),
+                // ),
+
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        //color: canvasColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 5),
+                      child: const Text(
+                        'CRIAR SOLICITAÇÃO',
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        _buttonsNav(),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Checkbox(
+                              //   value: preservacaoIsChecked,
+                              //   onChanged: (bool? value) {
+                              //     setState(() {
+                              //       preservacaoIsChecked = value!;
+                              //       _selectedOption = 'Preservação';
+                              //     });
+                              //   },
+                              // ),
+                              // const Text(
+                              //   'Preservação',
+                              //   style: TextStyle(
+                              //       color: Colors.black,
+                              //       fontSize: 14),
+                              // ),
+                              // const SizedBox(width: 10),
+                              // Checkbox(
+                              //   value: acompanhamentoIsChecked,
+                              //   onChanged: (bool? value) {
+                              //     setState(() {
+                              //       acompanhamentoIsChecked =
+                              //           value!;
+                              //       _selectedOption = 'Acompanhamento';
+                              //     });
+                              //   },
+                              // ),
+                              // const Text(
+                              //   'Acompanhamento',
+                              //   style: TextStyle(
+                              //       color: Colors.black,
+                              //       fontSize: 14),
+                              // ),
+                              // const SizedBox(width: 10),
+                              // Checkbox(
+                              //   value: varreduraIsChecked,
+                              //   onChanged: (bool? value) {
+                              //     setState(() {
+                              //       varreduraIsChecked = value!;
+                              //       _selectedOption = 'Varredura';
+                              //     });
+                              //   },
+                              // ),
+                              // const Text(
+                              //   'Varredura',
+                              //   style: TextStyle(
+                              //       color: Colors.black,
+                              //       fontSize: 14),
+                              // ),
+                              // const SizedBox(width: 10),
+                              // Checkbox(
+                              //   value: averiguacaoIsChecked,
+                              //   onChanged: (bool? value) {
+                              //     setState(() {
+                              //       averiguacaoIsChecked = value!;
+                              //       _selectedOption = 'Averiguação';
+                              //     });
+                              //   },
+                              // ),
+                              // const Text(
+                              //   'Averiguação',
+                              //   style: TextStyle(
+                              //       color: Colors.black,
+                              //       fontSize: 14),
+                              // ),
+
+                              Radio<String>(
+                                value: 'Preservação',
+                                groupValue: _selectedOption,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedOption = value;
+                                    _updateButtonState();
+                                  });
+                                },
+                              ),
+                              const Text('Preservação'),
+                              const SizedBox(width: 10),
+                              Radio<String>(
+                                value: 'Acompanhamento',
+                                groupValue: _selectedOption,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedOption = value;
+                                    _updateButtonState();
+                                  });
+                                },
+                              ),
+                              const Text('Acompanhamento'),
+                              Radio<String>(
+                                value: 'Varredura',
+                                groupValue: _selectedOption,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedOption = value;
+                                    _updateButtonState();
+                                  });
+                                },
+                              ),
+                              const Text('Varredura'),
+                              Radio<String>(
+                                value: 'Averiguação',
+                                groupValue: _selectedOption,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedOption = value;
+                                    _updateButtonState();
+                                  });
+                                },
+                              ),
+                              const Text('Averiguação'),
+                            ],
+                          ),
+                        ),
+                        ResponsiveRowColumn(
+                          layout: ResponsiveRowColumnType.COLUMN,
+                          children: [
+                            ResponsiveRowColumnItem(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.055, vertical: 0),
+                                child: Container(
+                                  height: 55,
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 600),
+                                  child: TextFormField(
+                                    cursorHeight: 17,
+                                    //focusNode: _focusNode,
+                                    controller: cnpjController,
+                                    //style: TextStyle(color: Colors.grey[200]),
+                                    decoration: const InputDecoration(
+                                      labelText: 'CNPJ do cliente',
+                                      labelStyle: TextStyle(
+                                          fontSize: 13, color: Colors.grey),
+                                      suffixIcon: Icon(Icons.search),
+                                      border: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        _botao == 'localizacao'
+                            ? ResponsiveRowColumn(
+                                layout: ResponsiveRowColumnType.COLUMN,
+                                children: [
+                                  ResponsiveRowColumnItem(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: width * 0.055,
+                                          vertical: 0),
+                                      child: Container(
+                                        height: 55,
+                                        constraints:
+                                            const BoxConstraints(maxWidth: 600),
+                                        child: TextFormField(
+                                          cursorHeight: 15,
+                                          focusNode: _focusNode,
+                                          controller: _missionController,
+                                          //style: TextStyle(color: Colors.grey[200]),
+                                          decoration: const InputDecoration(
+                                            labelText: 'Local da missão',
+                                            labelStyle: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey),
+                                            suffixIcon: Icon(Icons.search),
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (_focusNode.hasFocus &&
+                                      _predictions != null &&
+                                      _predictions!.isNotEmpty)
+                                    ResponsiveRowColumnItem(
+                                      child: SizedBox(
+                                        height: 250,
+                                        //width: width * 0.7,
+                                        //child: Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.055,
+                                              vertical: 15),
+                                          child: Container(
+                                            constraints: const BoxConstraints(
+                                                maxWidth: 600),
+                                            child: SizedBox(
+                                              //width: width * 0.7,
+                                              height: 260,
+                                              child: ListView.builder(
+                                                itemCount: _predictions!.length,
+                                                itemBuilder: (context, index) {
+                                                  final prediction =
+                                                      _predictions![index];
+                                                  bool isSelected =
+                                                      prediction.placeId ==
+                                                          _selectedPlaceId;
+                                                  return ListTile(
+                                                      title: Text(
+                                                          prediction.fullText),
+                                                      trailing: isSelected
+                                                          ? const Icon(
+                                                              Icons.check)
+                                                          : null,
+                                                      onTap: () async {
+                                                        final fields = [
+                                                          PlaceField.Name,
+                                                          PlaceField.Address,
+                                                          PlaceField
+                                                              .Location, // Alterado de Location para LatLng
+                                                        ];
+
+                                                        final response =
+                                                            await places
+                                                                .fetchPlace(
+                                                                    prediction
+                                                                        .placeId,
+                                                                    fields:
+                                                                        fields);
+                                                        Place? details =
+                                                            response.place;
+
+                                                        setState(() {
+                                                          _selectedPlaceId =
+                                                              prediction
+                                                                  .placeId;
+                                                          if (_activeField ==
+                                                              ActiveField
+                                                                  .mission) {
+                                                            missionPosition =
+                                                                details;
+                                                            _missionController
+                                                                    .text =
+                                                                details!
+                                                                    .address!;
+                                                            _missionController
+                                                                    .selection =
+                                                                TextSelection
+                                                                    .fromPosition(
+                                                              TextPosition(
+                                                                  offset:
+                                                                      _missionController
+                                                                          .text
+                                                                          .length),
+                                                            );
+                                                          }
+
+                                                          debugPrint(missionPosition
+                                                              .toString()); // Adicionando o log para o missionPosition
+                                                          _predictions = null;
+                                                          _updateButtonState();
+                                                        });
+                                                      });
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ResponsiveRowColumnItem(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 10,
+                                          right: width * 0.055,
+                                          left: width * 0.055,
+                                          bottom: height * 0.0),
+                                      child: Form(
+                                        key: formPlacasKey,
+                                        child: ResponsiveRowColumn(
+                                          layout:
+                                              ResponsiveBreakpoints.of(context)
+                                                      .smallerThan(DESKTOP)
+                                                  ? ResponsiveRowColumnType
+                                                      .COLUMN
+                                                  : ResponsiveRowColumnType.ROW,
+                                          rowMainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ResponsiveRowColumnItem(
+                                              child: Container(
+                                                height: 50,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        maxWidth: 200,
+                                                        minWidth: 90),
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: width * 0.001,
+                                                      vertical: 5),
+                                                  child: SizedBox(
+                                                    width: width * 0.33,
+                                                    child: TextFormField(
+                                                      cursorHeight: 14,
+                                                      validator: (value) {
+                                                        if (value != null &&
+                                                            value.isNotEmpty) {
+                                                          if (!isValidPlaca(value
+                                                              .toUpperCase())) {
+                                                            return 'Placa inválida';
+                                                          }
+                                                        }
+                                                        return null;
+                                                      },
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        label: Text(
+                                                            'Placa cavalo'),
+                                                        labelStyle: TextStyle(
+                                                            fontSize: 13,
+                                                            color: Colors.grey),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                      ),
+                                                      controller:
+                                                          placaCavaloController,
+                                                      onChanged: (value) {
+                                                        // Update the button state
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            ResponsiveRowColumnItem(
+                                              child: Container(
+                                                height: 50,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        maxWidth: 200,
+                                                        minWidth: 60),
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: width * 0.01,
+                                                      vertical: 5),
+                                                  child: SizedBox(
+                                                    width: width * 0.33,
+                                                    child: TextFormField(
+                                                      cursorHeight: 14,
+                                                      validator: (value) {
+                                                        if (value != null &&
+                                                            value.isNotEmpty) {
+                                                          if (!isValidPlaca(value
+                                                              .toUpperCase())) {
+                                                            return 'Placa inválida';
+                                                          }
+                                                        }
+                                                        return null;
+                                                      },
+                                                      controller:
+                                                          placaCarretaController,
+                                                      onChanged: (value) {
+                                                        // Update the button state
+                                                      },
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        label: Text(
+                                                            'Placa carreta'),
+                                                        labelStyle: TextStyle(
+                                                            fontSize: 13,
+                                                            color: Colors.grey),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            ResponsiveRowColumnItem(
+                                              child: Container(
+                                                height: 50,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        maxWidth: 200,
+                                                        minWidth: 100),
+                                                child: CustomTextFormField(
+                                                  controller: corController,
+                                                  label: 'Cor',
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  ResponsiveRowColumnItem(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 0,
+                                          right: width * 0.057,
+                                          left: width * 0.059,
+                                          bottom: 20),
+                                      child: ResponsiveRowColumn(
+                                        layout:
+                                            ResponsiveBreakpoints.of(context)
+                                                    .smallerThan(DESKTOP)
+                                                ? ResponsiveRowColumnType.COLUMN
+                                                : ResponsiveRowColumnType.ROW,
+                                        rowMainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ResponsiveRowColumnItem(
+                                            child: Container(
+                                              constraints: const BoxConstraints(
+                                                  maxWidth: 295, minWidth: 100),
+                                              child: CustomTextFormField(
+                                                  controller:
+                                                      motoristaController,
+                                                  label: 'Motorista'),
+                                            ),
+                                          ),
+                                          const ResponsiveRowColumnItem(
+                                            child: SizedBox(
+                                              width: 10,
+                                            ),
+                                          ),
+                                          ResponsiveRowColumnItem(
+                                            child: Container(
+                                              constraints: const BoxConstraints(
+                                                  maxWidth: 295, minWidth: 100),
+                                              child: CustomTextFormField(
+                                                controller:
+                                                    observacaoController,
+                                                label: 'Observação',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // ResponsiveRowColumnItem(
+                                  //   child: Padding(
+                                  //     padding: EdgeInsets.only(
+                                  //         top: 0,
+                                  //         right: width * 0.045,
+                                  //         left: width * 0.045,
+                                  //         bottom: height * 0.05),
+                                  //     child: ResponsiveRowColumn(
+                                  //       layout: ResponsiveBreakpoints
+                                  //                   .of(context)
+                                  //               .smallerThan(
+                                  //                   DESKTOP)
+                                  //           ? ResponsiveRowColumnType
+                                  //               .COLUMN
+                                  //           : ResponsiveRowColumnType
+                                  //               .ROW,
+                                  //       rowMainAxisAlignment:
+                                  //           MainAxisAlignment
+                                  //               .center,
+                                  //       children: [
+                                  //         ResponsiveRowColumnItem(
+                                  //           child: CustomTextFormField(
+                                  //               controller:
+                                  //                   observacaoController,
+                                  //               label:
+                                  //                   'Observação'),
+                                  //         ),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  ResponsiveRowColumnItem(
+                                    child: ElevatedButton(
+                                      onPressed: (_isButtonAdressEnabled)
+                                          ? () async {
+                                              //verificar validador do form
+                                              if (formPlacasKey.currentState!
+                                                  .validate()) {
+                                                Empresa? empresa =
+                                                    await empresaServices
+                                                        .getEmpresa(
+                                                            cnpjController.text
+                                                                .trim());
+
+                                                if (empresa == null &&
+                                                    context.mounted) {
+                                                  tratamentoDeErros
+                                                      .showErrorSnackbar(
+                                                          context,
+                                                          'Insira o cnpj da empresa');
+                                                  return;
+                                                } else {
+                                                  final message = await missaoServices
+                                                      .criarSolicitacao(
+                                                          local:
+                                                              missionPosition!
+                                                                  .address,
+                                                          empresa!.cnpj,
+                                                          empresa.nomeEmpresa,
+                                                          _selectedOption,
+                                                          missionPosition!
+                                                              .latLng!.lat,
+                                                          missionPosition!
+                                                              .latLng!.lng,
+                                                          placaCavaloController
+                                                              .text,
+                                                          placaCarretaController
+                                                              .text,
+                                                          motoristaController
+                                                              .text,
+                                                          corController.text,
+                                                          observacaoController
+                                                              .text);
+
+                                                  _selectedOption = null;
+                                                  missionPosition = null;
+                                                  cnpjController.clear();
+                                                  _missionController.text = '';
+                                                  placaCavaloController.text =
+                                                      '';
+                                                  placaCarretaController.text =
+                                                      '';
+                                                  motoristaController.text = '';
+                                                  corController.text = '';
+                                                  observacaoController.text =
+                                                      '';
+
+                                                  if (context.mounted) {
+                                                    BlocProvider.of<
+                                                                MissoesSolicitadasBloc>(
+                                                            context)
+                                                        .add(BuscarMissoes());
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        duration:
+                                                            const Duration(
+                                                                seconds: 4),
+                                                        content: Text(message),
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                    content: Text(
+                                                        'Preencha os campos corretamente'),
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          : null,
+                                      child: const Text('Solicitar agente'),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : _botao == 'coordenada'
+                                ? ResponsiveRowColumn(
+                                    layout: ResponsiveRowColumnType.COLUMN,
+                                    children: [
+                                      ResponsiveRowColumnItem(
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: width * 0.0,
+                                              vertical: 0),
+                                          child: ResponsiveRowColumn(
+                                            layout: ResponsiveBreakpoints.of(
+                                                        context)
+                                                    .smallerThan(DESKTOP)
+                                                ? ResponsiveRowColumnType.COLUMN
+                                                : ResponsiveRowColumnType.ROW,
+                                            rowMainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ResponsiveRowColumnItem(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: width * 0.011,
+                                                      vertical: 0),
+                                                  child: SizedBox(
+                                                    height: 40,
+                                                    width: 282,
+                                                    child: TextFormField(
+                                                      cursorHeight: 14,
+                                                      controller: latController,
+                                                      onChanged: (value) {
+                                                        _updateButtonState();
+                                                      },
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        labelText: 'Latitude',
+                                                        labelStyle: TextStyle(
+                                                            fontSize: 13,
+                                                            color: Colors.grey),
+                                                        suffixIcon: Icon(
+                                                            Icons.location_pin),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              ResponsiveRowColumnItem(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: width * 0.011,
+                                                      vertical: 0),
+                                                  child: SizedBox(
+                                                    height: 40,
+                                                    width: 282,
+                                                    child: TextFormField(
+                                                      cursorHeight: 14,
+                                                      controller: lngController,
+                                                      onChanged: (value) {
+                                                        _updateButtonState();
+                                                      },
+                                                      //style: TextStyle(color: Colors.grey[200]),
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        labelText: 'Longitude',
+                                                        labelStyle: TextStyle(
+                                                            fontSize: 13,
+                                                            color: Colors.grey),
+                                                        suffixIcon: Icon(
+                                                            Icons.location_pin),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      ResponsiveRowColumnItem(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 10,
+                                              right: width * 0.055,
+                                              left: width * 0.055,
+                                              bottom: height * 0.0),
+                                          child: Form(
+                                            key: formPlacasKey,
+                                            child: ResponsiveRowColumn(
+                                              layout: ResponsiveBreakpoints.of(
+                                                          context)
+                                                      .smallerThan(DESKTOP)
+                                                  ? ResponsiveRowColumnType
+                                                      .COLUMN
+                                                  : ResponsiveRowColumnType.ROW,
+                                              rowMainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                ResponsiveRowColumnItem(
+                                                  child: Container(
+                                                    height: 50,
+                                                    constraints:
+                                                        const BoxConstraints(
+                                                            maxWidth: 200,
+                                                            minWidth: 90),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal:
+                                                                  width * 0.001,
+                                                              vertical: 5),
+                                                      child: SizedBox(
+                                                        width: width * 0.33,
+                                                        child: TextFormField(
+                                                          cursorHeight: 14,
+                                                          validator: (value) {
+                                                            if (value != null &&
+                                                                value
+                                                                    .isNotEmpty) {
+                                                              if (!isValidPlaca(
+                                                                  value
+                                                                      .toUpperCase())) {
+                                                                return 'Placa inválida';
+                                                              }
+                                                            }
+                                                            return null;
+                                                          },
+                                                          decoration:
+                                                              const InputDecoration(
+                                                            label: Text(
+                                                                'Placa cavalo'),
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color: Colors
+                                                                        .grey),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                          ),
+                                                          controller:
+                                                              placaCavaloController,
+                                                          onChanged: (value) {
+                                                            // Update the button state
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                ResponsiveRowColumnItem(
+                                                  child: Container(
+                                                    height: 50,
+                                                    constraints:
+                                                        const BoxConstraints(
+                                                            maxWidth: 200,
+                                                            minWidth: 60),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal:
+                                                                  width * 0.01,
+                                                              vertical: 5),
+                                                      child: SizedBox(
+                                                        width: width * 0.33,
+                                                        child: TextFormField(
+                                                          cursorHeight: 14,
+                                                          validator: (value) {
+                                                            if (value != null &&
+                                                                value
+                                                                    .isNotEmpty) {
+                                                              if (!isValidPlaca(
+                                                                  value
+                                                                      .toUpperCase())) {
+                                                                return 'Placa inválida';
+                                                              }
+                                                            }
+                                                            return null;
+                                                          },
+                                                          controller:
+                                                              placaCarretaController,
+                                                          onChanged: (value) {
+                                                            // Update the button state
+                                                          },
+                                                          decoration:
+                                                              const InputDecoration(
+                                                            label: Text(
+                                                                'Placa carreta'),
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color: Colors
+                                                                        .grey),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                ResponsiveRowColumnItem(
+                                                  child: Container(
+                                                    height: 50,
+                                                    constraints:
+                                                        const BoxConstraints(
+                                                            maxWidth: 200,
+                                                            minWidth: 100),
+                                                    child: CustomTextFormField(
+                                                        controller:
+                                                            corController,
+                                                        label: 'Cor'),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      ResponsiveRowColumnItem(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 0,
+                                              right: width * 0.057,
+                                              left: width * 0.059,
+                                              bottom: 20),
+                                          child: ResponsiveRowColumn(
+                                            layout: ResponsiveBreakpoints.of(
+                                                        context)
+                                                    .smallerThan(DESKTOP)
+                                                ? ResponsiveRowColumnType.COLUMN
+                                                : ResponsiveRowColumnType.ROW,
+                                            rowMainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ResponsiveRowColumnItem(
+                                                child: Container(
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                          maxWidth: 295,
+                                                          minWidth: 100),
+                                                  child: CustomTextFormField(
+                                                      controller:
+                                                          motoristaController,
+                                                      label: 'Motorista'),
+                                                ),
+                                              ),
+                                              const ResponsiveRowColumnItem(
+                                                child: SizedBox(
+                                                  width: 10,
+                                                ),
+                                              ),
+                                              ResponsiveRowColumnItem(
+                                                child: Container(
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                          maxWidth: 295,
+                                                          minWidth: 100),
+                                                  child: CustomTextFormField(
+                                                    controller:
+                                                        observacaoController,
+                                                    label: 'Observação',
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      ResponsiveRowColumnItem(
+                                        child: ElevatedButton(
+                                          onPressed:
+                                              (_isButtonCoordenadasEnabled)
+                                                  ? () async {
+                                                      if (formPlacasKey
+                                                          .currentState!
+                                                          .validate()) {
+                                                        Empresa? empresa =
+                                                            await empresaServices
+                                                                .getEmpresa(
+                                                                    cnpjController
+                                                                        .text
+                                                                        .trim());
+
+                                                        if (empresa == null &&
+                                                            context.mounted) {
+                                                          tratamentoDeErros
+                                                              .showErrorSnackbar(
+                                                                  context,
+                                                                  'Insira o cnpj da empresa');
+                                                          return;
+                                                        } else {
+                                                          final message =
+                                                              await missaoServices
+                                                                  .criarSolicitacao(
+                                                            empresa!.cnpj,
+                                                            empresa.nomeEmpresa,
+                                                            _selectedOption,
+                                                            double.parse(
+                                                                latController
+                                                                    .text),
+                                                            double.parse(
+                                                              lngController
+                                                                  .text,
+                                                            ),
+                                                            placaCavaloController
+                                                                .text,
+                                                            placaCarretaController
+                                                                .text,
+                                                            motoristaController
+                                                                .text,
+                                                            corController.text,
+                                                            observacaoController
+                                                                .text,
+                                                          );
+                                                          _selectedOption =
+                                                              null;
+                                                          cnpjController
+                                                              .clear();
+                                                          latController.text =
+                                                              '';
+                                                          lngController.text =
+                                                              '';
+                                                          placaCavaloController
+                                                              .text = '';
+                                                          placaCarretaController
+                                                              .text = '';
+                                                          motoristaController
+                                                              .text = '';
+                                                          corController.text =
+                                                              '';
+                                                          observacaoController
+                                                              .text = '';
+
+                                                          if (context.mounted) {
+                                                            BlocProvider.of<
+                                                                        MissoesSolicitadasBloc>(
+                                                                    context)
+                                                                .add(
+                                                                    BuscarMissoes());
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                duration:
+                                                                    const Duration(
+                                                                        seconds:
+                                                                            4),
+                                                                content: Text(
+                                                                    message),
+                                                              ),
+                                                            );
+                                                          }
+                                                        }
+                                                      } else {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
+                                                            duration: Duration(
+                                                                seconds: 4),
+                                                            content: Text(
+                                                                'Preencha os campos corretamente'),
+                                                          ),
+                                                        );
+                                                      }
+                                                    }
+                                                  : null,
+                                          child: const Text('Solicitar agente'),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : ResponsiveRowColumn(
+                                    layout: ResponsiveRowColumnType.COLUMN,
+                                    children: [
+                                      ResponsiveRowColumnItem(
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 600),
+                                          height: height * 0.4,
+                                          width: width * 0.7,
+                                          child: gmap.GoogleMap(
+                                            initialCameraPosition:
+                                                const gmap.CameraPosition(
+                                              target: gmap.LatLng(
+                                                  -14.235004, -51.92528),
+                                              zoom: 4.0,
+                                            ),
+                                            onTap: _handleTap,
+                                            markers: Set.from(
+                                                markers), // Adiciona o conjunto de marcadores ao mapa
+                                          ),
+                                        ),
+                                      ),
+                                      ResponsiveRowColumnItem(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 10,
+                                              right: width * 0.055,
+                                              left: width * 0.055,
+                                              bottom: height * 0.0),
+                                          child: Form(
+                                            key: formPlacasKey,
+                                            child: ResponsiveRowColumn(
+                                              layout: ResponsiveBreakpoints.of(
+                                                          context)
+                                                      .smallerThan(DESKTOP)
+                                                  ? ResponsiveRowColumnType
+                                                      .COLUMN
+                                                  : ResponsiveRowColumnType.ROW,
+                                              rowMainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                ResponsiveRowColumnItem(
+                                                  child: Container(
+                                                    height: 50,
+                                                    constraints:
+                                                        const BoxConstraints(
+                                                            maxWidth: 200,
+                                                            minWidth: 90),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal:
+                                                                  width * 0.001,
+                                                              vertical: 5),
+                                                      child: SizedBox(
+                                                        width: width * 0.33,
+                                                        child: TextFormField(
+                                                          cursorHeight: 14,
+                                                          validator: (value) {
+                                                            if (value != null &&
+                                                                value
+                                                                    .isNotEmpty) {
+                                                              if (!isValidPlaca(
+                                                                  value
+                                                                      .toUpperCase())) {
+                                                                return 'Placa inválida';
+                                                              }
+                                                            }
+                                                            return null;
+                                                          },
+                                                          decoration:
+                                                              const InputDecoration(
+                                                            label: Text(
+                                                                'Placa cavalo'),
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color: Colors
+                                                                        .grey),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                          ),
+                                                          controller:
+                                                              placaCavaloController,
+                                                          onChanged: (value) {
+                                                            // Update the button state
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                ResponsiveRowColumnItem(
+                                                  child: Container(
+                                                    height: 50,
+                                                    constraints:
+                                                        const BoxConstraints(
+                                                            maxWidth: 200,
+                                                            minWidth: 60),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal:
+                                                                  width * 0.01,
+                                                              vertical: 5),
+                                                      child: SizedBox(
+                                                        width: width * 0.33,
+                                                        child: TextFormField(
+                                                          cursorHeight: 14,
+                                                          validator: (value) {
+                                                            if (value != null &&
+                                                                value
+                                                                    .isNotEmpty) {
+                                                              if (!isValidPlaca(
+                                                                  value
+                                                                      .toUpperCase())) {
+                                                                return 'Placa inválida';
+                                                              }
+                                                            }
+                                                            return null;
+                                                          },
+                                                          controller:
+                                                              placaCarretaController,
+                                                          onChanged: (value) {
+                                                            // Update the button state
+                                                          },
+                                                          decoration:
+                                                              const InputDecoration(
+                                                            label: Text(
+                                                                'Placa carreta'),
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color: Colors
+                                                                        .grey),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                ResponsiveRowColumnItem(
+                                                  child: Container(
+                                                    height: 50,
+                                                    constraints:
+                                                        const BoxConstraints(
+                                                            maxWidth: 200,
+                                                            minWidth: 100),
+                                                    child: CustomTextFormField(
+                                                        controller:
+                                                            corController,
+                                                        label: 'Cor'),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      ResponsiveRowColumnItem(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 0,
+                                              right: width * 0.057,
+                                              left: width * 0.059,
+                                              bottom: 20),
+                                          child: ResponsiveRowColumn(
+                                            layout: ResponsiveBreakpoints.of(
+                                                        context)
+                                                    .smallerThan(DESKTOP)
+                                                ? ResponsiveRowColumnType.COLUMN
+                                                : ResponsiveRowColumnType.ROW,
+                                            rowMainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ResponsiveRowColumnItem(
+                                                child: Container(
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                          maxWidth: 295,
+                                                          minWidth: 100),
+                                                  child: CustomTextFormField(
+                                                      controller:
+                                                          motoristaController,
+                                                      label: 'Motorista'),
+                                                ),
+                                              ),
+                                              const ResponsiveRowColumnItem(
+                                                child: SizedBox(
+                                                  width: 10,
+                                                ),
+                                              ),
+                                              ResponsiveRowColumnItem(
+                                                child: Container(
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                          maxWidth: 295,
+                                                          minWidth: 100),
+                                                  child: CustomTextFormField(
+                                                    controller:
+                                                        observacaoController,
+                                                    label: 'Observação',
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      ResponsiveRowColumnItem(
+                                        child: ElevatedButton(
+                                          onPressed: (_isButtonMapEnabled)
+                                              ? () async {
+                                                  if (formPlacasKey
+                                                      .currentState!
+                                                      .validate()) {
+                                                    Empresa? empresa =
+                                                        await empresaServices
+                                                            .getEmpresa(
+                                                                cnpjController
+                                                                    .text
+                                                                    .trim());
+
+                                                    if (empresa == null &&
+                                                        context.mounted) {
+                                                      tratamentoDeErros
+                                                          .showErrorSnackbar(
+                                                              context,
+                                                              'Insira o cnpj da empresa');
+                                                      return;
+                                                    } else {
+                                                      final message =
+                                                          await missaoServices
+                                                              .criarSolicitacao(
+                                                        empresa!.cnpj,
+                                                        empresa.nomeEmpresa,
+                                                        _selectedOption,
+                                                        _selectedLatitude!,
+                                                        _selectedLongitude!,
+                                                        placaCavaloController
+                                                            .text,
+                                                        placaCarretaController
+                                                            .text,
+                                                        motoristaController
+                                                            .text,
+                                                        corController.text,
+                                                        observacaoController
+                                                            .text,
+                                                      );
+                                                      _selectedOption = null;
+                                                      _selectedLatitude = null;
+                                                      _selectedLongitude = null;
+                                                      cnpjController.clear();
+                                                      placaCavaloController
+                                                          .text = '';
+                                                      placaCarretaController
+                                                          .text = '';
+                                                      motoristaController.text =
+                                                          '';
+                                                      corController.text = '';
+                                                      observacaoController
+                                                          .text = '';
+
+                                                      if (context.mounted) {
+                                                        BlocProvider.of<
+                                                                    MissoesSolicitadasBloc>(
+                                                                context)
+                                                            .add(
+                                                                BuscarMissoes());
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            duration:
+                                                                const Duration(
+                                                                    seconds: 4),
+                                                            content:
+                                                                Text(message),
+                                                          ),
+                                                        );
+                                                      }
+                                                    }
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        duration: Duration(
+                                                            seconds: 4),
+                                                        content: Text(
+                                                            'Preencha os campos corretamente'),
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              : null,
+                                          child: const Text('Solicitar agente'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                        SizedBox(
+                          height: height * 0.1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             );
+            // const Center(
+            //   child: Card(
+            //     color: Colors.black,
+            //     elevation: 1,
+            //     margin: EdgeInsets.all(8.0),
+            //     child: Padding(
+            //       padding: EdgeInsets.all(20.0),
+            //       child: Text('Nenhuma solicitação encontrada'),
+            //     ),
+            //   ),
+            // );
           } else if (state is MissoesSolicitadasLoaded) {
             missoesSolicitadas = state.missoes;
 
@@ -606,11 +2100,11 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                           horizontal: width * 0.055,
                                           vertical: 0),
                                       child: Container(
-                                        height: 50,
+                                        height: 55,
                                         constraints:
                                             const BoxConstraints(maxWidth: 600),
                                         child: TextFormField(
-                                          cursorHeight: 14,
+                                          cursorHeight: 17,
                                           //focusNode: _focusNode,
                                           controller: cnpjController,
                                           //style: TextStyle(color: Colors.grey[200]),
@@ -652,11 +2146,11 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                                 horizontal: width * 0.055,
                                                 vertical: 0),
                                             child: Container(
-                                              height: 50,
+                                              height: 55,
                                               constraints: const BoxConstraints(
                                                   maxWidth: 600),
                                               child: TextFormField(
-                                                cursorHeight: 14,
+                                                cursorHeight: 17,
                                                 focusNode: _focusNode,
                                                 controller: _missionController,
                                                 //style: TextStyle(color: Colors.grey[200]),
@@ -2275,10 +3769,12 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
 class SolicitacaoDeMissaoCard extends StatelessWidget {
   final MissaoSolicitada missaoSolicitada;
   final BuildContext initialContext;
+  final MissaoServices missaoServices;
   const SolicitacaoDeMissaoCard(
       {super.key,
       required this.missaoSolicitada,
-      required this.initialContext});
+      required this.initialContext,
+      required this.missaoServices});
 
   void mostrarListaAgentes(BuildContext context) {
     showModalBottomSheet(
@@ -2463,21 +3959,66 @@ class SolicitacaoDeMissaoCard extends StatelessWidget {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('Aviso'),
-                              content: const SingleChildScrollView(
-                                child: ListBody(
-                                  children: <Widget>[
-                                    Text('Em desenvolvimento'),
-                                  ],
-                                ),
+                              title: const Text('Atenção'),
+                              content: const Column(
+                                children: [
+                                  Text(
+                                      'Rejeitar missão? Esta ação não poderá ser desfeita!')
+                                ],
                               ),
                               actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Ok'),
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
+                                BlocBuilder<ElevatedButtonBloc,
+                                    ElevatedButtonBlocState>(
+                                  builder: (context, state) {
+                                    if (state is ElevatedButtonBlocLoading) {
+                                      return const CircularProgressIndicator();
+                                    }
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        TextButton(
+                                          child: const Text('Rejeitar'),
+                                          onPressed: () async {
+                                            context
+                                                .read<ElevatedButtonBloc>()
+                                                .add(ElevatedButtonPressed());
+                                            try {
+                                              await missaoServices
+                                                  .rejeitarSolicitacao(
+                                                      missaoSolicitada.missaoId,
+                                                      missaoSolicitada.cnpj,
+                                                      missaoSolicitada.local,
+                                                      missaoSolicitada
+                                                          .timestamp);
+                                              context
+                                                  .read<ElevatedButtonBloc>()
+                                                  .add(ElevatedButtonReset());
+                                            } catch (e) {
+                                              context
+                                                  .read<ElevatedButtonBloc>()
+                                                  .add(ElevatedButtonReset());
+                                              debugPrint(
+                                                  'erro ao rejeitar missao: ${e.toString()}');
+                                              tratamentoDeErros
+                                                  .showErrorSnackbar(context,
+                                                      'Erro, tente novamente');
+                                            }
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text(
+                                            'Voltar',
+                                            style:
+                                                TextStyle(color: Colors.blue),
+                                          ),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
                                   },
-                                ),
+                                )
                               ],
                             );
                           },
@@ -2514,7 +4055,7 @@ class MapAddMissao extends StatefulWidget {
   final String tipo;
 
   const MapAddMissao({
-    Key? key,
+    super.key,
     // this.startPosition,
     // this.endPosition,
     //this.missionPosition,
@@ -2530,7 +4071,7 @@ class MapAddMissao extends StatefulWidget {
     this.local,
     this.missaoId,
     required this.tipo,
-  }) : super(key: key);
+  });
 
   @override
   _MapAddMissaoState createState() => _MapAddMissaoState();
@@ -3450,10 +4991,10 @@ class CustomTextFormField extends StatelessWidget {
   final String label;
 
   const CustomTextFormField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

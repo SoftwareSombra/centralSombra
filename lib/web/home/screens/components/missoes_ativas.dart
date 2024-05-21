@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gradient_ui/gradient_ui_widgets.dart';
 import 'package:sombra_testes/missao/services/missao_services.dart';
 import '../../../../chat/screens/central_missao_chat.dart';
 import '../../../../chat/screens/missao_cliente.dart';
@@ -136,7 +135,6 @@ class MissoesAtivasContainer extends StatelessWidget {
                                 .map((DocumentSnapshot document) {
                               Map<String, dynamic> data =
                                   document.data()! as Map<String, dynamic>;
-                              bool emAndamento = data['emAndamento'];
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 5),
                                 child: MouseRegion(
@@ -155,7 +153,7 @@ class MissoesAtivasContainer extends StatelessWidget {
                                           //   ListTile(
                                           // title:
                                           Padding(
-                                        padding: EdgeInsets.all(20),
+                                        padding: const EdgeInsets.all(20),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,

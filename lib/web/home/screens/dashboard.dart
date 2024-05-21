@@ -169,7 +169,7 @@ class _WebLoginHomeState extends State<WebLoginHome> {
                           )
                         : null,
                     drawer: isMobile || isTablet
-                        ? Drawer(child: NavigationList())
+                        ? const Drawer(child: NavigationList())
                         : null, // Drawer apenas para mobile
                     body: Row(
                       children: [
@@ -615,6 +615,8 @@ class SideBarItem extends StatelessWidget {
 }
 
 class NavigationList extends StatelessWidget {
+  const NavigationList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ListView(

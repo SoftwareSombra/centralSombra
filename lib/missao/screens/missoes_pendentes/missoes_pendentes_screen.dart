@@ -71,12 +71,12 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 20,
                           backgroundImage:
                               AssetImage('assets/images/fotoDePerfilNull.jpg'),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
                         Column(
@@ -84,12 +84,12 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                           children: [
                             Text(
                               nome,
-                              style: TextStyle(fontSize: 14),
+                              style: const TextStyle(fontSize: 14),
                             ),
                             Text(
                               funcao,
                               style:
-                                  TextStyle(color: Colors.grey, fontSize: 11),
+                                  const TextStyle(color: Colors.grey, fontSize: 11),
                             ),
                           ],
                         )

@@ -108,7 +108,7 @@ class _AgenteCardState extends State<AgenteCard> {
             : const SizedBox.shrink(),
         isDocument
             ? Padding(
-                padding: EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ElevatedButton(
                   onPressed: onViewPressed,
                   child: Text('Ver $tituloCampo'),

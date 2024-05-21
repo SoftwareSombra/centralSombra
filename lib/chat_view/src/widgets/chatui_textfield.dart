@@ -33,14 +33,14 @@ import 'package:record/record.dart';
 
 class ChatUITextField extends StatefulWidget {
   const ChatUITextField({
-    Key? key,
+    super.key,
     this.sendMessageConfig,
     required this.focusNode,
     required this.textEditingController,
     required this.onPressed,
     required this.onRecordingComplete,
     required this.onImageSelected,
-  }) : super(key: key);
+  });
 
   /// Provides configuration of default text field in chat.
   final SendMessageConfiguration? sendMessageConfig;
@@ -289,7 +289,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
     //   "Voice messages are only supported with android and ios platform",
     // );
     if (kIsWeb) {
-      print('Estamos na web');
+      debugPrint('Estamos na web');
 
       if (await record.hasPermission()) {
         if (!isRecording.value) {
@@ -303,14 +303,14 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
         } else {
           final path = await record.stop();
           isRecording.value = false;
-          print('path: $path');
+          debugPrint('path: $path');
           // final response = await html.window.fetch(path);
           // final blob = await response.blob();
           // final storageRef = FirebaseStorage.instance.ref().child(
           //     'chatTeste/audio/${DateTime.now().millisecondsSinceEpoch}.m4a');
           // final uploadTask = storageRef.putBlob(blob);
           // await uploadTask;
-          // print('uploadTask: concluida com sucesso');
+          // debugPrint('uploadTask: concluida com sucesso');
           widget.onRecordingComplete(path);
         }
       }

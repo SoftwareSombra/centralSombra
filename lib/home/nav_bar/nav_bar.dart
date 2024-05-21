@@ -22,8 +22,6 @@ import '../../perfil_user/bloc/foto/user/user_foto_bloc.dart';
 import '../../perfil_user/bloc/nome/get_name_bloc.dart';
 import '../../perfil_user/bloc/nome/get_name_events.dart';
 import '../../perfil_user/screens/perfil.dart';
-import '../../veiculos/bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_bloc.dart';
-import '../../veiculos/bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_event.dart';
 import '../../veiculos/screens/veiculos_screen.dart';
 import '../bloc/missao_bloc/events.dart';
 import '../bloc/missao_bloc/get_missao_bloc.dart';
@@ -376,35 +374,9 @@ class _NavBarState extends State<NavBar> {
       ),
       const SearchScreen(),
       VeiculosScreen(),
-      PerfilScreen(),
+      const PerfilScreen(),
     ];
   }
 
-  Widget _getBodyForState(NavigationState state) {
-    if (state is HomeSelected) {
-      return HomeScreen(
-        scaffoldKey: scaffoldKey,
-      );
-    } else if (state is MissaoSelected) {
-      return const SearchScreen();
-    } else if (state is VeiculosSelected) {
-      return VeiculosScreen();
-    } else if (state is PerfilSelected) {
-      return PerfilScreen();
-    }
-    return Container(); // Tela padrão ou algum fallback
-  }
 
-  int _getCurrentIndex(NavigationState state) {
-    if (state is HomeSelected) {
-      return 0;
-    } else if (state is MissaoSelected) {
-      return 1;
-    } else if (state is VeiculosSelected) {
-      return 2;
-    } else if (state is PerfilSelected) {
-      return 3;
-    }
-    return 0; // Default
-  }
 }

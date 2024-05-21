@@ -105,7 +105,7 @@ class _SearchScreenState extends State<SearchScreen> {
           return const Center(child: CircularProgressIndicator());
         } else if (state is IsNotAgent) {
           return Scaffold(
-            backgroundColor: Color.fromARGB(255, 14, 14, 14),
+            backgroundColor: const Color.fromARGB(255, 14, 14, 14),
             resizeToAvoidBottomInset: false,
             appBar: AppBar(
               //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
@@ -395,7 +395,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       missionDetails.motorista == ''
                                           ? ' - '
                                           : missionDetails.motorista!,
-                                      style: TextStyle(fontSize: 18),
+                                      style: const TextStyle(fontSize: 18),
                                     ),
                                   ],
                                 ),
@@ -411,7 +411,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       missionDetails.corVeiculo == ''
                                           ? ' - '
                                           : missionDetails.corVeiculo!,
-                                      style: TextStyle(fontSize: 18),
+                                      style: const TextStyle(fontSize: 18),
                                     ),
                                   ],
                                 ),

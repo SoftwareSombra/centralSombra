@@ -20,8 +20,7 @@ class CameraScreen extends StatefulWidget {
   final CameraDescription camera;
   final String? missaoId;
 
-  const CameraScreen({Key? key, required this.camera, this.missaoId})
-      : super(key: key);
+  const CameraScreen({super.key, required this.camera, this.missaoId});
 
   @override
   _CameraScreenState createState() => _CameraScreenState();
@@ -126,7 +125,7 @@ class _CameraScreenState extends State<CameraScreen> {
       }
 
       // Adiciona a palavra na linha atual
-      currentLine.write(word + ' ');
+      currentLine.write('$word ');
     }
 
     // Desenha a última linha se houver texto restante
@@ -330,8 +329,7 @@ class DisplayPictureScreen extends StatelessWidget {
   final String imagePath;
   final String? missaoId;
 
-  DisplayPictureScreen({Key? key, required this.imagePath, this.missaoId})
-      : super(key: key);
+  DisplayPictureScreen({super.key, required this.imagePath, this.missaoId});
 
   final TextEditingController captionController = TextEditingController();
   final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
@@ -341,7 +339,6 @@ class DisplayPictureScreen extends StatelessWidget {
   //funcao para exibir dialogo
   Future<void> _showDialog(BuildContext context) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final now = DateTime.now();
     //context.read<ElevatedButtonBloc>().add(ElevatedButtonActionCompleted());
 
     return showDialog(

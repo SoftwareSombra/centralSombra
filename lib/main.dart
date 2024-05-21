@@ -437,7 +437,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 //   Future<void> initPlatformState() async {
 
 //     bg.BackgroundGeolocation.onLocation((bg.Location location) {
-//       print('[location] $location');
+//       debugPrint('[location] $location');
 //       setState(() {
 //         _locationJSON = _encoder.convert(location.toMap());
 //       });
@@ -549,7 +549,7 @@ class LocationDao {
   //     FirebaseFirestore.instance.collection('locations');
 
   Future<void> saveLocation(BackgroundLocationUpdateData data) async {
-    print('inciando save location');
+    debugPrint('inciando save location');
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -622,22 +622,22 @@ class LocationDao {
   }
 
   Future<void> saveRota(BackgroundLocationUpdateData data) async {
-    // print('inciando save rota');
+    // debugPrint('inciando save rota');
     // if (AppState.isAppInBackground) {
-    //   print('O aplicativo está em background');
+    //   debugPrint('O aplicativo está em background');
     // } else {
-    //   print('O aplicativo está em foreground');
+    //   debugPrint('O aplicativo está em foreground');
     // }
     // final app = Firebase.apps.first.name;
-    // print('------$app--------------');
+    // debugPrint('------$app--------------');
     // if (Firebase.apps.isEmpty) {
     //   // Se não, inicializa o Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    //   print("Firebase inicializado.");
+    //   debugPrint("Firebase inicializado.");
     // } else {
-    //   print("Firebase já foi inicializado.");
+    //   debugPrint("Firebase já foi inicializado.");
     // }
     debugPrint('-------------chegou aqui, save rota----------------');
 
@@ -683,7 +683,7 @@ class LocationDao {
 }
 
 class VersionErrorApp extends StatelessWidget {
-  const VersionErrorApp({Key? key}) : super(key: key);
+  const VersionErrorApp({super.key});
 
   Future<String?> fetchUpdateLink() async {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
@@ -1107,18 +1107,18 @@ class VersionErrorApp extends StatelessWidget {
 //   Future<void> _requestLocationPermission() async {
 //     final result = await Permission.locationAlways.request();
 //     if (result == PermissionStatus.granted) {
-//       print('GRANTED'); // ignore: avoid_print
+//       debugPrint('GRANTED'); // ignore: avoid_debugPrint
 //     } else {
-//       print('NOT GRANTED'); // ignore: avoid_print
+//       debugPrint('NOT GRANTED'); // ignore: avoid_debugPrint
 //     }
 //   }
 
 //   Future<void> _requestNotificationPermission() async {
 //     final result = await Permission.notification.request();
 //     if (result == PermissionStatus.granted) {
-//       print('GRANTED'); // ignore: avoid_print
+//       debugPrint('GRANTED'); // ignore: avoid_debugPrint
 //     } else {
-//       print('NOT GRANTED'); // ignore: avoid_print
+//       debugPrint('NOT GRANTED'); // ignore: avoid_debugPrint
 //     }
 //   }
 
@@ -1145,7 +1145,7 @@ class VersionErrorApp extends StatelessWidget {
 
 //   Future<void> update(BackgroundLocationUpdateData data) async {
 //     final text = 'Location Update: Lat: ${data.lat} Lon: ${data.lon}';
-//     print(text); // ignore: avoid_print
+//     debugPrint(text); // ignore: avoid_debugPrint
 //     sendNotification(text);
 //     await LocationDao().saveLocation(data);
 //   }
@@ -1197,7 +1197,7 @@ class VersionErrorApp extends StatelessWidget {
 //   // FlutterLocalNotificationsPlugin().initialize(
 //   //   settings,
 //   //   onSelectNotification: (data) async {
-//   //     print('ON CLICK $data'); // ignore: avoid_print
+//   //     debugPrint('ON CLICK $data'); // ignore: avoid_debugPrint
 //   //   },
 //   // );
 //   FlutterLocalNotificationsPlugin().show(

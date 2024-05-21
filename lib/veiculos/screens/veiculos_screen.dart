@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import '../../perfil_user/screens/perfil.dart';
-import '../bloc/veiculos_list/events.dart';
 import '../bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_bloc.dart';
 import '../bloc/veiculos_list/resposta/bloc/resposta_solicitacao_veiculo_state.dart';
 import '../bloc/veiculos_list/states.dart';
@@ -20,7 +19,6 @@ class VeiculosScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uid = firebaseAuth.currentUser!.uid;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 14, 14, 14),
       appBar: AppBar(

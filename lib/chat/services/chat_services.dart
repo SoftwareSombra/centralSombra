@@ -375,7 +375,7 @@ class ChatServices {
 
   Future<List<Message>?> buscarChatMissao(String missaoId) async {
     final get = await firestore
-        .collection('Chat missão')
+        .collection('Chat missão cliente')
         .doc(missaoId)
         .collection('Mensagens').orderBy('createdAt', descending: false)
         .get();

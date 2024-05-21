@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +12,7 @@ import '../../web/admin/bloc/roles_state.dart';
 class AtendenteMsg extends StatefulWidget {
   final String uid;
 
-  const AtendenteMsg({Key? key, required this.uid}) : super(key: key);
+  const AtendenteMsg({super.key, required this.uid});
 
   @override
   State<AtendenteMsg> createState() => _AtendenteMsgState();
@@ -21,7 +20,7 @@ class AtendenteMsg extends StatefulWidget {
 
 class _AtendenteMsgState extends State<AtendenteMsg> {
   final ChatServices chatServices = ChatServices();
-  TextEditingController _bodyController = TextEditingController();
+  final TextEditingController _bodyController = TextEditingController();
   ValueNotifier<bool> isSubmitting = ValueNotifier(false);
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   ScrollController controller = ScrollController();
@@ -64,8 +63,8 @@ class _AtendenteMsgState extends State<AtendenteMsg> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final userUid = user?.uid;
+    //final user = FirebaseAuth.instance.currentUser;
+    //final userUid = user?.uid;
     context.read<RolesBloc>().add(BuscarRoles());
 
     return BlocBuilder<RolesBloc, RolesState>(
@@ -321,7 +320,7 @@ class MessageBubbleAtendente extends StatelessWidget {
                 child: imageUrl != null
                     ? Container(
                         constraints:
-                            BoxConstraints(maxHeight: 200, maxWidth: 200),
+                            const BoxConstraints(maxHeight: 200, maxWidth: 200),
                         child: GestureDetector(
                           onTap: () => _showImageDialog(context, imageUrl!),
                           child: FutureBuilder(

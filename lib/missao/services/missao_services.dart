@@ -23,7 +23,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 import '../model/missao_solicitada.dart';
 
 class MissaoServices {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -214,6 +214,34 @@ class MissaoServices {
     } catch (e) {
       debugPrint('Erro ao criar missão pendente: $e');
       return false;
+    }
+  }
+
+  Future<void> rejeitarSolicitacao(
+      String missaoId, String cnpj, String local, timestamp) async {
+    try {
+      await firestore
+          .collection('Missões solicitadas')
+          .doc(missaoId)
+          .collection('Empresa')
+          .doc(cnpj)
+          .delete();
+
+      await firestore
+          .collection('Solicitacoes Rejeitadas')
+          .doc(cnpj)
+          .collection('Solicitacao')
+          .doc(missaoId)
+          .set({
+        'missaoId': missaoId,
+        'cnpj': cnpj,
+        'local': local,
+        'solicitadaEm': timestamp,
+        'rejeitadaPor': uid,
+        'rejeitadaEm': FieldValue.serverTimestamp()
+      });
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -504,7 +532,7 @@ class MissaoServices {
 
   Future<bool?> finalLocalMissaoRequest(
       String uid, missaoId, latitude, longitude) async {
-    print('Enviando final local...');
+    debugPrint('Enviando final local...');
 
     final timestamp = DateTime.now().toString();
     var dio = Dio();
@@ -520,16 +548,16 @@ class MissaoServices {
         'timestamp': timestamp,
       });
 
-      print(response.data);
+      debugPrint(response.data);
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Falha na requisição: Status code ${response.statusCode}');
+        debugPrint('Falha na requisição: Status code ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Exceção capturada ao final local: $e');
+      debugPrint('Exceção capturada ao final local: $e');
       return false;
     }
   }
@@ -748,7 +776,7 @@ class MissaoServices {
       tipo,
       missaoId,
       {fim}) async {
-    print('Enviando final missão...');
+    debugPrint('Enviando final missão...');
 
     var dio = Dio();
     var url =
@@ -776,17 +804,17 @@ class MissaoServices {
         'fim': fim,
       });
 
-      print(response.data);
+      debugPrint(response.data);
 
       if (response.statusCode == 200) {
-        print('Missão finalizada com sucesso');
+        debugPrint('Missão finalizada com sucesso');
         return true;
       } else {
-        print('Falha na requisição: Status code ${response.statusCode}');
+        debugPrint('Falha na requisição: Status code ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Exceção capturada ao finalizar missao: $e');
+      debugPrint('Exceção capturada ao finalizar missao: $e');
       return false;
     }
   }
@@ -1178,7 +1206,7 @@ class MissaoServices {
 
   Future<bool?> enviarFotoRelatorio(
       String uid, String missaoId, String imageBase64, String caption) async {
-    print('Enviando foto...');
+    debugPrint('Enviando foto...');
 
     final timestamp = DateTime.now().toString();
 
@@ -1195,16 +1223,16 @@ class MissaoServices {
         'timestamp': timestamp,
       });
 
-      print(response.data);
+      debugPrint(response.data);
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Falha na requisição: Status code ${response.statusCode}');
+        debugPrint('Falha na requisição: Status code ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Exceção capturada ao enviar foto: $e');
+      debugPrint('Exceção capturada ao enviar foto: $e');
       return false;
     }
   }
@@ -1296,8 +1324,8 @@ class MissaoServices {
   Future<bool> verificarMissao(
     String uid,
   ) async {
-    print('Enviando foto...');
-    print('uid: $uid');
+    debugPrint('Enviando foto...');
+    debugPrint('uid: $uid');
 
     var dio = Dio();
     var url =
@@ -1308,29 +1336,29 @@ class MissaoServices {
         'uid': uid,
       });
 
-      print(' --------- ${response.data}   -------- ');
+      debugPrint(' --------- ${response.data}   -------- ');
 
       if (response.statusCode == 200) {
         var data = response.data;
         if (data == true) {
           return true;
         } else {
-          print(
+          debugPrint(
               'Erro ao enviar foto: ${data['errorCode']}: ${data['errorMessage']}');
           return false;
         }
       } else {
-        print('Falha na requisição: Status code ${response.statusCode}');
+        debugPrint('Falha na requisição: Status code ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Exceção capturada ao enviar foto: $e');
+      debugPrint('Exceção capturada ao enviar foto: $e');
       return false;
     }
   }
 
   Future<String> imageToBase64(String imagePath) async {
-    print('Comprimindo imagem...');
+    debugPrint('Comprimindo imagem...');
     File imageFile = File(imagePath);
 
     // final dir = await getTemporaryDirectory();
@@ -1346,7 +1374,7 @@ class MissaoServices {
 
     // Codificar os bytes em base64
     String base64String = base64Encode(imageBytes);
-    print('Imagem comprimida e codificada em base64.');
+    debugPrint('Imagem comprimida e codificada em base64.');
     return base64String;
   }
 
@@ -1402,7 +1430,7 @@ class MissaoServices {
       infos}) async {
     final serverTime = FieldValue.serverTimestamp();
     try {
-      print('Buscando fotos do relatório...');
+      debugPrint('Buscando fotos do relatório...');
       final fotos = await fetchFotosRelatorioMissao(uid, missaoId);
 
       var data = {
@@ -1432,12 +1460,12 @@ class MissaoServices {
       };
 
       if (fotos.isNotEmpty) {
-        print('Fotos encontradas: ${fotos.length}');
-        print('Fotos com legendas: $fotosComLegendas');
+        debugPrint('Fotos encontradas: ${fotos.length}');
+        debugPrint('Fotos com legendas: $fotosComLegendas');
         data['fotos'] = fotos.map((foto) => foto.toMap()).toList();
       }
-      print('foto enviada: ${data['fotos']}');
-      print('Dados do relatório: $data');
+      debugPrint('foto enviada: ${data['fotos']}');
+      debugPrint('Dados do relatório: $data');
 
       await firestore.collection('Relatórios').doc(uid).set({'sinc': 'sinc'});
 
@@ -1482,7 +1510,7 @@ class MissaoServices {
       {List<Map<String, dynamic>>? fotosComLegendas,
       infos,
       fim}) async {
-    print('Enviando relatório...');
+    debugPrint('Enviando relatório...');
 
     var dio = Dio();
     var url =
@@ -1513,14 +1541,14 @@ class MissaoServices {
         //'inicio': inicio,
       });
 
-      print(response.data);
+      debugPrint(response.data);
 
       if (response.statusCode == 200) {
         var data = response.data;
-        print('Dados do relatório: $data');
+        debugPrint('Dados do relatório: $data');
         return true;
       } else {
-        print('Falha na requisição: Status code ${response.statusCode}');
+        debugPrint('Falha na requisição: Status code ${response.statusCode}');
         return false;
       }
     } on FirebaseFunctionsException catch (e) {
@@ -1827,19 +1855,19 @@ class MissaoServices {
         'fotosPosMissao': fotosPosMissaoMap,
       });
 
-      print(response);
+      debugPrint(response.toString());
 
       if (response.statusCode == 200) {
         var data = response.data;
-        print('Dados do incremento: $data');
+        debugPrint('Dados do incremento: $data');
         return true;
       } else {
-        print(
+        debugPrint(
             'Falha na requisição de incremento: Status code ${response.statusCode}');
         return false;
       }
     } on DioException catch (e) {
-      print('Exceção capturada ao enviar incremento: ${e}');
+      debugPrint('Exceção capturada ao enviar incremento: ${e}');
       return false;
     }
   }

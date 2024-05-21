@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:image_card/image_card.dart';
 import '../../empresa/screens/empresas_list.dart';
@@ -20,7 +19,6 @@ class AddRolesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
     int crossAxisCount = (screenWidth ~/ 400).clamp(3, 4);
     List cards = [
       AdmCard(
@@ -137,7 +135,7 @@ class AdmCard extends StatelessWidget {
               ? 210
               : 160,
           imageProvider: AssetImage(imagePath),
-          tags: [],
+          tags: const [],
           title: Row(
             children: [
               Text(title),

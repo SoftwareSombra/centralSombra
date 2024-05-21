@@ -36,11 +36,11 @@ class AgenteServices {
       String? rgFotoVersoBase64;
       String? compResidFotoBase64;
 
-      print('Início da função preAddUserInfos');
+      debugPrint('Início da função preAddUserInfos');
 
       // Processa RG frente
       if (rgFotoFrente is PlatformFile) {
-        print('Processando upload de rgFotoFrente');
+        debugPrint('Processando upload de rgFotoFrente');
         rgFotoFrenteBase64 = await fileToBase64(rgFotoFrente);
       } else if (rgFotoFrente is String) {
         debugPrint('rgFotoFrente é uma String');
@@ -49,7 +49,7 @@ class AgenteServices {
 
       // Processa RG verso
       if (rgFotoVerso is PlatformFile) {
-        print('Processando upload de rgFotoVerso');
+        debugPrint('Processando upload de rgFotoVerso');
         rgFotoVersoBase64 = await fileToBase64(rgFotoVerso);
       } else if (rgFotoVerso is String) {
         rgFotoVersoUrl = rgFotoVerso;
@@ -57,7 +57,7 @@ class AgenteServices {
 
       // Processa Comprovante de residência
       if (compResidFoto is PlatformFile) {
-        print('Processando upload de compResidFoto');
+        debugPrint('Processando upload de compResidFoto');
         compResidFotoBase64 = await fileToBase64(compResidFoto);
       } else if (compResidFoto is String) {
         compResidFotoUrl = compResidFoto;
@@ -105,20 +105,20 @@ class AgenteServices {
               'nome': nome,
             });
 
-        print(response.data);
+        debugPrint(response.data);
       } catch (e) {
         if (e is DioException) {
-          print('Erro na função preAddUserInfos: ${e.error}${e.response}');
+          debugPrint('Erro na função preAddUserInfos: ${e.error}${e.response}');
         } else {
-          print('Erro na função preAddUserInfos: $e');
+          debugPrint('Erro na função preAddUserInfos: $e');
         }
         return false;
       }
 
-      print('Informações salvas com sucesso');
+      debugPrint('Informações salvas com sucesso');
       return true;
     } catch (e) {
-      print('Erro na função preAddUserInfos: $e');
+      debugPrint('Erro na função preAddUserInfos: $e');
       return false;
     }
   }
@@ -216,7 +216,7 @@ class AgenteServices {
         return false;
       }
     } catch (e) {
-      print('Erro ao buscar os dados do usuário: $e');
+      debugPrint('Erro ao buscar os dados do usuário: $e');
       return false;
     }
   }
@@ -230,11 +230,11 @@ class AgenteServices {
         return null;
       }
 
-      //debugprint dos dados mapeados
+      //debugdebugPrint dos dados mapeados
       debugPrint('Dados do agente: ${snapshot.data().toString()}');
       return Agente.fromFirestore(snapshot.data() as Map<String, dynamic>, uid);
     } catch (e) {
-      print('Erro ao buscar os dados do usuário: $e');
+      debugPrint('Erro ao buscar os dados do usuário: $e');
       return null;
     }
   }
@@ -249,7 +249,7 @@ class AgenteServices {
         return false;
       }
     } catch (e) {
-      print('Erro ao buscar os dados do usuário: $e');
+      debugPrint('Erro ao buscar os dados do usuário: $e');
       return false;
     }
   }
@@ -430,21 +430,21 @@ class AgenteServices {
         return {};
       }
     } catch (e) {
-      print("Erro ao buscar os dados aguardando aprovação: $e");
+      debugPrint("Erro ao buscar os dados aguardando aprovação: $e");
       return {};
     }
   }
 
   Future<Map<String, dynamic>> getDadosRejeitados(String uid) async {
     try {
-      print('getDadosRejeitados');
+      debugPrint('getDadosRejeitados');
       var documento = await firestore
           .collection('Infos agentes dados rejeitados')
           .doc(uid)
           .get();
       if (documento.exists) {
         var dados = documento.data();
-        print(dados.toString());
+        debugPrint(dados.toString());
         dados?.remove('uid');
         dados?.remove('timestamp');
         return dados ?? {};
@@ -452,7 +452,7 @@ class AgenteServices {
         return {};
       }
     } catch (e) {
-      print("Erro ao buscar os dados rejeitados: $e");
+      debugPrint("Erro ao buscar os dados rejeitados: $e");
       return {};
     }
   }

@@ -29,7 +29,6 @@ class SwipeButtonBloc extends Bloc<SwipeButtonEvent, SwipeButtonState> {
       (event, emit) async {
         bool isTraking = await BackgroundLocationTrackerManager.isTracking();
         final bool isTraking2;
-        final bool isTraking3;
         debugPrint('---- isTraking: $isTraking ----');
         emit(SwipeButtonLoadind());
         try {

@@ -554,7 +554,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             const Row(
@@ -664,7 +664,7 @@ class PanaraInfoDialogWidget extends StatelessWidget {
   /// If you don't want any icon or image, you toggle it to true.
   final bool noImage;
   const PanaraInfoDialogWidget({
-    Key? key,
+    super.key,
     this.title,
     required this.message,
     required this.buttonText,
@@ -680,7 +680,7 @@ class PanaraInfoDialogWidget extends StatelessWidget {
     this.margin =
         const EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 24),
     required this.noImage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -787,13 +787,13 @@ class PanaraButton extends StatelessWidget {
   final bool isOutlined;
 
   const PanaraButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     required this.bgColor,
     required this.isOutlined,
     this.buttonTextColor = Colors.white,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

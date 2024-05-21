@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../../../../chat/screens/admin_chat.dart';
 import '../../../../../chat/screens/chat_screen.dart';
 import '../../../../../chat/services/chat_services.dart';
 

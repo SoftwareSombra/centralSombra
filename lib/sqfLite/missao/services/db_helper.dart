@@ -50,12 +50,12 @@ class MissionDatabaseHelper {
     // Iterar sobre cada tabela e listar suas colunas
     for (var table in tables) {
       String tableName = table['name'];
-      print('Tabela: $tableName');
+      debugPrint('Tabela: $tableName');
 
       // Obter informações das colunas
       List<Map> columns = await db.rawQuery("PRAGMA table_info($tableName)");
       for (var column in columns) {
-        print('  Coluna: ${column['name']} - Tipo: ${column['type']}');
+        debugPrint('  Coluna: ${column['name']} - Tipo: ${column['type']}');
       }
     }
   }
@@ -83,6 +83,4 @@ class MissionDatabaseHelper {
     //retornar o mapa com os valores da missão iniciada nomeando cada valor
     return missionDetails;
   }
-
-
 }

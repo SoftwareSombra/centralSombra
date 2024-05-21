@@ -18,9 +18,9 @@ Future<void> backgroundMessageHandler(RemoteMessage message) async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print("Firebase inicializado.");
+    debugPrint("Firebase inicializado.");
   } else {
-    print("Firebase já foi inicializado.");
+    debugPrint("Firebase já foi inicializado.");
   }
   debugPrint('Handling a background message ${message.messageId}');
 

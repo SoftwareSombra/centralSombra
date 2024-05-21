@@ -30,11 +30,11 @@ import 'glassmorphism_reaction_popup.dart';
 
 class ReactionPopup extends StatefulWidget {
   const ReactionPopup({
-    Key? key,
+    super.key,
     this.reactionPopupConfig,
     required this.onTap,
     required this.showPopUp,
-  }) : super(key: key);
+  });
 
   /// Provides configuration of reaction pop-up appearance.
   final ReactionPopupConfiguration? reactionPopupConfig;

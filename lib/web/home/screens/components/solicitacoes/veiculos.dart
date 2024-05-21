@@ -98,7 +98,7 @@ class CadastroVeiculoList extends StatelessWidget {
         child: Card(
           elevation: 2,
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -108,11 +108,11 @@ class CadastroVeiculoList extends StatelessWidget {
                     Text('Agente: ${veiculo.nome}'),
                     Text(
                       veiculo.placa,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     )
                   ],
                 ),
-                Icon(Icons.arrow_forward),
+                const Icon(Icons.arrow_forward),
               ],
             ),
           ),
@@ -165,7 +165,7 @@ class CadastroVeiculoList extends StatelessWidget {
 class VeiculoCard extends StatefulWidget {
   final Veiculo veiculo;
 
-  VeiculoCard({super.key, required this.veiculo});
+  const VeiculoCard({super.key, required this.veiculo});
 
   @override
   _VeiculoCardState createState() => _VeiculoCardState();

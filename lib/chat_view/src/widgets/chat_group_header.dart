@@ -26,10 +26,10 @@ import '../../chatview.dart';
 
 class ChatGroupHeader extends StatelessWidget {
   const ChatGroupHeader({
-    Key? key,
+    super.key,
     required this.day,
     this.groupSeparatorConfig,
-  }) : super(key: key);
+  });
 
   /// Provides day of started chat.
   final DateTime day;

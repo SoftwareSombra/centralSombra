@@ -4,11 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
-  devicelocale
   emoji_picker_flutter
   file_selector_linux
   flutter_localization
-  gtk
   irondash_engine_context
   printing
   record_linux

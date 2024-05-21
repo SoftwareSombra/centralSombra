@@ -77,7 +77,7 @@ class MissaoHome extends StatelessWidget {
               return Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Card(
                       //elevation: 5,
                       elevation: 0,
@@ -341,7 +341,7 @@ class MissaoHome extends StatelessWidget {
                     containerColor: Colors.grey[800],
                     buttonTextColor: Colors.white,
                   ),
-                  CustomSwipeSwitch(),
+                  const CustomSwipeSwitch(),
                 ],
               );
             } else if (missaoState is GetMissaoError) {
@@ -467,7 +467,7 @@ class PanaraContainerWidget extends StatelessWidget {
   /// If you don't want any icon or image, you toggle it to true.
   final bool noImage;
   const PanaraContainerWidget({
-    Key? key,
+    super.key,
     this.title,
     required this.message,
     this.buttonText,
@@ -483,7 +483,7 @@ class PanaraContainerWidget extends StatelessWidget {
     this.margin =
         const EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 24),
     required this.noImage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -6,10 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:sombra_testes/autenticacao/screens/tratamento/error_snackbar.dart';
 import 'package:sombra_testes/autenticacao/screens/tratamento/success_snackbar.dart';
-import 'package:sombra_testes/home/screens/home_screen.dart';
 import 'package:sombra_testes/missao/bloc/agente/agente_bloc.dart';
 import 'package:sombra_testes/missao/bloc/agente/events.dart';
-import 'package:sombra_testes/missao/screens/missao_screen.dart';
 import 'package:sombra_testes/missao/services/missao_services.dart';
 
 import '../../../mapa/screens/mapa.dart';

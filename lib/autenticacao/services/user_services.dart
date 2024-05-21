@@ -97,11 +97,11 @@ class UserServices {
   Future<Tuple2<bool, Object?>> registerUser2(
       String name, String email, String password) async {
     if (!isEmailValid(email)) {
-      return Tuple2(false, "Email inválido");
+      return const Tuple2(false, "Email inválido");
     }
 
     if (!isPasswordValid(password)) {
-      return Tuple2(false, "Senha inválida");
+      return const Tuple2(false, "Senha inválida");
     }
 
     // Aqui, performRegistration deve retornar Tuple2<bool, String>
@@ -163,7 +163,7 @@ class UserServices {
       }
       return const Tuple2(true, null);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
       return Tuple2(false, e);
     }
   }
@@ -177,9 +177,9 @@ class UserServices {
           FirebaseFunctions.instanceFor(region: 'southamerica-east1')
               .httpsCallable('cadastro');
 
-      HttpsCallable newcallable =
-          FirebaseFunctions.instanceFor(region: 'southamerica-east1')
-              .httpsCallable('updateMissingDisplayNames');
+      // HttpsCallable newcallable =
+      //     FirebaseFunctions.instanceFor(region: 'southamerica-east1')
+      //         .httpsCallable('updateMissingDisplayNames');
 
       final response = await callable.call(<String, dynamic>{
         'nome': name,
@@ -205,7 +205,7 @@ class UserServices {
 
       return Tuple2(true, uid);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
       return Tuple2(false, e);
     }
   }

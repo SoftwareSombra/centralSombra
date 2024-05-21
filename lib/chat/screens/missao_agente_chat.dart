@@ -182,7 +182,7 @@ class _MissaoChatScreenState extends State<MissaoChatScreen> {
                       valueListenable: isUploading,
                       builder: (context, bool isUploading, child) {
                         return isUploading
-                            ? CircularProgressIndicator()
+                            ? const CircularProgressIndicator()
                             : const Icon(
                                 Icons.attach_file,
                                 color: Colors.white,

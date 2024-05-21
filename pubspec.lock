@@ -9,16 +9,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.33"
-  animated_login:
-    dependency: "direct main"
-    description:
-      name: animated_login
-      sha256: c4e66e17c49e1b2f983891c2bbc8eb1f263e7c5c74637b120e51d5415e73ce6c
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.7.2"
   animations:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: animations
       sha256: d3d6dcfb218225bbe68e87ccf6378bbb2e32a94900722c5f81611dad089911cb
@@ -37,18 +29,10 @@ packages:
     dependency: "direct main"
     description:
       name: any_link_preview
-      sha256: be2adb74944140428c46c3688c1b843c884ead6908e13e8cae359fa31f37cf07
+      sha256: "3135873778da5400e784ec4f304229d16f5d748276de2fce88170554907bca46"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
-  app_links:
-    dependency: transitive
-    description:
-      name: app_links
-      sha256: "42dc15aecf2618ace4ffb74a2e58a50e45cd1b9f2c17c8f0cafe4c297f08c815"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.1"
+    version: "3.0.2"
   archive:
     dependency: transitive
     description:
@@ -73,14 +57,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  audio_session:
-    dependency: transitive
-    description:
-      name: audio_session
-      sha256: a49af9981eec5d7cd73b37bacb6ee73f8143a6a9f9bd5b6021e6c346b9b6cf4e
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.19"
   audio_waveforms:
     dependency: "direct main"
     description:
@@ -93,58 +69,58 @@ packages:
     dependency: "direct main"
     description:
       name: audioplayers
-      sha256: c05c6147124cd63e725e861335a8b4d57300b80e6e92cea7c145c739223bbaef
+      sha256: "752039d6aa752597c98ec212e9759519061759e402e7da59a511f39d43aa07d2"
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.1"
+    version: "6.0.0"
   audioplayers_android:
     dependency: transitive
     description:
       name: audioplayers_android
-      sha256: b00e1a0e11365d88576320ec2d8c192bc21f1afb6c0e5995d1c57ae63156acb5
+      sha256: de576b890befe27175c2f511ba8b742bec83765fa97c3ce4282bba46212f58e4
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.3"
+    version: "5.0.0"
   audioplayers_darwin:
     dependency: transitive
     description:
       name: audioplayers_darwin
-      sha256: "3034e99a6df8d101da0f5082dcca0a2a99db62ab1d4ddb3277bed3f6f81afe08"
+      sha256: e507887f3ff18d8e5a10a668d7bedc28206b12e10b98347797257c6ae1019c3b
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.0"
   audioplayers_linux:
     dependency: transitive
     description:
       name: audioplayers_linux
-      sha256: "60787e73fefc4d2e0b9c02c69885402177e818e4e27ef087074cf27c02246c9e"
+      sha256: "3d3d244c90436115417f170426ce768856d8fe4dfc5ed66a049d2890acfa82f9"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "4.0.0"
   audioplayers_platform_interface:
     dependency: transitive
     description:
       name: audioplayers_platform_interface
-      sha256: "365c547f1bb9e77d94dd1687903a668d8f7ac3409e48e6e6a3668a1ac2982adb"
+      sha256: "6834dd48dfb7bc6c2404998ebdd161f79cd3774a7e6779e1348d54a3bfdcfaa5"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.0"
+    version: "7.0.0"
   audioplayers_web:
     dependency: "direct main"
     description:
       name: audioplayers_web
-      sha256: "22cd0173e54d92bd9b2c80b1204eb1eb159ece87475ab58c9788a70ec43c2a62"
+      sha256: db8fc420dadf80da18e2286c18e746fb4c3b2c5adbf0c963299dde046828886d
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "5.0.0"
   audioplayers_windows:
     dependency: transitive
     description:
       name: audioplayers_windows
-      sha256: "9536812c9103563644ada2ef45ae523806b0745f7a78e89d1b5fb1951de90e1a"
+      sha256: "8605762dddba992138d476f6a0c3afd9df30ac5b96039929063eceed416795c2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "4.0.0"
   auto_size_text:
     dependency: "direct main"
     description:
@@ -245,18 +221,18 @@ packages:
     dependency: "direct main"
     description:
       name: camera
-      sha256: dfa8fc5a1adaeb95e7a54d86a5bd56f4bb0e035515354c8ac6d262e35cec2ec8
+      sha256: cf8ed1789aa244392cfc49d13e97879700476ba641c92500e01f630e109c0f6c
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.6"
-  camera_android:
+    version: "0.11.0"
+  camera_android_camerax:
     dependency: transitive
     description:
-      name: camera_android
-      sha256: "7b0aba6398afa8475e2bc9115d976efb49cf8db781e922572d443795c04a4f4f"
+      name: camera_android_camerax
+      sha256: "59967e6d80df9d682a33b86f228cc524e6b52d6184b84f6ac62151dd98bd1ea0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.9+1"
+    version: "0.6.5+2"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -305,14 +281,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  chewie:
-    dependency: transitive
-    description:
-      name: chewie
-      sha256: e53da939709efb9aad0f3d72a69a8d05f889168b7a138af60ce78bab5c94b135
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.1"
   cli_util:
     dependency: transitive
     description:
@@ -385,30 +353,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  colorful_iconify_flutter:
-    dependency: transitive
-    description:
-      name: colorful_iconify_flutter
-      sha256: "5ebc63d10c3e97279849162b415fda8e71b7ff24ddd663539d7328279dae9c1d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
   connectivity_plus:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
+      sha256: db7a4e143dc72cc3cb2044ef9b052a7ebfe729513e6a82943bc3526f784365b8
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.3"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
       name: connectivity_plus_platform_interface
-      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
+      sha256: b6a56efe1e6675be240de39107281d4034b64ac23438026355b4234042a35adb
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.4"
+    version: "2.0.0"
   convert:
     dependency: transitive
     description:
@@ -449,14 +409,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  custom_refresh_indicator:
-    dependency: "direct main"
-    description:
-      name: custom_refresh_indicator
-      sha256: "841dd90ded708b6a73df3fcebbedc534bbb842b8c3a491570846b534cd0a2547"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0"
   dart_quill_delta:
     dependency: transitive
     description:
@@ -505,14 +457,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
-  devicelocale:
-    dependency: transitive
-    description:
-      name: devicelocale
-      sha256: "0812b66f9eac57bc55c6ed4c178e0779440aa4e4e7c7e32fe1db02a758501d0e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.1"
   diacritic:
     dependency: "direct main"
     description:
@@ -537,22 +481,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.3+1"
-  dot_navigation_bar:
-    dependency: "direct main"
-    description:
-      name: dot_navigation_bar
-      sha256: "753e1d91644e39beddd0a4ed7e366f37a95e38cafb601c3b7496120ae0532f63"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  dropdown_search:
-    dependency: "direct main"
-    description:
-      name: dropdown_search
-      sha256: "55106e8290acaa97ed15bea1fdad82c3cf0c248dd410e651f5a8ac6870f783ab"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.6"
   dynamic_tabbar:
     dependency: "direct main"
     description:
@@ -605,10 +533,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: be325344c1f3070354a1d84a231a1ba75ea85d413774ec4bdf444c023342e030
+      sha256: "29c90806ac5f5fb896547720b73b17ee9aed9bba540dc5d91fe29f8c5745b10a"
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.0"
+    version: "8.0.3"
   file_selector_linux:
     dependency: transitive
     description:
@@ -761,46 +689,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.9.5"
-  firebase_ui_database:
-    dependency: transitive
-    description:
-      name: firebase_ui_database
-      sha256: fa6e60e724edb0df566433cc8d25464f604b6d71c7fbf37dd0bb8a93426340fe
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.3"
-  firebase_ui_firestore:
-    dependency: transitive
-    description:
-      name: firebase_ui_firestore
-      sha256: "4775cab02e196adb883ff4115c11c2ad535a955447dc8aa73f3b932c700e75df"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.6.3"
-  firebase_ui_localizations:
-    dependency: transitive
-    description:
-      name: firebase_ui_localizations
-      sha256: "71a3c586565c43dadc058898a0afd8efc5b3a163485a3570b98a0e4555cabec1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.11.0"
-  firebase_ui_shared:
-    dependency: transitive
-    description:
-      name: firebase_ui_shared
-      sha256: f1d07c130a39104d32fba1dab274b7bcb13be2bf4e652624a4ccabb58f9781f1
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.1"
-  fireflutter:
-    dependency: "direct main"
-    description:
-      name: fireflutter
-      sha256: aa697df6fa32b60220561387bd7b3c7d3809ff8b005c4ee5310c2fcb940b1e62
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.29"
   fixnum:
     dependency: transitive
     description:
@@ -813,26 +701,10 @@ packages:
     dependency: "direct main"
     description:
       name: fl_chart
-      sha256: "2b7c1f5d867da9a054661641c8f499c55c47c39acccb97b3bc673f5fa9a39e74"
+      sha256: d0f0d49112f2f4b192481c16d05b6418bd7820e021e265a3c22db98acf7ed7fb
       url: "https://pub.dev"
     source: hosted
-    version: "0.67.0"
-  floating_chat_button:
-    dependency: "direct main"
-    description:
-      name: floating_chat_button
-      sha256: da302464629036faa234f2d678b895190c3d5055897b8b4db5a734665aced172
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
-  fluent_ui:
-    dependency: "direct main"
-    description:
-      name: fluent_ui
-      sha256: a8c76cb501303d108cb9bd33e516da7cfd078031ff427d68eab6069bf4492a2c
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.8.7"
+    version: "0.68.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -854,14 +726,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.1.5"
-  flutter_blurhash:
-    dependency: "direct main"
-    description:
-      name: flutter_blurhash
-      sha256: "5e67678e479ac639069d7af1e133f4a4702311491188ff3e0227486430db0c06"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.8.2"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -870,14 +734,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.2"
-  flutter_chat_types:
-    dependency: transitive
-    description:
-      name: flutter_chat_types
-      sha256: e285b588f6d19d907feb1f6d912deaf22e223656769c34093b64e1c59b094fb9
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.6.2"
   flutter_colorpicker:
     dependency: transitive
     description:
@@ -886,22 +742,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
-  flutter_dialog_shower:
-    dependency: "direct main"
-    description:
-      name: flutter_dialog_shower
-      sha256: "53d42c464e1a1c373ba9a0ed41c13d0e582b6ee8e462fc73120aa918c45248a0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.5"
-  flutter_firebase_chat_core:
-    dependency: "direct main"
-    description:
-      name: flutter_firebase_chat_core
-      sha256: c50044da9b7a722533a0d1bce39bddafaba0a8068be74bda4d7979b3ae15fc59
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.6.7"
   flutter_google_places_sdk:
     dependency: "direct main"
     description:
@@ -978,10 +818,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_image_compress
-      sha256: "4edadb0ca2f957b85190e9c3aa728569b91b64b6e06e0eec5b622d47a8692ab2"
+      sha256: "45a3071868092a61b11044c70422b04d39d4d9f2ef536f3c5b11fb65a1e7dd90"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.3.0"
   flutter_image_compress_common:
     dependency: transitive
     description:
@@ -1002,10 +842,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_image_compress_ohos
-      sha256: "70360371698be994786e5dd2e364a6525b1c5a4f843bff8af9b8a2fbe808d8d8"
+      sha256: e76b92bbc830ee08f5b05962fc78a532011fcd2041f620b5400a593e96da3f51
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.3"
   flutter_image_compress_platform_interface:
     dependency: transitive
     description:
@@ -1078,30 +918,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.1"
-  flutter_linkify:
-    dependency: transitive
-    description:
-      name: flutter_linkify
-      sha256: "74669e06a8f358fee4512b4320c0b80e51cffc496607931de68d28f099254073"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
+      sha256: "3f41d009ba7172d5ff9be5f6e6e6abb4300e263aab8866d2a0842ed2a70f8f0c"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "4.0.0"
   flutter_local_notifications:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "401643a6ea9d8451365f2ec11145335bf130560cfde367bdf8f0be6d60f89479"
+      sha256: "40e6fbd2da7dcc7ed78432c5cdab1559674b4af035fddbfb2f9a8f9c2112fcef"
       url: "https://pub.dev"
     source: hosted
-    version: "15.1.3"
+    version: "17.1.2"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -1147,14 +979,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
-  flutter_platform_widgets:
-    dependency: "direct main"
-    description:
-      name: flutter_platform_widgets
-      sha256: c483c0591d845d2adb84e341a1cfb746f1a8a7aff4c72a5957772446020601f4
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -1175,26 +999,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_quill
-      sha256: a97c32a14bcb901611f249c8c3f9596defe41fe87a1d73414cbb2321f6605db2
+      sha256: f5c56ca799bc80fd30ff2a279f6990df2af3aef398083ec8676a04ac89c2eb05
       url: "https://pub.dev"
     source: hosted
-    version: "9.3.10"
-  flutter_staggered_grid_view:
-    dependency: transitive
-    description:
-      name: flutter_staggered_grid_view
-      sha256: "19e7abb550c96fbfeb546b23f3ff356ee7c59a019a651f8f102a4ba9b7349395"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0"
+    version: "9.3.11"
   flutter_svg:
     dependency: transitive
     description:
       name: flutter_svg
-      sha256: "6ff9fa12892ae074092de2fa6a9938fb21dbabfdaa2ff57dc697ff912fc8d4b2"
+      sha256: "7b4ca6cf3304575fe9c8ec64813c8d02ee41d2afe60bcfe0678bcb5375d596a2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "2.0.10+1"
   flutter_swipe_button:
     dependency: "direct main"
     description:
@@ -1208,43 +1024,11 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_web_frame:
-    dependency: "direct main"
-    description:
-      name: flutter_web_frame
-      sha256: cc5a88019a27d92df9cf60bb6c2d80b9a6adb512c89d7c0ff99bb5975b5671c0
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_widget_from_html:
-    dependency: "direct main"
-    description:
-      name: flutter_widget_from_html
-      sha256: bc92fa62986a1d14bec92d26225bb7b37d581bd91efdad55158efa2eeb200b85
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.1"
-  flutter_widget_from_html_core:
-    dependency: transitive
-    description:
-      name: flutter_widget_from_html_core
-      sha256: "296485e685b44ad7c6883372aebc56038a28b84f75e7a668bcd8bf01de881739"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.1"
-  flutter_zoom_drawer:
-    dependency: "direct main"
-    description:
-      name: flutter_zoom_drawer
-      sha256: "5a3708548868463fb36e0e3171761ab7cb513df88d2f14053802812d2e855060"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.0"
   font_awesome_flutter:
     dependency: "direct main"
     description:
@@ -1261,70 +1045,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
-  fwfh_cached_network_image:
-    dependency: transitive
-    description:
-      name: fwfh_cached_network_image
-      sha256: "3de22aa3a6943c968e0d9fbcba4463b3dbbf7103171d62c84b6c672fb83eebdf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0+7"
-  fwfh_chewie:
-    dependency: transitive
-    description:
-      name: fwfh_chewie
-      sha256: "0b51a1c976bb74da5e8e45d545c74cb54a7168ad3938dd77103a7aee485f55fa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.1+4"
-  fwfh_just_audio:
-    dependency: transitive
-    description:
-      name: fwfh_just_audio
-      sha256: "237b93a4cb9f0495a4b51940f361adda2a5abd57231dd44f07459db00144a6cd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.0+3"
-  fwfh_svg:
-    dependency: transitive
-    description:
-      name: fwfh_svg
-      sha256: "556df67faf76b98c76dba144daf9fa9b3e874670e35b0a02d918402f8b8e98f5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.2+1"
-  fwfh_text_style:
-    dependency: transitive
-    description:
-      name: fwfh_text_style
-      sha256: "5f8b587fd223a6bf14aad3d3da5e7ced0628becbd0768f8e7ae25ff6b9f3d2ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.23.8"
-  fwfh_url_launcher:
-    dependency: transitive
-    description:
-      name: fwfh_url_launcher
-      sha256: "2a526c9819f74b4106ba2fba4dac79f0082deecd8d2c7011cd0471cb710e3eff"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.0+4"
-  fwfh_webview:
-    dependency: transitive
-    description:
-      name: fwfh_webview
-      sha256: "7ebd3dff551d7281dd3fbb9f5523a8455592665ff75459ca84871ebbebe864a8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0+2"
   geocoding:
     dependency: "direct main"
     description:
       name: geocoding
-      sha256: "790eea732b22a08dd36fc3761bcd29040461ac20ece4d165264a6c0b5338f115"
+      sha256: d580c801cba9386b4fac5047c4c785a4e19554f46be42f4f5e5b7deacd088a66
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.2"
+    version: "3.0.0"
   geocoding_android:
     dependency: transitive
     description:
@@ -1337,10 +1065,10 @@ packages:
     dependency: transitive
     description:
       name: geocoding_ios
-      sha256: "8a39bfb650af55209c42e564036a550b32d029e0733af01dc66c5afea50388d3"
+      sha256: "94ddba60387501bd1c11e18dca7c5a9e8c645d6e3da9c38b9762434941870c24"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "3.0.1"
   geocoding_platform_interface:
     dependency: transitive
     description:
@@ -1349,22 +1077,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
-  geohash_plus:
-    dependency: transitive
-    description:
-      name: geohash_plus
-      sha256: "2735f559b1ee1ee04ff44f771efb98666ab42410b4bbf89773b950b7418995db"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
   geolocator:
     dependency: "direct main"
     description:
       name: geolocator
-      sha256: f4efb8d3c4cdcad2e226af9661eb1a0dd38c71a9494b22526f9da80ab79520e5
+      sha256: "149876cc5207a0f5daf4fdd3bfcf0a0f27258b3fe95108fa084f527ad0568f1b"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.1"
+    version: "12.0.0"
   geolocator_android:
     dependency: transitive
     description:
@@ -1393,10 +1113,10 @@ packages:
     dependency: transitive
     description:
       name: geolocator_web
-      sha256: "102e7da05b48ca6bf0a5bda0010f886b171d1a08059f01bfe02addd0175ebece"
+      sha256: "7a22f400d831f924a89d931ba126a10e6b8b437f31e6b9311320435f3e1571bd"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "4.0.0"
   geolocator_windows:
     dependency: transitive
     description:
@@ -1405,14 +1125,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.3"
-  go_router:
-    dependency: "direct main"
-    description:
-      name: go_router
-      sha256: c5fa45fa502ee880839e3b2152d987c44abae26d064a2376d4aad434cf0f7b15
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.1.3"
   google_fonts:
     dependency: "direct main"
     description:
@@ -1517,14 +1229,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.2"
-  gtk:
-    dependency: transitive
-    description:
-      name: gtk
-      sha256: e8ce9ca4b1df106e4d72dad201d345ea1a036cc12c360f1a7d5a758f78ffa42c
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   hawk_fab_menu:
     dependency: "direct main"
     description:
@@ -1533,14 +1237,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  horizontal_data_table:
-    dependency: "direct main"
-    description:
-      name: horizontal_data_table
-      sha256: c8ab5256bbced698a729f3e0ff2cb0e8e97416cdbb082860370eaf883badf722
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.3.1"
   html:
     dependency: transitive
     description:
@@ -1573,22 +1269,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
-  iconify_flutter:
-    dependency: "direct main"
-    description:
-      name: iconify_flutter
-      sha256: a2d5d36a8381331c8d4e0a6b71378fca51bd6d15e38192568a30c0a91133a9af
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.5"
   icons_plus:
     dependency: "direct main"
     description:
       name: icons_plus
-      sha256: "6a7cb265471e59dc74b7b89f7e4d2ab3e716b2d91ba1e7a15fe7df61d01fc9e3"
+      sha256: "8e2f601b8605d45dd55b106a0da084a1809125077a49574ca22e8bcd5b6e86f0"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "5.0.0"
   image:
     dependency: "direct main"
     description:
@@ -1677,14 +1365,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
-  infinite_scroll_pagination:
-    dependency: "direct main"
-    description:
-      name: infinite_scroll_pagination
-      sha256: b68bce20752fcf36c7739e60de4175494f74e99e9a69b4dd2fe3a1dd07a7f16a
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   internet_connection_checker:
     dependency: "direct main"
     description:
@@ -1741,30 +1421,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
-  just_audio:
-    dependency: transitive
-    description:
-      name: just_audio
-      sha256: b7cb6bbf3750caa924d03f432ba401ec300fd90936b3f73a9b33d58b1e96286b
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.37"
-  just_audio_platform_interface:
-    dependency: transitive
-    description:
-      name: just_audio_platform_interface
-      sha256: c3dee0014248c97c91fe6299edb73dc4d6c6930a2f4f713579cd692d9e47f4a1
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.2"
-  just_audio_web:
-    dependency: transitive
-    description:
-      name: just_audio_web
-      sha256: "134356b0fe3d898293102b33b5fd618831ffdc72bb7a1b726140abdf22772b70"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.9"
   latlong2:
     dependency: "direct main"
     description:
@@ -1797,54 +1453,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  linkify:
-    dependency: transitive
-    description:
-      name: linkify
-      sha256: "4139ea77f4651ab9c315b577da2dd108d9aa0bd84b5d03d33323f1970c645832"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.0"
   lints:
     dependency: transitive
     description:
       name: lints
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
+      sha256: "976c774dd944a42e83e2467f4cc670daef7eed6295b10b36ae8c85bcbf828235"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "4.0.0"
   location:
     dependency: "direct main"
     description:
       name: location
-      sha256: "06be54f682c9073cbfec3899eb9bc8ed90faa0e17735c9d9fa7fe426f5be1dd1"
+      sha256: "37ffdadcd4b1498b769824f45ebb4de8ed46663a4a67ac27b33a590ee486579f"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.3"
+    version: "6.0.2"
   location_platform_interface:
     dependency: transitive
     description:
       name: location_platform_interface
-      sha256: "8aa1d34eeecc979d7c9fe372931d84f6d2ebbd52226a54fe1620de6fdc0753b1"
+      sha256: "2ecde6bb0f88032b0bbbde37e18975b4468711dd92619c2235cc0c0ee93b4b8e"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.2"
+    version: "4.0.0"
   location_web:
     dependency: transitive
     description:
       name: location_web
-      sha256: ec484c66e8a4ff1ee5d044c203f4b6b71e3a0556a97b739a5bc9616de672412b
+      sha256: "15ad7b4c8a9f55abee513373755e093a40c04d7e24fc1b4f89676fe99523d034"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      sha256: "623a88c9594aa774443aa3eb2d41807a48486b5613e67599fb4c41c0ad47c340"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
+    version: "5.0.1"
   markdown:
     dependency: transitive
     description:
@@ -1869,14 +1509,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.0"
-  math_expressions:
-    dependency: transitive
-    description:
-      name: math_expressions
-      sha256: db0b72d867491c4e53a1c773e2708d5d6e94bbe06be07080fc9f896766b9cd3d
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.0"
   meta:
     dependency: transitive
     description:
@@ -1917,14 +1549,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  open_filex:
-    dependency: "direct main"
-    description:
-      name: open_filex
-      sha256: "74e2280754cf8161e860746c3181db2c996d6c1909c7057b738ede4a469816b8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.0"
   package_info_plus:
     dependency: "direct main"
     description:
@@ -2041,42 +1665,50 @@ packages:
     dependency: "direct main"
     description:
       name: permission_handler
-      sha256: bc56bfe9d3f44c3c612d8d393bd9b174eb796d706759f9b495ac254e4294baa5
+      sha256: "18bf33f7fefbd812f37e72091a15575e72d5318854877e0e4035a24ac1113ecb"
       url: "https://pub.dev"
     source: hosted
-    version: "10.4.5"
+    version: "11.3.1"
   permission_handler_android:
     dependency: transitive
     description:
       name: permission_handler_android
-      sha256: "59c6322171c29df93a22d150ad95f3aa19ed86542eaec409ab2691b8f35f9a47"
+      sha256: "8bb852cd759488893805c3161d0b2b5db55db52f773dbb014420b304055ba2c5"
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.6"
+    version: "12.0.6"
   permission_handler_apple:
     dependency: transitive
     description:
       name: permission_handler_apple
-      sha256: "99e220bce3f8877c78e4ace901082fb29fa1b4ebde529ad0932d8d664b34f3f5"
+      sha256: e9ad66020b89ff1b63908f247c2c6f931c6e62699b756ef8b3c4569350cd8662
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.4"
+    version: "9.4.4"
+  permission_handler_html:
+    dependency: transitive
+    description:
+      name: permission_handler_html
+      sha256: "54bf176b90f6eddd4ece307e2c06cf977fb3973719c35a93b85cc7093eb6070d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   permission_handler_platform_interface:
     dependency: transitive
     description:
       name: permission_handler_platform_interface
-      sha256: "6760eb5ef34589224771010805bea6054ad28453906936f843a8cc4d3a55c4a4"
+      sha256: "48d4fcf201a1dad93ee869ab0d4101d084f49136ec82a8a06ed9cfeacab9fd20"
       url: "https://pub.dev"
     source: hosted
-    version: "3.12.0"
+    version: "4.2.1"
   permission_handler_windows:
     dependency: transitive
     description:
       name: permission_handler_windows
-      sha256: cc074aace208760f1eee6aa4fae766b45d947df85bc831cde77009cdb4720098
+      sha256: "1a790728016f79a41216d88672dbc5df30e686e811ad4e698bfc51f76ad91f1e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.3"
+    version: "0.2.1"
   persistent_bottom_nav_bar:
     dependency: "direct main"
     description:
@@ -2097,10 +1729,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_view
-      sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
+      sha256: "1fc3d970a91295fbd1364296575f854c9863f225505c28c46e0a03e48960c75e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.0"
+    version: "0.15.0"
   pixel_snap:
     dependency: transitive
     description:
@@ -2134,21 +1766,13 @@ packages:
     source: hosted
     version: "5.12.0"
   provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: provider
       sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
-  pull_to_refresh:
-    dependency: "direct main"
-    description:
-      name: pull_to_refresh
-      sha256: bbadd5a931837b57739cf08736bea63167e284e71fb23b218c8c9a6e042aad12
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   qr:
     dependency: transitive
     description:
@@ -2165,14 +1789,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
-  recase:
-    dependency: transitive
-    description:
-      name: recase
-      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.0"
   record:
     dependency: "direct main"
     description:
@@ -2245,14 +1861,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.4"
-  responsive_layout_grid:
-    dependency: "direct main"
-    description:
-      name: responsive_layout_grid
-      sha256: ba4d40e3fcd5754e940afef186980d7fe66e9b33c1e61d4e31c0f3a2e2740dd7
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
   rxdart:
     dependency: transitive
     description:
@@ -2269,38 +1877,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  scroll_pos:
-    dependency: transitive
-    description:
-      name: scroll_pos
-      sha256: cebf602b2dd939de6832bb902ffefb574608d1b84f420b82b381a4007d3c1e1b
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
-  searchable_listview:
-    dependency: "direct main"
-    description:
-      name: searchable_listview
-      sha256: f9bc1a57dfcba49ce2d190d642567fb82309dd23849b3b0a328266e3f90054db
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.12.0"
-  share_plus:
-    dependency: transitive
-    description:
-      name: share_plus
-      sha256: fb5319f3aab4c5dda5ebb92dca978179ba21f8c783ee4380910ef4c1c6824f51
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.0.3"
-  share_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: share_plus_platform_interface
-      sha256: "251eb156a8b5fa9ce033747d73535bf53911071f8d3b6f4f0b578505ce0d4496"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.4.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -2361,23 +1937,15 @@ packages:
     dependency: "direct main"
     description:
       name: sidebarx
-      sha256: "7042d64844b8e64ca5c17e70d89b49df35b54a26c015b90000da9741eab70bc0"
+      sha256: abe39d6db237fb8e25c600e8039ffab80fa7fe71acab03e9c378c31f912d2766
       url: "https://pub.dev"
     source: hosted
-    version: "0.16.3"
+    version: "0.17.1"
   sky_engine:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.99"
-  sliver_tools:
-    dependency: transitive
-    description:
-      name: sliver_tools
-      sha256: eae28220badfb9d0559207badcbbc9ad5331aac829a88cb0964d330d2a4636a6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.12"
   source_span:
     dependency: transitive
     description:
@@ -2490,14 +2058,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
-  switcher:
-    dependency: "direct main"
-    description:
-      name: switcher
-      sha256: edbe9f80007116d7195d6b37cd8d401b97e2e894157e1bea98175f308102ab2b
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   synchronized:
     dependency: transitive
     description:
@@ -2642,6 +2202,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.9"
+  vector_graphics:
+    dependency: transitive
+    description:
+      name: vector_graphics
+      sha256: "32c3c684e02f9bc0afb0ae0aa653337a2fe022e8ab064bcd7ffda27a74e288e3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.11+1"
+  vector_graphics_codec:
+    dependency: transitive
+    description:
+      name: vector_graphics_codec
+      sha256: c86987475f162fadff579e7320c7ddda04cd2fdeffbe1129227a85d9ac9e03da
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.11+1"
+  vector_graphics_compiler:
+    dependency: transitive
+    description:
+      name: vector_graphics_compiler
+      sha256: "12faff3f73b1741a36ca7e31b292ddeb629af819ca9efe9953b70bd63fc8cd81"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.11+1"
   vector_math:
     dependency: transitive
     description:
@@ -2650,46 +2234,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  video_player:
-    dependency: transitive
-    description:
-      name: video_player
-      sha256: db6a72d8f4fd155d0189845678f55ad2fd54b02c10dcafd11c068dbb631286c0
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.8.6"
-  video_player_android:
-    dependency: transitive
-    description:
-      name: video_player_android
-      sha256: "134e1ad410d67e18a19486ed9512c72dfc6d8ffb284d0e8f2e99e903d1ba8fa3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.14"
-  video_player_avfoundation:
-    dependency: transitive
-    description:
-      name: video_player_avfoundation
-      sha256: d1e9a824f2b324000dc8fb2dcb2a3285b6c1c7c487521c63306cc5b394f68a7c
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.6.1"
-  video_player_platform_interface:
-    dependency: transitive
-    description:
-      name: video_player_platform_interface
-      sha256: "236454725fafcacf98f0f39af0d7c7ab2ce84762e3b63f2cbb3ef9a7e0550bc6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.2.2"
-  video_player_web:
-    dependency: transitive
-    description:
-      name: video_player_web
-      sha256: "41245cef5ef29c4585dbabcbcbe9b209e34376642c7576cabf11b4ad9289d6e4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
   vm_service:
     dependency: transitive
     description:
@@ -2722,38 +2266,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.1"
-  webview_flutter:
-    dependency: transitive
-    description:
-      name: webview_flutter
-      sha256: "25e1b6e839e8cbfbd708abc6f85ed09d1727e24e08e08c6b8590d7c65c9a8932"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.7.0"
-  webview_flutter_android:
-    dependency: transitive
-    description:
-      name: webview_flutter_android
-      sha256: dad3313c9ead95517bb1cae5e1c9d20ba83729d5a59e5e83c0a2d66203f27f91
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.16.1"
-  webview_flutter_platform_interface:
-    dependency: transitive
-    description:
-      name: webview_flutter_platform_interface
-      sha256: d937581d6e558908d7ae3dc1989c4f87b786891ab47bb9df7de548a151779d8d
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.10.0"
-  webview_flutter_wkwebview:
-    dependency: transitive
-    description:
-      name: webview_flutter_wkwebview
-      sha256: f12f8d8a99784b863e8b85e4a9a5e3cf1839d6803d2c0c3e0533a8f3c5a992a7
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.13.0"
   win32:
     dependency: transitive
     description:

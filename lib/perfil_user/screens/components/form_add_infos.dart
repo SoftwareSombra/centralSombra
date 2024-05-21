@@ -75,7 +75,7 @@ class FormAddInfo extends StatelessWidget {
     final uid = user?.uid;
     return BlocBuilder<ElevatedButtonBloc, ElevatedButtonBlocState>(
       builder: (context, state) {
-        print(state.toString());
+        debugPrint(state.toString());
         if (state is ElevatedButtonBlocLoading) {
           return const Center(
             child: CircularProgressIndicator(),
@@ -630,9 +630,9 @@ class FormAddInfo extends StatelessWidget {
                             context
                                 .read<ElevatedButtonBloc>()
                                 .add(ElevatedButtonPressed());
-                            print('passo 1');
+                            debugPrint('passo 1');
                             if (formKey.currentState!.validate()) {
-                              print('passo 2');
+                              debugPrint('passo 2');
                               final nomeValor = nome.text.trim() != ''
                                   ? nome.text.trim()
                                   : nomeAceito != ''
@@ -795,7 +795,7 @@ class FormAddInfo extends StatelessWidget {
                                   compDeResidValor,
                                 );
                                 if (success) {
-                                  print('sucessoo');
+                                  debugPrint('sucessoo');
                                   endereco.clear();
                                   cep.clear();
                                   celular.clear();
@@ -827,7 +827,7 @@ class FormAddInfo extends StatelessWidget {
                                     }
                                   }
                                 } else {
-                                  print('errooou');
+                                  debugPrint('errooou');
                                   if (context.mounted) {
                                     context
                                         .read<ElevatedButtonBloc>()
@@ -913,18 +913,20 @@ class FormAddInfo extends StatelessWidget {
                         }
                       },
                       onComplete: () async {
-                        print('passo 1');
+                        debugPrint('passo 1');
                         //if (formKey.currentState!.validate()) {
-                        print('passo 2');
-                        print(context.mounted == true ? 'true1' : 'false1');
+                        debugPrint('passo 2');
+                        debugPrint(
+                            context.mounted == true ? 'true1' : 'false1');
                         context
                             .read<ElevatedButtonBloc>()
                             .add(ElevatedButtonPressed());
-                        print('passo 3');
+                        debugPrint('passo 3');
 
                         //formKey.currentState!.save();
 
-                        print(context.mounted == true ? 'true2' : 'false2');
+                        debugPrint(
+                            context.mounted == true ? 'true2' : 'false2');
 
                         PlatformFile? rgFrente;
 
@@ -944,14 +946,15 @@ class FormAddInfo extends StatelessWidget {
                           compResid = compResidState.foto;
                         }
 
-                        print(context.mounted == true ? 'true3' : 'false3');
+                        debugPrint(
+                            context.mounted == true ? 'true3' : 'false3');
 
                         PlatformFile? rgFotoFrente = rgFrente;
                         PlatformFile? rgFotoVerso = rgVerso;
                         PlatformFile? compDeResid = compResid;
 
-                        print(rgFotoFrente.toString());
-                        print('passo4');
+                        debugPrint(rgFotoFrente.toString());
+                        debugPrint('passo4');
 
                         if (rgFotoFrente == null ||
                             rgFotoVerso == null ||
@@ -959,7 +962,7 @@ class FormAddInfo extends StatelessWidget {
                           tratamentoDeErros.showErrorSnackbar(
                               context, 'Por favor, insira todas as fotos');
                           if (context.mounted) {
-                            print('contexto de erro1 aqui');
+                            debugPrint('contexto de erro1 aqui');
                             context
                                 .read<ElevatedButtonBloc>()
                                 .add(ElevatedButtonActionCompleted());
@@ -968,7 +971,7 @@ class FormAddInfo extends StatelessWidget {
                           }
                           return;
                         }
-                        print('inicio do envio');
+                        debugPrint('inicio do envio');
                         bool success = await agenteServices.preAddUserInfos(
                           uid!,
                           nome.text.trim(),
@@ -987,7 +990,7 @@ class FormAddInfo extends StatelessWidget {
                           compDeResid,
                         );
                         if (success) {
-                          print('----------- sucessoo --------');
+                          debugPrint('----------- sucessoo --------');
                           endereco.clear();
                           cep.clear();
                           celular.clear();
@@ -1018,7 +1021,7 @@ class FormAddInfo extends StatelessWidget {
                             }
                           }
                         } else {
-                          print('errooou');
+                          debugPrint('errooou');
                           if (context.mounted) {
                             context
                                 .read<ElevatedButtonBloc>()
@@ -1431,22 +1434,22 @@ class FormAddInfo extends StatelessWidget {
                 //         ),
                 //         ElevatedButton(
                 //           onPressed: () async {
-                //             print('passo 1');
+                //             debugPrint('passo 1');
                 //             if (formKey.currentState!.validate()) {
-                //               print('passo 2');
-                //               print(
+                //               debugPrint('passo 2');
+                //               debugPrint(
                 //                   context.mounted == true ? 'true1' : 'false1');
                 //               context
                 //                   .read<ElevatedButtonBloc>()
                 //                   .add(ElevatedButtonPressed());
-                //               print('passo 3');
+                //               debugPrint('passo 3');
 
                 //               formKey.currentState!.save();
 
                 //               var rgFrenteState =
                 //                   context.read<RgFrenteBloc>().state;
 
-                //               print(
+                //               debugPrint(
                 //                   context.mounted == true ? 'true2' : 'false2');
 
                 //               PlatformFile? rgFrente;
@@ -1473,15 +1476,15 @@ class FormAddInfo extends StatelessWidget {
                 //                 compResid = compResidState.foto;
                 //               }
 
-                //               print(
+                //               debugPrint(
                 //                   context.mounted == true ? 'true3' : 'false3');
 
                 //               PlatformFile? rgFotoFrente = rgFrente;
                 //               PlatformFile? rgFotoVerso = rgVerso;
                 //               PlatformFile? compDeResid = compResid;
 
-                //               print(rgFotoFrente.toString());
-                //               print('passo4');
+                //               debugPrint(rgFotoFrente.toString());
+                //               debugPrint('passo4');
 
                 //               if (rgFotoFrente == null ||
                 //                   rgFotoVerso == null ||
@@ -1489,7 +1492,7 @@ class FormAddInfo extends StatelessWidget {
                 //                 tratamentoDeErros.showErrorSnackbar(context,
                 //                     'Por favor, insira todas as fotos');
                 //                 if (context.mounted) {
-                //                   print('contexto de erro1 aqui');
+                //                   debugPrint('contexto de erro1 aqui');
                 //                   context
                 //                       .read<ElevatedButtonBloc>()
                 //                       .add(ElevatedButtonActionCompleted());
@@ -1498,7 +1501,7 @@ class FormAddInfo extends StatelessWidget {
                 //                 }
                 //                 return;
                 //               }
-                //               print('inicio do envio');
+                //               debugPrint('inicio do envio');
                 //               bool success =
                 //                   await agenteServices.preAddUserInfos(
                 //                 uid!,
@@ -1513,7 +1516,7 @@ class FormAddInfo extends StatelessWidget {
                 //                 compDeResid,
                 //               );
                 //               if (success) {
-                //                 print('----------- sucessoo --------');
+                //                 debugPrint('----------- sucessoo --------');
                 //                 endereco.clear();
                 //                 cep.clear();
                 //                 celular.clear();
@@ -1544,7 +1547,7 @@ class FormAddInfo extends StatelessWidget {
                 //                   }
                 //                 }
                 //               } else {
-                //                 print('errooou');
+                //                 debugPrint('errooou');
                 //                 if (context.mounted) {
                 //                   context
                 //                       .read<ElevatedButtonBloc>()
@@ -2490,7 +2493,7 @@ class StepFour extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       child: Column(
         children: [
           BlocBuilder<CompResidBloc, CompResidState>(

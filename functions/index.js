@@ -271,10 +271,14 @@ const { ptBR } = require('date-fns/locale');
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-exports.getDistanceAndPolylineBetweenWaypoints = functions.https.onRequest((req, res) => {
+exports.getDistanceAndPolylineBetweenWaypoints = functions.runWith({
+    timeoutSeconds: 300,  // Define o tempo limite para 300 segundos (5 minutos)
+    memory: '1GB'         // Define a alocação de memória para 1GB
+}).https.onRequest((req, res) => {
     cors(req, res, async () => {
         //const now = new Date();
         ///console.log(now);
+        console.log('!!!!!!!!!!');
         const waypoints = req.body.waypoints;
         console.log(waypoints);
 
@@ -300,26 +304,32 @@ exports.getDistanceAndPolylineBetweenWaypoints = functions.https.onRequest((req,
                 polyline_quality: 'HIGH_QUALITY',
             });
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Goog-Api-Key': apiKey,
-                    'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.optimizedIntermediateWaypointIndex',
-                },
-                body
-            });
+            try {
 
-            if (!response.ok) {
-                res.status(500).send(`HTTP Error: -----> ${response.status, response.statusText}`);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Goog-Api-Key': apiKey,
+                        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.optimizedIntermediateWaypointIndex',
+                    },
+                    body
+                });
+
+
+                if (!response.ok) {
+                    res.status(500).send(`HTTP Error: -----> ${response.status, response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log(data);
+                return {
+                    distanceMeters: data.routes[0].distanceMeters,
+                    polyline: data.routes[0].polyline.encodedPolyline
+                };
+            } catch (e) {
+                console.log(e)
             }
-
-            const data = await response.json();
-            console.log(data);
-            return {
-                distanceMeters: data.routes[0].distanceMeters,
-                polyline: data.routes[0].polyline.encodedPolyline
-            };
         };
 
         let finalPoints = [];
@@ -341,29 +351,33 @@ exports.getDistanceAndPolylineBetweenWaypoints = functions.https.onRequest((req,
             const intermediates = (i === 0) ? waypoints.slice(i + 1, nextIndex) : waypoints.slice(i, nextIndex);
 
             const result = await createRequestBlock(origin, destination, intermediates);
+            if (result.distanceMeters > 0) {
             console.log(`distancia do bloco: ${result.distanceMeters}`);
-            totalDistanceMeters += result.distanceMeters;
+            
+                totalDistanceMeters += result.distanceMeters;
 
-            // Decodifique a polilinha do bloco atual para pontos
-            const points = mpPolyline.decode(result.polyline);
+                // Decodifique a polilinha do bloco atual para pontos
+                const points = mpPolyline.decode(result.polyline);
 
-            // Se não for o primeiro bloco, remova o primeiro ponto para evitar sobreposição
-            if (i > 0) {
-                console.log('removendo pontos');
-                points.shift();
-                // points.pop(); 
-                // points.shift();
-                // points.pop();
+                // Se não for o primeiro bloco, remova o primeiro ponto para evitar sobreposição
+                if (i > 0) {
+                    console.log('removendo pontos');
+                    points.shift();
+                    // points.pop(); 
+                    // points.shift();
+                    // points.pop();
+                }
+
+                // Adicione os pontos decodificados ao array final
+                finalPoints = finalPoints.concat(points);
             }
-
-            // Adicione os pontos decodificados ao array final
-            finalPoints = finalPoints.concat(points);
         }
 
         // Recodifique os pontos finais em uma polilinha
         const finalPolyline = mpPolyline.encode(finalPoints);
 
         const totalDistanceKilometers = totalDistanceMeters / 1000;
+        console.log(totalDistanceMeters);
         res.status(200).send({
             totalDistanceKm: totalDistanceKilometers.toFixed(2),
             polyline: finalPolyline

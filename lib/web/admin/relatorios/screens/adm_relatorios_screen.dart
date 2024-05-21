@@ -334,7 +334,7 @@ class _AdmRelatoriosScreenState extends State<AdmRelatoriosScreen> {
                               ResponsiveGridCol(
                                 xs: 3,
                                 md: 2,
-                                child: PieChartSample(),
+                                child: const PieChartSample(),
                               ),
                             ],
                           ),
@@ -504,7 +504,7 @@ class MissoesMensaisLineChart extends StatelessWidget {
           //color: Colors.blue,
         ),
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -535,13 +535,13 @@ class MissoesMensaisLineChart extends StatelessWidget {
                       show: true,
                       drawVerticalLine: true,
                       getDrawingHorizontalLine: (value) {
-                        return FlLine(
+                        return const FlLine(
                           color: Colors.grey,
                           strokeWidth: 1,
                         );
                       },
                       getDrawingVerticalLine: (value) {
-                        return FlLine(
+                        return const FlLine(
                           color: Colors.grey,
                           strokeWidth: 1,
                         );
@@ -583,25 +583,25 @@ class MissoesMensaisLineChart extends StatelessWidget {
                     lineBarsData: [
                       LineChartBarData(
                         spots: [
-                          FlSpot(1, 1),
-                          FlSpot(2, 3),
-                          FlSpot(3, 4),
-                          FlSpot(4, 3.5),
-                          FlSpot(5, 4.5),
-                          FlSpot(6, 5),
-                          FlSpot(7, 20),
-                          FlSpot(8, 4),
-                          FlSpot(9, 2),
-                          FlSpot(10, 2.5),
-                          FlSpot(11, 3),
-                          FlSpot(12, 3.5),
+                          const FlSpot(1, 1),
+                          const FlSpot(2, 3),
+                          const FlSpot(3, 4),
+                          const FlSpot(4, 3.5),
+                          const FlSpot(5, 4.5),
+                          const FlSpot(6, 5),
+                          const FlSpot(7, 20),
+                          const FlSpot(8, 4),
+                          const FlSpot(9, 2),
+                          const FlSpot(10, 2.5),
+                          const FlSpot(11, 3),
+                          const FlSpot(12, 3.5),
                         ],
                         showingIndicators: [5],
                         isCurved: true,
                         color: Colors.blue,
                         barWidth: 2,
                         isStrokeCapRound: true,
-                        dotData: FlDotData(show: false),
+                        dotData: const FlDotData(show: false),
                         belowBarData: BarAreaData(
                           show: true,
                         ),
@@ -619,6 +619,8 @@ class MissoesMensaisLineChart extends StatelessWidget {
 }
 
 class PieChartSample extends StatelessWidget {
+  const PieChartSample({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -659,7 +661,7 @@ class PieChartSample extends StatelessWidget {
           //color: Colors.blue,
         ),
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -717,8 +719,8 @@ class PieChartSample extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 15),
+              const Padding(
+                padding: EdgeInsets.only(top: 15),
                 child: Column(
                   children: [
                     // Legenda para 'Preservação'
@@ -744,8 +746,7 @@ class LegendWidget extends StatelessWidget {
   final Color color;
   final String text;
 
-  const LegendWidget({Key? key, required this.color, required this.text})
-      : super(key: key);
+  const LegendWidget({super.key, required this.color, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -760,7 +761,7 @@ class LegendWidget extends StatelessWidget {
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(text),
       ],
     );

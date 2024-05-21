@@ -32,7 +32,7 @@ import 'chatui_textfield.dart';
 
 class SendMessageWidget extends StatefulWidget {
   const SendMessageWidget({
-    Key? key,
+    super.key,
     required this.onSendTap,
     required this.chatController,
     this.sendMessageConfig,
@@ -40,7 +40,7 @@ class SendMessageWidget extends StatefulWidget {
     this.sendMessageBuilder,
     this.onReplyCallback,
     this.onReplyCloseCallback,
-  }) : super(key: key);
+  });
 
   /// Provides call back when user tap on send button on text field.
   final StringMessageCallBack onSendTap;

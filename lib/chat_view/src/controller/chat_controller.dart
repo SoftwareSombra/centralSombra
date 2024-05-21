@@ -100,8 +100,8 @@ class ChatController {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future<void> sendMessageToFirestore(Message message) async {
-    print(message.paraJson());
-    print('======= chegou aqui ==========');
+    debugPrint(message.paraJson().toString());
+    debugPrint('======= chegou aqui ==========');
     try {
       // Verifica se a mensagem é do tipo 'image' ou 'voice'
       if (message.messageType == MessageType.image ||
@@ -118,7 +118,7 @@ class ChatController {
           uploadTask =
               FirebaseStorage.instance.ref().child(filePath).putFile(file);
         } else {
-          print('======= chegou aqui, web ==========');
+          debugPrint('======= chegou aqui, web ==========');
           final response = await html.window.fetch(message.message);
           final blob = await response.blob();
           // String filePath = message.messageType == MessageType.voice
@@ -162,7 +162,7 @@ class ChatController {
       //addMessage(message);
       messageStreamController.sink.add(initialMessageList);
     } catch (e) {
-      print("Erro ao enviar mensagem: $e");
+      debugPrint("Erro ao enviar mensagem: $e");
     }
   }
 
@@ -199,8 +199,8 @@ class ChatController {
   }
 
   Future<void> sendMessageChatMissaoToFirestore(Message message) async {
-    print(message.paraJson());
-    print('======= chegou aqui ==========');
+    debugPrint(message.paraJson().toString());
+    debugPrint('======= chegou aqui ==========');
     try {
       // Verifica se a mensagem é do tipo 'image' ou 'voice'
       if (message.messageType == MessageType.image ||
@@ -217,7 +217,7 @@ class ChatController {
           uploadTask =
               FirebaseStorage.instance.ref().child(filePath).putFile(file);
         } else {
-          print('======= chegou aqui, web ==========');
+          debugPrint('======= chegou aqui, web ==========');
           final response = await html.window.fetch(message.message);
           final blob = await response.blob();
           // String filePath = message.messageType == MessageType.voice
@@ -266,7 +266,7 @@ class ChatController {
       //addMessage(message);
       messageStreamController.sink.add(initialMessageList);
     } catch (e) {
-      print("Erro ao enviar mensagem: $e");
+      debugPrint("Erro ao enviar mensagem: $e");
     }
   }
 
@@ -304,8 +304,8 @@ class ChatController {
 
   Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
       {newChatCollection}) async {
-    print(message.paraJson());
-    print('======= chegou aqui ==========');
+    debugPrint(message.paraJson().toString());
+    debugPrint('======= chegou aqui ==========');
     try {
       // Verifica se a mensagem é do tipo 'image' ou 'voice'
       if (message.messageType == MessageType.image ||
@@ -322,7 +322,7 @@ class ChatController {
           uploadTask =
               FirebaseStorage.instance.ref().child(filePath).putFile(file);
         } else {
-          print('======= chegou aqui, web ==========');
+          debugPrint('======= chegou aqui, web ==========');
           final response = await html.window.fetch(message.message);
           final blob = await response.blob();
           // String filePath = message.messageType == MessageType.voice
@@ -365,7 +365,7 @@ class ChatController {
       //addMessage(message);
       messageStreamController.sink.add(initialMessageList);
     } catch (e) {
-      print("Erro ao enviar mensagem: $e");
+      debugPrint("Erro ao enviar mensagem: $e");
     }
   }
 
@@ -450,7 +450,7 @@ class ChatController {
   /// Function for loading data while pagination.
   void loadMoreData(List<Message> messageList) {
     /// Here, we have passed 0 index as we need to add data before first data
-    print('======= chegou aqui, loadMoreData --------');
+    debugPrint('======= chegou aqui, loadMoreData --------');
     initialMessageList.insertAll(0, messageList);
     messageStreamController.sink.add(messageList);
     //startListeningForNewMessages(chatId);
@@ -458,7 +458,7 @@ class ChatController {
 
   /// Function for getting ChatUser object from user id
   ChatUser getUserFromId(String userId) {
-    debugPrint('getUserFromId: $userId');
+    debugPrint('buscando: $userId');
     debugPrint(
         'getUserFromId: ${chatUsers.firstWhere((element) => element.id == userId)}');
     return chatUsers.firstWhere((element) => element.id == userId);

@@ -19,8 +19,7 @@ class CentralMissaoChatScreen extends StatefulWidget {
   final String? agenteNome;
 
   const CentralMissaoChatScreen(
-      {Key? key, required this.missaoId, this.agenteUid, this.agenteNome})
-      : super(key: key);
+      {super.key, required this.missaoId, this.agenteUid, this.agenteNome});
 
   @override
   State<CentralMissaoChatScreen> createState() =>

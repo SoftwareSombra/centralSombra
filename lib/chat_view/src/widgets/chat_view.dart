@@ -31,7 +31,7 @@ import 'send_message_widget.dart';
 
 class ChatView extends StatefulWidget {
   const ChatView({
-    Key? key,
+    super.key,
     required this.chatController,
     required this.currentUser,
     this.onSendTap,
@@ -58,8 +58,7 @@ class ChatView extends StatefulWidget {
   })  : chatBackgroundConfig =
             chatBackgroundConfig ?? const ChatBackgroundConfiguration(),
         chatViewStateConfig =
-            chatViewStateConfig ?? const ChatViewStateConfiguration(),
-        super(key: key);
+            chatViewStateConfig ?? const ChatViewStateConfiguration();
 
   /// Provides configuration related to user profile circle avatar.
   final ProfileCircleConfiguration? profileCircleConfig;

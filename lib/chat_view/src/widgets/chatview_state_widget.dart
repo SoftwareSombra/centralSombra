@@ -5,11 +5,11 @@ import '../../chatview.dart';
 
 class ChatViewStateWidget extends StatelessWidget {
   const ChatViewStateWidget({
-    Key? key,
+    super.key,
     this.chatViewStateWidgetConfig,
     required this.chatViewState,
     this.onReloadButtonTap,
-  }) : super(key: key);
+  });
 
   /// Provides configuration of chat view's different states such as text styles,
   /// widgets and etc.

@@ -113,6 +113,7 @@ class MissaoRelatorio {
   final String? infos;
   final String? nome;
   final Timestamp? serverFim;
+  final String? infosComplementares;
 
   MissaoRelatorio({
     required this.cnpj,
@@ -140,6 +141,7 @@ class MissaoRelatorio {
     this.infos,
     this.nome,
     this.serverFim,
+    this.infosComplementares,
   });
 
   factory MissaoRelatorio.fromFirestore(Map<String, dynamic> data) {
@@ -177,6 +179,7 @@ class MissaoRelatorio {
       infos: data['infos'],
       nome: data['nome'] ?? '', // Valor padrão vazio
       serverFim: data['serverFim'],
+      infosComplementares: data['infosComplementares'],
     );
   }
 
@@ -207,6 +210,38 @@ class MissaoRelatorio {
       'infos': infos,
       'nome': nome,
       'serverFim': serverFim,
+      'infosComplementares': infosComplementares,
+    };
+  }
+
+  static Map<String, dynamic> objectToMap(MissaoRelatorio relatorio) {
+    return {
+      'cnpj': relatorio.cnpj,
+      'nome da empresa': relatorio.nomeDaEmpresa,
+      'placaCavalo': relatorio.placaCavalo,
+      'placaCarreta': relatorio.placaCarreta,
+      'motorista': relatorio.motorista,
+      'corVeiculo': relatorio.corVeiculo,
+      'observacao': relatorio.observacao,
+      'tipo': relatorio.tipo,
+      'missaoId': relatorio.missaoId,
+      'uid': relatorio.uid,
+      'userInitialLatitude': relatorio.userLatitude,
+      'userInitialLongitude': relatorio.userLongitude,
+      'userFinalLatitude': relatorio.userFinalLatitude,
+      'userFinalLongitude': relatorio.userFinalLongitude,
+      'missaoLatitude': relatorio.missaoLatitude,
+      'missaoLongitude': relatorio.missaoLongitude,
+      'local': relatorio.local,
+      'inicio': relatorio.inicio,
+      'fim': relatorio.fim,
+      //'fotos': relatorio.fotos?.map((e) => e.toMap()).toList(),
+      // 'fotosPosMissao':
+      //     relatorio.fotosPosMissao?.map((e) => e.toMap()).toList(),
+      'infos': relatorio.infos,
+      'nome': relatorio.nome,
+      'serverFim': relatorio.serverFim,
+      'infosComplementares': relatorio.infosComplementares,
     };
   }
 }
@@ -221,7 +256,7 @@ class Foto {
 
   factory Foto.fromMap(Map<String, dynamic> data) {
     return Foto(
-      caption: data['caption'],
+      caption: data['caption'] ?? '',
       timestamp: data['timestamp'] ?? //valor zerado se for nulo
           Timestamp.fromDate(DateTime.fromMillisecondsSinceEpoch(0)),
       url: data['url'],
@@ -234,6 +269,8 @@ class Foto {
       'timestamp': timestamp.toDate().toIso8601String(),
     };
   }
+
+  
 }
 
 // class FotoIncremento {

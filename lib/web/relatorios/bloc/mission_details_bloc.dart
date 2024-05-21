@@ -9,6 +9,7 @@ import '../../../chat_view/src/models/message.dart';
 import '../../../missao/model/missao_model.dart';
 import '../../../missao/services/missao_services.dart';
 import '../../home/screens/mapa_teste.dart';
+import '../services/relatorio_services.dart';
 import 'mission_details_event.dart';
 import 'mission_details_state.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -21,6 +22,7 @@ class MissionDetailsBloc
   MissionDetailsBloc() : super(MissionDetailsInitial()) {
     MissaoServices missaoServices = MissaoServices();
     ChatServices chatServices = ChatServices();
+    RelatorioServices relatorioServices = RelatorioServices();
     on<FetchMissionDetails>(
       (event, emit) async {
         debugPrint('entrou no fetchMissionDetails');
@@ -127,13 +129,20 @@ class MissionDetailsBloc
           List<Message>? messages =
               await chatServices.buscarChatMissao(event.missaoId);
 
-          messages != null ? debugPrint(' ---------> CHAT encontrado com sucesso !!!!!!!')
+          messages != null
+              ? debugPrint(' ---------> CHAT encontrado com sucesso !!!!!!!')
               : null;
 
-          //print de cada campo da missao
+          Foto? odometroInicial = await relatorioServices
+              .buscarFotoOdometroInicial(event.uid, event.missaoId);
+
+          Foto? odometroFinal = await relatorioServices.buscarFotoOdometroFinal(
+              event.uid, event.missaoId);
+
+          //debugPrint de cada campo da missao
 
           if (missao != null) {
-            print('missao: ${missao.toMap()}');
+            debugPrint('missao: ${missao.toMap()}');
             emit(MissionDetailsLoaded(
                 missao,
                 initialPosition,
@@ -144,7 +153,9 @@ class MissionDetailsBloc
                 //route,
                 middleLocation,
                 distancia,
-                messages));
+                messages,
+                odometroInicial,
+                odometroFinal));
           } else {
             emit(RelatorioNaoEncontrado('Relatório não encontrado'));
           }
@@ -171,7 +182,7 @@ class MissionDetailsBloc
 
     // Cria um Polyline
     gmap.Polyline polyline = gmap.Polyline(
-      polylineId: gmap.PolylineId("polyline_id"),
+      polylineId: const gmap.PolylineId("polyline_id"),
       points: polylineCoordinates,
       color: Colors.red,
       width: 5,
@@ -207,7 +218,7 @@ class MissionDetailsBloc
   List<CoordenadaComTimestamp> filtrarPontosProximos(
       List<CoordenadaComTimestamp> locations) {
     List<CoordenadaComTimestamp> pontosFiltrados = [];
-    final Distance distancia = Distance();
+    const Distance distancia = Distance();
 
     // Adicionar o primeiro ponto
     if (locations.isNotEmpty) {
@@ -381,7 +392,7 @@ class MissionDetailsBloc
     }
 
     List<CoordenadaComTimestamp> resultado = [];
-    final Distance calculadoraDistancia = Distance();
+    const Distance calculadoraDistancia = Distance();
 
     for (int i = 1; i < coordenadas.length; i++) {
       final coordenadaAtual = coordenadas[i];
@@ -734,6 +745,7 @@ class MissionDetailsBloc
       debugPrint("Stack trace: $s");
       //return [];
     }
+    return null;
   }
 
   //funcao com o package latlong2 para calcular a distancia de uma rota em km, somando um ponto ao próximo

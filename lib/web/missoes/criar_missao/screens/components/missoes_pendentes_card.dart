@@ -17,7 +17,7 @@ class MissaoPendenteCard extends StatelessWidget {
     final double width = MediaQuery.of(context).size.width;
 
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Container(
         height: 300,
         decoration: BoxDecoration(

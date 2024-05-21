@@ -8,9 +8,6 @@ import 'components/form.dart';
 class AddUser extends StatelessWidget {
   AddUser({super.key});
 
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override

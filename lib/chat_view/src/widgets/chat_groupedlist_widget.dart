@@ -42,7 +42,7 @@ import 'type_indicator_widget.dart';
 
 class ChatGroupedListWidget extends StatefulWidget {
   const ChatGroupedListWidget({
-    Key? key,
+    super.key,
     required this.showPopUp,
     required this.showTypingIndicator,
     required this.scrollController,
@@ -58,7 +58,7 @@ class ChatGroupedListWidget extends StatefulWidget {
     this.swipeToReplyConfig,
     this.repliedMessageConfig,
     this.typeIndicatorConfig,
-  }) : super(key: key);
+  });
 
   /// Allow user to swipe to see time while reaction pop is not open.
   final bool showPopUp;
@@ -356,11 +356,10 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
 
 class _GroupSeparatorBuilder extends StatelessWidget {
   const _GroupSeparatorBuilder({
-    Key? key,
     required this.separator,
     this.groupSeparatorBuilder,
     this.defaultGroupSeparatorConfig,
-  }) : super(key: key);
+  });
   final String separator;
   final StringWithReturnWidget? groupSeparatorBuilder;
   final DefaultGroupSeparatorConfiguration? defaultGroupSeparatorConfig;

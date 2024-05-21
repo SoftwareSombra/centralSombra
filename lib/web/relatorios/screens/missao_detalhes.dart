@@ -23,6 +23,7 @@ import '../../../missao/model/missao_model.dart';
 import '../bloc/mission_details_bloc.dart';
 import '../bloc/mission_details_event.dart';
 import '../bloc/mission_details_state.dart';
+import '../components/edit_relatorio_dialog.dart';
 import 'pdf_screen.dart';
 import 'dart:ui' as ui;
 
@@ -61,6 +62,9 @@ class _MissionDetailsState extends State<MissionDetails> {
   bool fotosPosMissaoChecked = true;
   bool rotaChecked = true;
   bool messagesChecked = true;
+  bool infosComplementaresChecked = true;
+  bool odometroInicialChecked = true;
+  bool odometroFinalChecked = true;
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
   MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
@@ -173,7 +177,7 @@ class _MissionDetailsState extends State<MissionDetails> {
       List<CoordenadaComTimestamp> locations,
       double? latitude,
       double? longitude) {
-    Set<gmap.Marker> markers = Set();
+    Set<gmap.Marker> markers = {};
 
     for (var location in locations) {
       String iso = location.timestamp.toIso8601String();
@@ -232,13 +236,13 @@ class _MissionDetailsState extends State<MissionDetails> {
             if (state is MissionDetailsLoaded) {
               debugPrint(' ----------> MISSAO CARREGADA !!!!!!!!!');
               // Acessando a missão carregada
-              MissaoRelatorio missao = state.missoes;
+              MissaoRelatorio missao = state.missao;
 
               debugPrint('!!! MISSAO DECLARADA !!!');
               Set<gmap.Marker> markers = _createMarkersFromLocations(
                   state.locations!,
-                  state.missoes.missaoLatitude,
-                  state.missoes.missaoLongitude);
+                  state.missao.missaoLatitude,
+                  state.missao.missaoLongitude);
               int limiteDeFotos = 4;
 
               state.messages
@@ -338,41 +342,72 @@ class _MissionDetailsState extends State<MissionDetails> {
                               //   Spacer(),
 
                               // Botão no final
-                              ElevatedButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => PdfScreen(
-                                      missao: missao,
-                                      distanciaValue: state.distancia,
-                                      locations: state.locations,
-                                      messages: state.messages,
-                                      missaoId: widget.missaoId,
-                                      agenteId: widget.agenteId,
-                                      tipo: tipoChecked,
-                                      cnpj: cnpjChecked,
-                                      nomeDaEmpresa: nomeEmpresaChecked,
-                                      local: localChecked,
-                                      placaCavalo: placaCavaloChecked,
-                                      placaCarreta: placaCarretaChecked,
-                                      nomeMotorista: motoristaChecked,
-                                      cor: corVeiculoChecked,
-                                      obs: observacaoChecked,
-                                      inicio: inicioChecked,
-                                      fim: fimChecked,
-                                      infos: infosChecked,
-                                      distancia: distanciaChecked,
-                                      fotos: fotosChecked,
-                                      fotosPos: fotosPosMissaoChecked,
-                                      mapa: rotaChecked,
-                                      showMessages: messagesChecked,
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            EditRelatorioDialog(
+                                          relatorio: state.missao,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'EDITAR',
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                  );
-                                },
-                                child: const Text(
-                                  'PDF',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => PdfScreen(
+                                          missao: missao,
+                                          distanciaValue: state.distancia,
+                                          locations: state.locations,
+                                          messages: state.messages,
+                                          odometroInicial:
+                                              state.odometroInicial,
+                                          odometroFinal: state.odometroFinal,
+                                          missaoId: widget.missaoId,
+                                          agenteId: widget.agenteId,
+                                          tipo: tipoChecked,
+                                          cnpj: cnpjChecked,
+                                          nomeDaEmpresa: nomeEmpresaChecked,
+                                          local: localChecked,
+                                          placaCavalo: placaCavaloChecked,
+                                          placaCarreta: placaCarretaChecked,
+                                          nomeMotorista: motoristaChecked,
+                                          cor: corVeiculoChecked,
+                                          obs: observacaoChecked,
+                                          inicio: inicioChecked,
+                                          fim: fimChecked,
+                                          infos: infosChecked,
+                                          distancia: distanciaChecked,
+                                          fotos: fotosChecked,
+                                          fotosPos: fotosPosMissaoChecked,
+                                          mapa: rotaChecked,
+                                          showMessages: messagesChecked,
+                                          infosComplementares:
+                                              infosComplementaresChecked,
+                                          showOdometroInicial:
+                                              odometroInicialChecked,
+                                          showOdometroFinal:
+                                              odometroFinalChecked,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'PDF',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -470,8 +505,14 @@ class _MissionDetailsState extends State<MissionDetails> {
                                       (val) => setState(
                                           () => serverFimChecked = val!)),
                                   buildDataItem(
-                                      'Informações: ',
+                                      'Informações da missão: ',
                                       missao.infos ?? '',
+                                      infosChecked,
+                                      (val) =>
+                                          setState(() => infosChecked = val!)),
+                                  buildDataItem(
+                                      'Informações complementares: ',
+                                      missao.infosComplementares ?? '',
                                       infosChecked,
                                       (val) =>
                                           setState(() => infosChecked = val!)),
@@ -549,6 +590,148 @@ class _MissionDetailsState extends State<MissionDetails> {
                                             ],
                                           ),
                                         ),
+                                      ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'Odometro inicial',
+                                    style: TextStyle(
+                                        fontFamily: AutofillHints.jobTitle,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                state.odometroInicial == null
+                                    ? const Center(
+                                        child: Text('Nenhuma foto enviada'),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Checkbox(
+                                            checkColor: Colors.green,
+                                            activeColor: Colors.white,
+                                            side: const BorderSide(
+                                                color: Colors.white),
+                                            value: odometroInicialChecked,
+                                            onChanged: (val) => setState(() =>
+                                                odometroInicialChecked = val!),
+                                          ),
+                                          SizedBox(
+                                            height: 150,
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: 1,
+                                              itemBuilder: (context, index) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: GestureDetector(
+                                                    onTap: () => showImageDialog(
+                                                        context,
+                                                        state.odometroInicial!
+                                                            .url,
+                                                        state.odometroInicial!
+                                                            .caption),
+                                                    child: Container(
+                                                      width: 150,
+                                                      height: 150,
+                                                      decoration: BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: NetworkImage(state
+                                                              .odometroInicial!
+                                                              .url),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'Odometro final',
+                                    style: TextStyle(
+                                        fontFamily: AutofillHints.jobTitle,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                state.odometroFinal == null
+                                    ? const Center(
+                                        child: Text('Nenhuma foto enviada'),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Checkbox(
+                                            checkColor: Colors.green,
+                                            activeColor: Colors.white,
+                                            side: const BorderSide(
+                                                color: Colors.white),
+                                            value: odometroFinalChecked,
+                                            onChanged: (val) => setState(() =>
+                                                odometroFinalChecked = val!),
+                                          ),
+                                          SizedBox(
+                                            height: 150,
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: 1,
+                                              itemBuilder: (context, index) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: GestureDetector(
+                                                    onTap: () =>
+                                                        showImageDialog(
+                                                            context,
+                                                            state.odometroFinal!
+                                                                .url,
+                                                            state.odometroFinal!
+                                                                .caption),
+                                                    child: Container(
+                                                      width: 150,
+                                                      height: 150,
+                                                      decoration: BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: NetworkImage(
+                                                              state
+                                                                  .odometroFinal!
+                                                                  .url),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                 const SizedBox(
                                   height: 25,
@@ -759,135 +942,141 @@ class _MissionDetailsState extends State<MissionDetails> {
                                     : const SizedBox.shrink(),
                                 state.messages != null
                                     ? Card(
-                                        child: LayoutBuilder(
-                                          builder: (BuildContext context,
-                                              BoxConstraints constraints) {
-                                            return ConstrainedBox(
-                                              constraints: const BoxConstraints(
-                                                maxWidth:
-                                                    800, // Use maxWidth como a largura máxima
-                                              ),
-                                              child: GroupedListView<Message,
-                                                  String>(
-                                                shrinkWrap: true,
-                                                elements: state.messages!,
-                                                groupBy: (element) => element
-                                                    .createdAt
-                                                    .getDateFromDateTime,
-                                                itemComparator: (message1,
-                                                        message2) =>
-                                                    message1.createdAt
-                                                        .compareTo(
-                                                            message2.createdAt),
-                                                physics:
-                                                    const NeverScrollableScrollPhysics(),
-                                                sort: true,
-                                                groupSeparatorBuilder: (separator) =>
-                                                    featureActiveConfig
-                                                                ?.enableChatSeparator ??
-                                                            false
-                                                        ? _GroupSeparatorBuilder(
-                                                            separator:
-                                                                separator,
-                                                            defaultGroupSeparatorConfig:
-                                                                DefaultGroupSeparatorConfiguration(
-                                                              textStyle:
-                                                                  TextStyle(
-                                                                color: theme
-                                                                    .chatHeaderColor,
-                                                                fontSize: 17,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: LayoutBuilder(
+                                            builder: (BuildContext context,
+                                                BoxConstraints constraints) {
+                                              return ConstrainedBox(
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  maxWidth:
+                                                      800, // Use maxWidth como a largura máxima
+                                                ),
+                                                child: GroupedListView<Message,
+                                                    String>(
+                                                  shrinkWrap: true,
+                                                  elements: state.messages!,
+                                                  groupBy: (element) => element
+                                                      .createdAt
+                                                      .getDateFromDateTime,
+                                                  itemComparator: (message1,
+                                                          message2) =>
+                                                      message1.createdAt
+                                                          .compareTo(message2
+                                                              .createdAt),
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  sort: true,
+                                                  groupSeparatorBuilder: (separator) =>
+                                                      featureActiveConfig
+                                                                  ?.enableChatSeparator ??
+                                                              false
+                                                          ? _GroupSeparatorBuilder(
+                                                              separator:
+                                                                  separator,
+                                                              defaultGroupSeparatorConfig:
+                                                                  DefaultGroupSeparatorConfiguration(
+                                                                textStyle:
+                                                                    TextStyle(
+                                                                  color: theme
+                                                                      .chatHeaderColor,
+                                                                  fontSize: 17,
+                                                                ),
                                                               ),
-                                                            ),
-                                                            groupSeparatorBuilder:
-                                                                const ChatBackgroundConfiguration()
-                                                                    .groupSeparatorBuilder,
-                                                          )
-                                                        : const SizedBox
-                                                            .shrink(),
-                                                indexedItemBuilder:
-                                                    (context, message, index) {
-                                                  debugPrint(message.message);
-                                                  return ValueListenableBuilder<
-                                                      String?>(
-                                                    valueListenable: _replyId,
-                                                    builder: (context, state,
-                                                        child) {
-                                                      debugPrint(
-                                                          'replyId: ${_replyId.toString()}');
-                                                      return RelatorioChatBubbleWidget(
-                                                        chatBubbleConfig:
-                                                            ChatBubbleConfiguration(
-                                                          outgoingChatBubbleConfig:
-                                                              ChatBubble(
-                                                            linkPreviewConfig:
-                                                                LinkPreviewConfiguration(
-                                                              backgroundColor: theme
-                                                                  .linkPreviewOutgoingChatColor,
-                                                              bodyStyle: theme
-                                                                  .outgoingChatLinkBodyStyle,
-                                                              titleStyle: theme
-                                                                  .outgoingChatLinkTitleStyle,
-                                                            ),
-                                                            receiptsWidgetConfig:
-                                                                const ReceiptsWidgetConfig(
-                                                                    showReceiptsIn:
-                                                                        ShowReceiptsIn
-                                                                            .all),
-                                                            color: theme
-                                                                .outgoingChatBubbleColor,
-                                                          ),
-                                                          inComingChatBubbleConfig:
-                                                              ChatBubble(
-                                                            linkPreviewConfig:
-                                                                LinkPreviewConfiguration(
-                                                              linkStyle:
-                                                                  TextStyle(
-                                                                color: theme
-                                                                    .inComingChatBubbleTextColor,
-                                                                decoration:
-                                                                    TextDecoration
-                                                                        .underline,
+                                                              groupSeparatorBuilder:
+                                                                  const ChatBackgroundConfiguration()
+                                                                      .groupSeparatorBuilder,
+                                                            )
+                                                          : const SizedBox
+                                                              .shrink(),
+                                                  indexedItemBuilder: (context,
+                                                      message, index) {
+                                                    debugPrint(message.message);
+                                                    return ValueListenableBuilder<
+                                                        String?>(
+                                                      valueListenable: _replyId,
+                                                      builder: (context, state,
+                                                          child) {
+                                                        debugPrint(
+                                                            'replyId: ${_replyId.toString()}');
+                                                        return RelatorioChatBubbleWidget(
+                                                          chatBubbleConfig:
+                                                              ChatBubbleConfiguration(
+                                                            outgoingChatBubbleConfig:
+                                                                ChatBubble(
+                                                              linkPreviewConfig:
+                                                                  LinkPreviewConfiguration(
+                                                                backgroundColor:
+                                                                    theme
+                                                                        .linkPreviewOutgoingChatColor,
+                                                                bodyStyle: theme
+                                                                    .outgoingChatLinkBodyStyle,
+                                                                titleStyle: theme
+                                                                    .outgoingChatLinkTitleStyle,
                                                               ),
-                                                              backgroundColor: theme
-                                                                  .linkPreviewIncomingChatColor,
-                                                              bodyStyle: theme
-                                                                  .incomingChatLinkBodyStyle,
-                                                              titleStyle: theme
-                                                                  .incomingChatLinkTitleStyle,
+                                                              receiptsWidgetConfig:
+                                                                  const ReceiptsWidgetConfig(
+                                                                      showReceiptsIn:
+                                                                          ShowReceiptsIn
+                                                                              .all),
+                                                              color: theme
+                                                                  .outgoingChatBubbleColor,
                                                             ),
-                                                            textStyle: TextStyle(
-                                                                color: theme
-                                                                    .inComingChatBubbleTextColor),
-                                                            onMessageRead:
-                                                                (message) {
-                                                              /// send your message reciepts to the other client
-                                                              debugPrint(
-                                                                  'Message Read');
-                                                            },
-                                                            senderNameTextStyle:
-                                                                TextStyle(
-                                                                    color: theme
-                                                                        .inComingChatBubbleTextColor),
-                                                            color: theme
-                                                                .inComingChatBubbleColor,
+                                                            inComingChatBubbleConfig:
+                                                                ChatBubble(
+                                                              linkPreviewConfig:
+                                                                  LinkPreviewConfiguration(
+                                                                linkStyle:
+                                                                    TextStyle(
+                                                                  color: theme
+                                                                      .inComingChatBubbleTextColor,
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .underline,
+                                                                ),
+                                                                backgroundColor:
+                                                                    theme
+                                                                        .linkPreviewIncomingChatColor,
+                                                                bodyStyle: theme
+                                                                    .incomingChatLinkBodyStyle,
+                                                                titleStyle: theme
+                                                                    .incomingChatLinkTitleStyle,
+                                                              ),
+                                                              textStyle: TextStyle(
+                                                                  color: theme
+                                                                      .inComingChatBubbleTextColor),
+                                                              onMessageRead:
+                                                                  (message) {
+                                                                /// send your message reciepts to the other client
+                                                                debugPrint(
+                                                                    'Message Read');
+                                                              },
+                                                              senderNameTextStyle:
+                                                                  TextStyle(
+                                                                      color: theme
+                                                                          .inComingChatBubbleTextColor),
+                                                              color: theme
+                                                                  .inComingChatBubbleColor,
+                                                            ),
                                                           ),
-                                                        ),
-                                                        chatControllerParam:
-                                                            _chatController,
-                                                        messageTimeTextStyle:
-                                                            ChatBackgroundConfiguration()
-                                                                .messageTimeTextStyle,
-                                                        messageTimeIconColor:
-                                                            ChatBackgroundConfiguration()
-                                                                .messageTimeIconColor,
-                                                        message: message,
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          },
+                                                          chatControllerParam:
+                                                              _chatController,
+                                                          messageTimeTextStyle:
+                                                              const ChatBackgroundConfiguration()
+                                                                  .messageTimeTextStyle,
+                                                          messageTimeIconColor:
+                                                              const ChatBackgroundConfiguration()
+                                                                  .messageTimeIconColor,
+                                                          message: message,
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                          ),
                                         ),
                                       )
                                     : const SizedBox.shrink(),
@@ -1232,8 +1421,26 @@ class _MissionDetailsState extends State<MissionDetails> {
                                         fotosPosMissao: fotosPosMissaoChecked
                                             ? missao.fotosPosMissao
                                             : null,
+                                        odometroInicial:
+                                            odometroInicialChecked &&
+                                                    state.odometroInicial !=
+                                                        null
+                                                ? state.odometroInicial
+                                                : null,
+                                        odometroFinal: odometroFinalChecked &&
+                                                state.odometroFinal != null
+                                            ? state.odometroFinal
+                                            : null,
+                                        messages: messagesChecked &&
+                                                state.messages != null
+                                            ? state.messages
+                                            : null,
                                         infos:
                                             infosChecked ? missao.infos : null,
+                                        infosComplementares:
+                                            infosComplementaresChecked
+                                                ? missao.infosComplementares
+                                                : null,
                                         distancia: distanciaChecked
                                             ? state.distancia
                                             : null,
@@ -1542,107 +1749,59 @@ class RelatorioChatAppTheme {
 
 class RelatorioChatDarkTheme extends RelatorioChatAppTheme {
   RelatorioChatDarkTheme({
-    Color flashingCircleDarkColor = Colors.grey,
-    Color flashingCircleBrightColor = const Color(0xffeeeeee),
-    TextStyle incomingChatLinkTitleStyle = const TextStyle(color: Colors.black),
-    TextStyle outgoingChatLinkTitleStyle = const TextStyle(color: Colors.white),
-    TextStyle outgoingChatLinkBodyStyle = const TextStyle(color: Colors.white),
-    TextStyle incomingChatLinkBodyStyle = const TextStyle(color: Colors.white),
-    double elevation = 1,
-    Color repliedTitleTextColor = Colors.white,
-    Color? swipeToReplyIconColor = Colors.white,
-    Color textFieldTextColor = Colors.white,
-    Color appBarColor = const Color.fromARGB(255, 27, 31, 37),
-    Color backArrowColor = Colors.white,
-    Color backgroundColor = const Color.fromARGB(255, 35, 42, 54),
-    Color replyDialogColor = const Color.fromARGB(255, 35, 43, 54),
-    Color linkPreviewOutgoingChatColor = const Color.fromARGB(255, 35, 43, 54),
-    Color linkPreviewIncomingChatColor =
+    Color super.flashingCircleDarkColor = Colors.grey,
+    Color super.flashingCircleBrightColor = const Color(0xffeeeeee),
+    TextStyle super.incomingChatLinkTitleStyle = const TextStyle(color: Colors.black),
+    TextStyle super.outgoingChatLinkTitleStyle = const TextStyle(color: Colors.white),
+    TextStyle super.outgoingChatLinkBodyStyle = const TextStyle(color: Colors.white),
+    TextStyle super.incomingChatLinkBodyStyle = const TextStyle(color: Colors.white),
+    double super.elevation = 1,
+    Color super.repliedTitleTextColor = Colors.white,
+    super.swipeToReplyIconColor = Colors.white,
+    Color super.textFieldTextColor = Colors.white,
+    Color super.appBarColor = const Color.fromARGB(255, 27, 31, 37),
+    Color super.backArrowColor = Colors.white,
+    Color super.backgroundColor = const Color.fromARGB(255, 35, 42, 54),
+    Color super.replyDialogColor = const Color.fromARGB(255, 35, 43, 54),
+    Color super.linkPreviewOutgoingChatColor = const Color.fromARGB(255, 35, 43, 54),
+    Color super.linkPreviewIncomingChatColor =
         const Color.fromARGB(255, 133, 180, 255),
-    TextStyle linkPreviewIncomingTitleStyle = const TextStyle(),
-    TextStyle linkPreviewOutgoingTitleStyle = const TextStyle(),
-    Color replyTitleColor = Colors.white,
-    Color textFieldBackgroundColor = const Color.fromARGB(255, 36, 54, 102),
-    Color outgoingChatBubbleColor = Colors.blue,
-    Color inComingChatBubbleColor = const Color.fromARGB(255, 49, 64, 82),
-    Color reactionPopupColor = const Color.fromARGB(255, 49, 63, 82),
-    Color replyPopupColor = const Color.fromARGB(255, 49, 64, 82),
-    Color replyPopupButtonColor = Colors.white,
-    Color replyPopupTopBorderColor = Colors.black54,
-    Color reactionPopupTitleColor = Colors.white,
-    Color inComingChatBubbleTextColor = Colors.white,
-    Color repliedMessageColor = const Color.fromARGB(255, 133, 178, 255),
-    Color closeIconColor = Colors.white,
-    Color shareIconBackgroundColor = const Color.fromARGB(255, 49, 60, 82),
-    Color sendButtonColor = Colors.white,
-    Color cameraIconColor = const Color(0xff757575),
-    Color galleryIconColor = const Color(0xff757575),
+    TextStyle super.linkPreviewIncomingTitleStyle = const TextStyle(),
+    TextStyle super.linkPreviewOutgoingTitleStyle = const TextStyle(),
+    Color super.replyTitleColor = Colors.white,
+    Color super.textFieldBackgroundColor = const Color.fromARGB(255, 36, 54, 102),
+    Color super.outgoingChatBubbleColor = Colors.blue,
+    Color super.inComingChatBubbleColor = const Color.fromARGB(255, 49, 64, 82),
+    Color super.reactionPopupColor = const Color.fromARGB(255, 49, 63, 82),
+    Color super.replyPopupColor = const Color.fromARGB(255, 49, 64, 82),
+    Color super.replyPopupButtonColor = Colors.white,
+    Color super.replyPopupTopBorderColor = Colors.black54,
+    Color super.reactionPopupTitleColor = Colors.white,
+    Color super.inComingChatBubbleTextColor = Colors.white,
+    Color super.repliedMessageColor = const Color.fromARGB(255, 133, 178, 255),
+    Color super.closeIconColor = Colors.white,
+    Color super.shareIconBackgroundColor = const Color.fromARGB(255, 49, 60, 82),
+    Color super.sendButtonColor = Colors.white,
+    Color super.cameraIconColor = const Color(0xff757575),
+    Color super.galleryIconColor = const Color(0xff757575),
     Color recorderIconColor = const Color(0xff757575),
-    Color stopIconColor = const Color(0xff757575),
-    Color replyMessageColor = Colors.grey,
-    Color appBarTitleTextStyle = Colors.white,
-    Color messageReactionBackGroundColor =
+    Color super.stopIconColor = const Color(0xff757575),
+    Color super.replyMessageColor = Colors.grey,
+    Color super.appBarTitleTextStyle = Colors.white,
+    Color super.messageReactionBackGroundColor =
         const Color.fromARGB(255, 31, 45, 79),
-    Color messageReactionBorderColor = const Color.fromARGB(255, 29, 52, 88),
-    Color verticalBarColor = const Color.fromARGB(255, 34, 53, 87),
-    Color chatHeaderColor = Colors.white,
-    Color themeIconColor = Colors.white,
-    Color shareIconColor = Colors.white,
-    Color messageTimeIconColor = Colors.white,
-    Color messageTimeTextColor = Colors.white,
-    Color waveformBackgroundColor = const Color.fromARGB(255, 22, 36, 78),
-    Color waveColor = Colors.white,
-    Color replyMicIconColor = Colors.white,
+    Color super.messageReactionBorderColor = const Color.fromARGB(255, 29, 52, 88),
+    Color super.verticalBarColor = const Color.fromARGB(255, 34, 53, 87),
+    Color super.chatHeaderColor = Colors.white,
+    Color super.themeIconColor = Colors.white,
+    Color super.shareIconColor = Colors.white,
+    Color super.messageTimeIconColor = Colors.white,
+    Color super.messageTimeTextColor = Colors.white,
+    Color super.waveformBackgroundColor = const Color.fromARGB(255, 22, 36, 78),
+    Color super.waveColor = Colors.white,
+    Color super.replyMicIconColor = Colors.white,
   }) : super(
-          closeIconColor: closeIconColor,
-          verticalBarColor: verticalBarColor,
-          textFieldBackgroundColor: textFieldBackgroundColor,
-          replyTitleColor: replyTitleColor,
-          replyDialogColor: replyDialogColor,
-          backgroundColor: backgroundColor,
-          appBarColor: appBarColor,
-          appBarTitleTextStyle: appBarTitleTextStyle,
-          backArrowColor: backArrowColor,
-          chatHeaderColor: chatHeaderColor,
-          inComingChatBubbleColor: inComingChatBubbleColor,
-          inComingChatBubbleTextColor: inComingChatBubbleTextColor,
-          messageReactionBackGroundColor: messageReactionBackGroundColor,
-          messageReactionBorderColor: messageReactionBorderColor,
-          outgoingChatBubbleColor: outgoingChatBubbleColor,
-          repliedMessageColor: repliedMessageColor,
-          replyMessageColor: replyMessageColor,
-          sendButtonColor: sendButtonColor,
-          shareIconBackgroundColor: shareIconBackgroundColor,
-          themeIconColor: themeIconColor,
-          shareIconColor: shareIconColor,
-          elevation: elevation,
-          messageTimeIconColor: messageTimeIconColor,
-          messageTimeTextColor: messageTimeTextColor,
-          textFieldTextColor: textFieldTextColor,
-          repliedTitleTextColor: repliedTitleTextColor,
-          swipeToReplyIconColor: swipeToReplyIconColor,
-          reactionPopupColor: reactionPopupColor,
-          replyPopupColor: replyPopupColor,
-          replyPopupButtonColor: replyPopupButtonColor,
-          replyPopupTopBorderColor: replyPopupTopBorderColor,
-          reactionPopupTitleColor: reactionPopupTitleColor,
-          linkPreviewOutgoingChatColor: linkPreviewOutgoingChatColor,
-          linkPreviewIncomingChatColor: linkPreviewIncomingChatColor,
-          linkPreviewIncomingTitleStyle: linkPreviewIncomingTitleStyle,
-          linkPreviewOutgoingTitleStyle: linkPreviewOutgoingTitleStyle,
-          incomingChatLinkBodyStyle: incomingChatLinkBodyStyle,
-          incomingChatLinkTitleStyle: incomingChatLinkTitleStyle,
-          outgoingChatLinkBodyStyle: outgoingChatLinkBodyStyle,
-          outgoingChatLinkTitleStyle: outgoingChatLinkTitleStyle,
-          flashingCircleDarkColor: flashingCircleDarkColor,
-          flashingCircleBrightColor: flashingCircleBrightColor,
-          galleryIconColor: galleryIconColor,
-          cameraIconColor: cameraIconColor,
           recordIconColor: recorderIconColor,
-          stopIconColor: stopIconColor,
-          waveformBackgroundColor: waveformBackgroundColor,
-          waveColor: waveColor,
-          replyMicIconColor: replyMicIconColor,
         );
 }
 
@@ -1752,11 +1911,10 @@ class RelatorioChatLightTheme extends RelatorioChatAppTheme {
 
 class _GroupSeparatorBuilder extends StatelessWidget {
   const _GroupSeparatorBuilder({
-    Key? key,
     required this.separator,
     this.groupSeparatorBuilder,
     this.defaultGroupSeparatorConfig,
-  }) : super(key: key);
+  });
   final String separator;
   final StringWithReturnWidget? groupSeparatorBuilder;
   final DefaultGroupSeparatorConfiguration? defaultGroupSeparatorConfig;

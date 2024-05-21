@@ -28,7 +28,7 @@ import 'reaction_widget.dart';
 
 class TextMessageView extends StatelessWidget {
   const TextMessageView({
-    Key? key,
+    super.key,
     required this.isMessageBySender,
     required this.message,
     this.chatBubbleMaxWidth,
@@ -37,7 +37,7 @@ class TextMessageView extends StatelessWidget {
     this.messageReactionConfig,
     this.highlightMessage = false,
     this.highlightColor,
-  }) : super(key: key);
+  });
 
   /// Represents current message is sent by current user.
   final bool isMessageBySender;

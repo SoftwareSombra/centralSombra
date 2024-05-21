@@ -706,7 +706,7 @@ class _MissaoScreenState extends State<MissaoScreen> {
                                                             labelText:
                                                                 'Digite sua mensagem aqui',
                                                             labelStyle:
-                                                                TextStyle(
+                                                                const TextStyle(
                                                                     color: Colors
                                                                         .grey),
                                                             enabledBorder:

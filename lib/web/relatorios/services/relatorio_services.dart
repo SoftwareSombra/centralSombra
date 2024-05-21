@@ -4,10 +4,11 @@ import 'package:intl/intl.dart';
 import '../../../missao/model/missao_model.dart';
 import '../../home/screens/mapa_teste.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
-
 import '../models/relatorio_cliente.dart';
 
 class RelatorioServices {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   Future<MissaoRelatorio?> buscarRelatorio(uid, missaoId) async {
     debugPrint('UID: $uid');
     debugPrint('MissaoID: $missaoId');
@@ -74,6 +75,82 @@ class RelatorioServices {
     todasMissoes.sort((a, b) => b!.serverFim!.compareTo(a!.serverFim!));
 
     return todasMissoes;
+  }
+
+  Future<void> editarRelatorio(MissaoRelatorio relatorio) async {
+    try {
+      await firestore
+          .collection('Relatórios')
+          .doc(relatorio.uid)
+          .collection('Missões')
+          .doc(relatorio.missaoId)
+          .update(
+            MissaoRelatorio.objectToMap(relatorio),
+            //SetOptions(merge: true),
+          );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Foto?> buscarFotoOdometroInicial(
+      String agenteUid, String missaoId) async {
+    try {
+      final doc = await firestore
+          .collection('Fotos relatório')
+          .doc(agenteUid)
+          .collection('Missões')
+          .doc(missaoId)
+          .collection('Odometro')
+          .doc('odometroInicial')
+          .get();
+
+      if (doc.exists) {
+        debugPrint('doc com foto do odometro existe !!!!');
+        final List<dynamic> fotosIniciais = doc.data()?['fotos'];
+        for (var foto in fotosIniciais) {
+          return Foto.fromMap(foto as Map<String, dynamic>);
+        }
+      } else {
+        // Tratar caso em que algum dos documentos não existe
+        debugPrint('Documento odometroInicial não encontrado.');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erro ao obter os documentos: $e');
+      rethrow;
+    }
+    return null;
+  }
+
+  Future<Foto?> buscarFotoOdometroFinal(
+      String agenteUid, String missaoId) async {
+    try {
+      final doc = await firestore
+          .collection('Fotos relatório')
+          .doc(agenteUid)
+          .collection('Missões')
+          .doc(missaoId)
+          .collection('Odometro')
+          .doc('odometroFinal')
+          .get();
+
+      if (doc.exists) {
+        debugPrint('doc com foto do odometro existe !!!!');
+        final List<dynamic> fotosFinais = doc.data()?['fotos'];
+        for (var foto in fotosFinais) {
+          return Foto.fromMap(foto as Map<String, dynamic>);
+        }
+      } else {
+        // Tratar caso em que algum dos documentos não existe
+        debugPrint('Documento odometroInicial não encontrado.');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erro ao obter os documentos: $e');
+      rethrow;
+    }
+    return null;
   }
 
   Future<bool> verificaSeRotaExiste(String missaoId) async {

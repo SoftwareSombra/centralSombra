@@ -195,11 +195,11 @@ class MapAdminScreen extends StatefulWidget {
   final Place? missionPosition;
 
   const MapAdminScreen({
-    Key? key,
+    super.key,
     // this.startPosition,
     // this.endPosition,
     this.missionPosition,
-  }) : super(key: key);
+  });
 
   @override
   _MapAdminScreenState createState() => _MapAdminScreenState();

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sombra_testes/web/home/screens/components/solicitacoes/agente.dart';
 import '../../../../../conta_bancaria/bloc/solicitacoes_conta_bancaria_bloc.dart';
-import '../../../../../conta_bancaria/bloc/solicitacoes_conta_bancaria_event.dart';
 import '../../../../../conta_bancaria/bloc/solicitacoes_conta_bancaria_state.dart';
 import '../../../../../conta_bancaria/model/conta_bancaria_model.dart';
 import '../../../../../conta_bancaria/services/conta_bancaria_services.dart';
@@ -100,7 +99,7 @@ class CadastroContaBancariaList extends StatelessWidget {
         child: Card(
           elevation: 2,
           child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -110,11 +109,11 @@ class CadastroContaBancariaList extends StatelessWidget {
                     Text('Titular: ${conta.titular}'),
                     Text(
                       conta.numero,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     )
                   ],
                 ),
-                Icon(Icons.arrow_forward),
+                const Icon(Icons.arrow_forward),
               ],
             ),
           ),

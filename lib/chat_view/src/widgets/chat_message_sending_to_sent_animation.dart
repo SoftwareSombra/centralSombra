@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../../chatview.dart';
 
 class SendingMessageAnimatingWidget extends StatefulWidget {
-  const SendingMessageAnimatingWidget(this.status, {Key? key})
-      : super(key: key);
+  const SendingMessageAnimatingWidget(this.status, {super.key});
 
   final MessageStatus status;
 

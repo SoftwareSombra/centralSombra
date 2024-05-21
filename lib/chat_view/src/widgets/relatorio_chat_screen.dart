@@ -9,7 +9,7 @@ import 'send_message_widget.dart';
 
 class RelatorioChatView extends StatefulWidget {
   const RelatorioChatView({
-    Key? key,
+    super.key,
     required this.chatController,
     required this.currentUser,
     this.onSendTap,
@@ -36,8 +36,7 @@ class RelatorioChatView extends StatefulWidget {
   })  : chatBackgroundConfig =
             chatBackgroundConfig ?? const ChatBackgroundConfiguration(),
         chatViewStateConfig =
-            chatViewStateConfig ?? const ChatViewStateConfiguration(),
-        super(key: key);
+            chatViewStateConfig ?? const ChatViewStateConfiguration();
 
   /// Provides configuration related to user profile circle avatar.
   final ProfileCircleConfiguration? profileCircleConfig;
@@ -224,7 +223,7 @@ class _RelatorioChatViewState extends State<RelatorioChatView>
                           messageConfig: widget.messageConfig,
                           profileCircleConfig: widget.profileCircleConfig,
                           repliedMessageConfig: widget.repliedMessageConfig,
-                          swipeToReplyConfig: SwipeToReplyConfiguration(),
+                          swipeToReplyConfig: const SwipeToReplyConfiguration(),
                           onChatListTap: widget.onChatListTap,
                           assignReplyMessage: (message) => _sendMessageKey
                               .currentState

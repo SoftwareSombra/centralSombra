@@ -84,7 +84,7 @@ class AgentMissionBloc extends Bloc<AgentEvent, AgentState> {
             if (missaoIniciada) {
               //só prosseguir quando missionDetails for diferente de null, ficar aguardando
               while (missionDetails == null) {
-                await Future.delayed(Duration(seconds: 3));
+                await Future.delayed(const Duration(seconds: 3));
               }
               emit(
                 OnMission(missionDetails),

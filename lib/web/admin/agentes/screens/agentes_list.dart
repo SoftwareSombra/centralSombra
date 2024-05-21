@@ -146,10 +146,10 @@ class _AgentesListState extends State<AgentesList> {
                             agentes: agentesFiltrados,
                             context: context,
                           ),
-                          header: Row(
+                          header: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Agentes'),
+                              Text('Agentes'),
                             ],
                           ),
                           columnSpacing:

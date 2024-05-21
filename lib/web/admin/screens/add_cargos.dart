@@ -28,17 +28,9 @@ class _AddCargosState extends State<AddCargos> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController devController = TextEditingController();
     final TextEditingController admController = TextEditingController();
     final TextEditingController gestorController = TextEditingController();
     final TextEditingController operadorController = TextEditingController();
-    final TextEditingController admClienteController = TextEditingController();
-    final TextEditingController admClienteCnpjController =
-        TextEditingController();
-    final TextEditingController operadorClienteController =
-        TextEditingController();
-    final TextEditingController operadorClienteCnpjController =
-        TextEditingController();
     final AdminServices adminServices = AdminServices();
     final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
     final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();

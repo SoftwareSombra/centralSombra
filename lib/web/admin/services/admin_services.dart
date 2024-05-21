@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sombra_testes/agente/model/agente_model.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../../../autenticacao/services/user_services.dart';
 import '../../empresa/model/empresa_model.dart';

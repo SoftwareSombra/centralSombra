@@ -15,8 +15,7 @@ class ClienteMissaoChatScreen extends StatefulWidget {
   final String? agenteNome;
 
   const ClienteMissaoChatScreen(
-      {Key? key, required this.missaoId, this.agenteUid, this.agenteNome})
-      : super(key: key);
+      {super.key, required this.missaoId, this.agenteUid, this.agenteNome});
 
   @override
   State<ClienteMissaoChatScreen> createState() =>
@@ -44,9 +43,6 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
       FirebaseMessagingService(NotificationService());
   late ChatController chatViewController;
 
-  void _showHideTypingIndicator() {
-    _chatController.setTypingIndicator = !_chatController.showTypingIndicator;
-  }
 
   // Stream<QuerySnapshot<Map<String, dynamic>>> getConversationMessages() {
   //   return FirebaseFirestore.instance
@@ -66,7 +62,6 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
 
   Future<void> getCurrentChatUser() async {
     final user = FirebaseAuth.instance.currentUser;
-    final userName = user?.displayName;
     final userPhoto = user?.photoURL;
     setState(() {
       currentUser = ChatUser(
@@ -78,8 +73,6 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
   }
 
   Future<void> chatController(uid, agenteUid) async {
-    final user = FirebaseAuth.instance.currentUser;
-    final userName = user?.displayName;
     _chatController = ChatController(
       initialMessageList: messageList,
       scrollController: ScrollController(),
@@ -383,15 +376,4 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
     });
   }
 
-  void _onThemeIconTap() {
-    setState(() {
-      if (isDarkTheme) {
-        theme = LightTheme();
-        isDarkTheme = false;
-      } else {
-        theme = DarkTheme();
-        isDarkTheme = true;
-      }
-    });
-  }
 }

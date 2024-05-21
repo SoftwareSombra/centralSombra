@@ -14,8 +14,7 @@ class MapaRotaTeste extends StatefulWidget {
   final portoRealRoute;
 
   const MapaRotaTeste(
-      {Key? key, this.missionPosition, required this.portoRealRoute})
-      : super(key: key);
+      {super.key, this.missionPosition, required this.portoRealRoute});
 
   @override
   _MapaRotaTesteState createState() => _MapaRotaTesteState();

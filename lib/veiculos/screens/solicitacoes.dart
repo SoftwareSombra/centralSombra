@@ -62,7 +62,7 @@ class VeiculosSolicitacoes extends StatelessWidget {
 class VeiculoCard extends StatefulWidget {
   final Veiculo veiculo;
 
-  VeiculoCard({super.key, required this.veiculo});
+  const VeiculoCard({super.key, required this.veiculo});
 
   @override
   _VeiculoCardState createState() => _VeiculoCardState();

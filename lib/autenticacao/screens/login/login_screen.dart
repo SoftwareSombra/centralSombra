@@ -1,12 +1,7 @@
-import 'package:animated_login/animated_login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../services/log_services.dart';
-import '../../services/user_services.dart';
 import '../tratamento/error_snackbar.dart';
-import 'components/buttons_login.dart';
-import 'components/formulario_widget.dart';
-import 'components/image_login.dart';
+import 'animated_login/animated_login.dart';
 import 'event_bloc.dart';
 import 'login_bloc.dart';
 import 'package:async/async.dart' as ayc;
@@ -17,7 +12,7 @@ class LoginScreen extends StatefulWidget {
   /// Simulates the multilanguage, you will implement your own logic.
   /// According to the current language, you can display a text message
   /// with the help of [LoginTexts] class.
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -204,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
 class ForgotPasswordScreen extends StatelessWidget {
   /// Example forgot password screen that user is navigated to
   /// after clicked on "Forgot Password?" text.
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+  const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +257,7 @@ class LoginFunctions {
 
 class LoadingIndicator extends StatelessWidget {
   /// Loading indicator widget to show in processes.
-  const LoadingIndicator({Key? key}) : super(key: key);
+  const LoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) => Container(

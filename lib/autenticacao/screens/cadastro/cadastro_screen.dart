@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'components/formulario_widget.dart';
 
 class CadastroScreen extends StatefulWidget {
-  const CadastroScreen({Key? key}) : super(key: key);
+  const CadastroScreen({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -13,16 +12,13 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:printing/printing.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:sombra_testes/chat_view/chatview.dart';
 import 'dart:html' as html;
 import 'dart:ui' as ui;
-import '../../../chat_view/src/models/message.dart';
-import '../../../chat_view/src/values/enumaration.dart';
 import '../../../missao/model/missao_model.dart';
-import '../bloc/mission_details_bloc.dart';
-import '../bloc/mission_details_event.dart';
-import '../bloc/mission_details_state.dart';
+import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
 
 class PdfScreen extends StatefulWidget {
   final MissaoRelatorio missao;
@@ -30,6 +26,8 @@ class PdfScreen extends StatefulWidget {
   final ImageProvider<Object>? mapUrl;
   final dynamic locations;
   final List<Message>? messages;
+  final Foto? odometroInicial;
+  final Foto? odometroFinal;
   final String missaoId;
   final String agenteId;
   final bool tipo;
@@ -49,6 +47,9 @@ class PdfScreen extends StatefulWidget {
   final bool fotos;
   final bool fotosPos;
   final bool showMessages;
+  final bool infosComplementares;
+  final bool showOdometroInicial;
+  final bool showOdometroFinal;
   const PdfScreen(
       {super.key,
       required this.missao,
@@ -56,6 +57,8 @@ class PdfScreen extends StatefulWidget {
       this.mapUrl,
       this.locations,
       this.messages,
+      this.odometroInicial,
+      this.odometroFinal,
       required this.missaoId,
       required this.agenteId,
       required this.tipo,
@@ -74,7 +77,10 @@ class PdfScreen extends StatefulWidget {
       required this.mapa,
       required this.fotos,
       required this.fotosPos,
-      required this.showMessages});
+      required this.showMessages,
+      required this.infosComplementares,
+      required this.showOdometroInicial,
+      required this.showOdometroFinal});
 
   @override
   State<PdfScreen> createState() => _PdfScreenState();
@@ -84,7 +90,6 @@ Set<Marker> userMarkers = {};
 
 class _PdfScreenState extends State<PdfScreen> {
   final pdf = pw.Document();
-  final GlobalKey _repaintBoundaryKey = GlobalKey();
   final canvasColor = const Color.fromARGB(255, 0, 15, 42);
 
   @override
@@ -94,30 +99,49 @@ class _PdfScreenState extends State<PdfScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return AlertDialog(
-      title: Text('Download PDF'),
-      content: Text('Deseja baixar o arquivo PDF?'),
+      title: const Text('Download PDF'),
+      content: const Text('Deseja baixar o arquivo PDF?'),
       actions: [
-        TextButton(
-          onPressed: () {
-            generateAndDownloadPdf(widget.missao,
-                distancia: widget.distancia ? widget.distanciaValue : null,
-                image:
-                    widget.mapa && widget.mapUrl != null ? widget.mapUrl : null,
-                locations: widget.mapa ? widget.locations : null,
-                messages: widget.showMessages ? widget.messages : null);
+        BlocBuilder<ElevatedButtonBloc, ElevatedButtonBlocState>(
+          builder: (context, state) {
+            if (state is ElevatedButtonBlocLoading) {
+              return const CircularProgressIndicator();
+            }
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    BlocProvider.of<ElevatedButtonBloc>(context).add(
+                      ElevatedButtonPressed(),
+                    );
+                    generateAndDownloadPdf(widget.missao,
+                        distancia:
+                            widget.distancia ? widget.distanciaValue : null,
+                        image: widget.mapa && widget.mapUrl != null
+                            ? widget.mapUrl
+                            : null,
+                        locations: widget.mapa ? widget.locations : null,
+                        messages: widget.showMessages ? widget.messages : null);
+                  },
+                  child: const Text('Baixar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    BlocProvider.of<ElevatedButtonBloc>(context).add(
+                      ElevatedButtonReset(),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            );
           },
-          child: const Text('Baixar'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text(
-            'Cancelar',
-            style: TextStyle(color: Colors.red),
-          ),
         ),
       ],
     );
@@ -260,19 +284,40 @@ class _PdfScreenState extends State<PdfScreen> {
   //   return fotosComLegenda;
   // }
 
-  Future<List<FotoComLegenda>> convertUrlsToPdfImages(
-      List<String> urls, List<String> legendas) async {
+  Future<List<FotoComLegenda>> convertUrlsToPdfImages(dynamic urls,
+      [dynamic legendas]) async {
     Dio dio = Dio();
     List<FotoComLegenda> fotosComLegenda = [];
 
-    for (int i = 0; i < urls.length; i++) {
+    List<String> listaUrls = [];
+    if (urls is String) {
+      listaUrls = [urls];
+    } else if (urls is List<String>) {
+      listaUrls = urls;
+    } else {
+      throw ArgumentError(
+          'O parâmetro "urls" deve ser uma String ou uma List<String>.');
+    }
+
+    List<String> listaLegendas = [];
+    if (legendas is String) {
+      listaLegendas = [legendas];
+    } else if (legendas is List<String>) {
+      listaLegendas = legendas;
+    } else if (legendas == null) {
+      listaLegendas = List<String>.filled(listaUrls.length, '');
+    } else {
+      throw ArgumentError(
+          'O parâmetro "legendas" deve ser uma String, uma List<String> ou null.');
+    }
+
+    for (int i = 0; i < listaUrls.length; i++) {
       final response = await dio.get<Uint8List>(
-        urls[i],
+        listaUrls[i],
         options: Options(responseType: ResponseType.bytes),
       );
       final imagem = pw.MemoryImage(response.data!);
-      final legenda =
-          legendas[i]; // Supondo que cada URL tenha uma legenda correspondente
+      final legenda = i < listaLegendas.length ? listaLegendas[i] : '';
       fotosComLegenda.add(FotoComLegenda(imagem: imagem, legenda: legenda));
     }
 
@@ -304,6 +349,32 @@ class _PdfScreenState extends State<PdfScreen> {
         ? await convertUrlsToPdfImages(missao.fotos!.map((e) => e.url).toList(),
             missao.fotos!.map((e) => e.caption).toList())
         : null;
+
+    List<FotoComLegenda>? fotosPosMissao = missao.fotosPosMissao != null
+        ? await convertUrlsToPdfImages(
+            missao.fotosPosMissao!.map((e) => e.url).toList(),
+            missao.fotosPosMissao!.map((e) => e.caption).toList())
+        : null;
+
+    //List<Foto>? odometros = [];
+    List<FotoComLegenda>? fotoOdometroInicial = [];
+    List<FotoComLegenda>? fotoOdometroFinal = [];
+
+    Foto? odometroInicial = widget.odometroInicial;
+    Foto? odometroFinal = widget.odometroFinal;
+
+    if (odometroInicial != null && odometroFinal != null) {
+      // odometros.add(odometroInicial);
+      // odometros.add(odometroFinal);
+      // fotosOdometro = await convertUrlsToPdfImages(
+      //   odometros.map((e) => e.url).toList(),
+      //   odometros.map((e) => e.caption).toList(),
+      // );
+      fotoOdometroInicial =
+          await convertUrlsToPdfImages(odometroInicial.url, 'Odometro inicial');
+      fotoOdometroFinal =
+          await convertUrlsToPdfImages(odometroFinal.url, 'Odometro final');
+    }
 
     if (messages != null) {
       List<Message> updatedMessages = [];
@@ -520,37 +591,52 @@ class _PdfScreenState extends State<PdfScreen> {
               constraints: const pw.BoxConstraints(maxWidth: 400),
               child: pw.Column(
                 children: [
+                  if (index == 0)
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.center,
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.symmetric(
+                              vertical: 30, horizontal: 50),
+                          child: pw.Text(
+                            'CHAT',
+                            style: const pw.TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ],
+                    ),
                   pw.Row(
-                    mainAxisAlignment: messages[index].autor == 'Atendente'
-                        ? pw.MainAxisAlignment.start
-                        : pw.MainAxisAlignment.end,
+                    mainAxisAlignment: messages[index].sendBy == 'Atendente'
+                        ? pw.MainAxisAlignment.end
+                        : pw.MainAxisAlignment.start,
                     children: [
                       messages[index].messageType == MessageType.text
                           ?
                           //pw.Text(messages[index].message)
                           pdfTextMessageView(messages[index].message,
-                              messages[index].autor == 'Atendente')
+                              messages[index].sendBy == 'Atendente')
                           : messages[index].messageType == MessageType.image
                               ?
                               // pw.Image(messages[index].pdfImage!,
                               //     height: 150, fit: pw.BoxFit.contain)
                               pdfImageMessageView(messages[index].pdfImage!,
-                                  messages[index].autor == 'Atendente')
+                                  messages[index].sendBy == 'Atendente')
                               :
                               //pw.Text('---- audio ----')
                               pdfTextMessageView('---- audio ----',
-                                  messages[index].autor == 'Atendente')
+                                  messages[index].sendBy == 'Atendente')
                     ],
                   ),
                   pw.SizedBox(height: 10),
                   pw.Row(
-                    mainAxisAlignment: messages[index].autor == 'Atendente'
-                        ? pw.MainAxisAlignment.start
-                        : pw.MainAxisAlignment.end,
+                    mainAxisAlignment: messages[index].sendBy == 'Atendente'
+                        ? pw.MainAxisAlignment.end
+                        : pw.MainAxisAlignment.start,
                     children: [
                       pw.Text(
                           '${DateFormat('dd/MM/yyy', 'pt_BR').format(messages[index].createdAt)} - ${DateFormat('HH:mm', 'pt_BR').format(messages[index].createdAt)}',
-                          style: const pw.TextStyle(color: PdfColors.grey, fontSize: 11))
+                          style: const pw.TextStyle(
+                              color: PdfColors.grey, fontSize: 11))
                     ],
                   ),
                   pw.SizedBox(height: 15),
@@ -566,7 +652,7 @@ class _PdfScreenState extends State<PdfScreen> {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: pw.EdgeInsets.all(5),
+        margin: const pw.EdgeInsets.all(5),
         build: (pw.Context context) {
           return <pw.Widget>[
             // Cabeçalho
@@ -717,9 +803,18 @@ class _PdfScreenState extends State<PdfScreen> {
                   padding: const pw.EdgeInsets.symmetric(
                       vertical: 5.0, horizontal: 50),
                   child: buildDataItemPdf(
-                    'Informações: ',
+                    'Informações da missão: ',
                     missao.infos,
                     widget.infos,
+                  ),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 50),
+                  child: buildDataItemPdf(
+                    'Informações complementares: ',
+                    missao.infosComplementares,
+                    widget.infosComplementares,
                   ),
                 ),
                 pw.Padding(
@@ -770,6 +865,24 @@ class _PdfScreenState extends State<PdfScreen> {
             //   pw.SizedBox(
             //     height: 25,
             //   ),
+            if (widget.showOdometroInicial && fotoOdometroInicial != null)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  for (var fotoOdometro in fotoOdometroInicial)
+                    buildFotosComLegendaPdf(fotoOdometro),
+                ],
+              ),
+            if (widget.showOdometroFinal && fotoOdometroFinal != null)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  for (var fotoOdometro in fotoOdometroFinal)
+                    buildFotosComLegendaPdf(fotoOdometro),
+                ],
+              ),
             if (widget.fotos && fotosComLegenda != null)
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -779,24 +892,33 @@ class _PdfScreenState extends State<PdfScreen> {
                     buildFotosComLegendaPdf(fotoComLegenda),
                 ],
               ),
+            if (widget.fotosPos && fotosPosMissao != null)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  for (var fotoPos in fotosPosMissao)
+                    buildFotosComLegendaPdf(fotoPos),
+                ],
+              ),
             if (messages != null && widget.showMessages)
               pw.SizedBox(
                 height: 50,
               ),
-            if (messages != null && widget.showMessages)
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                children: [
-                  pw.Padding(
-                    padding:
-                        pw.EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                    child: pw.Text(
-                      'CHAT',
-                      style: const pw.TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ],
-              ),
+            // if (messages != null && widget.showMessages)
+            //   pw.Row(
+            //     mainAxisAlignment: pw.MainAxisAlignment.center,
+            //     children: [
+            //       pw.Padding(
+            //         padding:
+            //             pw.EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+            //         child: pw.Text(
+            //           'CHAT',
+            //           style: const pw.TextStyle(fontSize: 20),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
             if (messages != null && widget.showMessages)
               pw.SizedBox(
                 height: 25,
@@ -807,6 +929,11 @@ class _PdfScreenState extends State<PdfScreen> {
         },
       ),
     );
+
+    BlocProvider.of<ElevatedButtonBloc>(context).add(
+      ElevatedButtonReset(),
+    );
+    Navigator.of(context).pop();
 
     // Salvar o PDF
     final bytes = await pdf.save();

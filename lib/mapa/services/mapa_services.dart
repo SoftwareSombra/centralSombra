@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class UserLocation {
   final String uid;
@@ -24,7 +25,7 @@ class UserLocation {
         data['timestamp'] == null) {
       throw Exception('Dados inválidos ou ausentes.');
     }
-    
+
     return UserLocation(
       uid: data['uid'],
       latitude: data['latitude'],
@@ -39,7 +40,8 @@ class MapaServices {
   Future<List<UserLocation>> fetchAllUsersLocations() async {
     final firestore = FirebaseFirestore.instance;
 
-    QuerySnapshot querySnapshot = await firestore.collection('usersLocations').get();
+    QuerySnapshot querySnapshot =
+        await firestore.collection('usersLocations').get();
 
     List<UserLocation> allUsersLocations = [];
 
@@ -50,7 +52,7 @@ class MapaServices {
         allUsersLocations.add(userLocation);
       } catch (e) {
         // Ignora o documento se houver um erro (por exemplo, campos ausentes)
-        print('Erro ao processar localização do usuário: $e');
+        debugPrint('Erro ao processar localização do usuário: $e');
       }
     }
 

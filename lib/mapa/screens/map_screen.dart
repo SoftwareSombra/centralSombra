@@ -1,9 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,12 +18,8 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../agente/services/agente_services.dart';
 import '../../../autenticacao/services/user_services.dart';
 import '../../autenticacao/screens/tratamento/success_snackbar.dart';
-import '../../chat/screens/missao_agente_chat.dart';
 import '../../chat/services/chat_services.dart';
-import '../../missao/bloc/agente/agente_bloc.dart';
-import '../../missao/bloc/agente/events.dart';
 import '../../missao/camera/camera_screen.dart';
-import '../../missao/relatorio/screens/add_relatorio_screen.dart';
 
 class MapScreen extends StatefulWidget {
   final String? cnpj;
@@ -43,7 +37,7 @@ class MapScreen extends StatefulWidget {
   final Timestamp? inicio;
 
   const MapScreen(
-      {Key? key,
+      {super.key,
       this.cnpj,
       this.nomeDaEmpresa,
       this.placaCavalo,
@@ -56,8 +50,7 @@ class MapScreen extends StatefulWidget {
       this.local,
       this.missaoId,
       this.tipo,
-      this.inicio})
-      : super(key: key);
+      this.inicio});
 
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -173,8 +166,6 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
-    final nomeDoAgente = FirebaseAuth.instance.currentUser!.displayName;
 
     return Scaffold(
       appBar: AppBar(

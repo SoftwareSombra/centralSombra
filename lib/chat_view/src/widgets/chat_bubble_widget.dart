@@ -332,7 +332,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget> {
             padding:
                 widget.chatBubbleConfig?.inComingChatBubbleConfig?.padding ??
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 0), //4
-            child: Text(
+            child: const Text(
                 // messagedUser?.name ?? '',
                 // style: widget.chatBubbleConfig?.inComingChatBubbleConfig
                 //     ?.senderNameTextStyle,
@@ -471,16 +471,18 @@ class _RelatorioChatBubbleWidgetState extends State<RelatorioChatBubbleWidget> {
     if (provide != null) {
       featureActiveConfig = provide!.featureActiveConfig;
       //chatController = provide!.chatController;
-      currentUser = widget.chatControllerParam!.chatUsers
-          .firstWhere((element) => element.id == 'Atendente');
+      currentUser = ChatUser(id: 'Atendente', name: 'Atendente');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // Get user from id.
-    final messagedUser =
-        widget.chatControllerParam?.getUserFromId(widget.message.sendBy);
+    debugPrint('iniciando chatbubble');
+    debugPrint('sendBy: ${widget.message.sendBy}');
+    final messagedUser = widget.message.sendBy == 'Cliente'
+        ? ChatUser(id: 'Cliente', name: 'Cliente')
+        : ChatUser(id: 'Atendente', name: 'Atendente');
     return Stack(
       children: [
         _chatBubbleWidget(messagedUser),
@@ -649,7 +651,7 @@ class _RelatorioChatBubbleWidgetState extends State<RelatorioChatBubbleWidget> {
             padding:
                 widget.chatBubbleConfig?.inComingChatBubbleConfig?.padding ??
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 0), //4
-            child: Text(''),
+            child: const Text(''),
           ),
         if (replyMessage.isNotEmpty)
           widget.repliedMessageConfig?.repliedMessageWidgetBuilder != null

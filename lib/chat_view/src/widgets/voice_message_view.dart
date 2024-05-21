@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -9,7 +8,7 @@ import 'reaction_widget.dart';
 
 class VoiceMessageView extends StatefulWidget {
   const VoiceMessageView({
-    Key? key,
+    super.key,
     required this.screenWidth,
     required this.message,
     required this.isMessageBySender,
@@ -18,7 +17,7 @@ class VoiceMessageView extends StatefulWidget {
     this.onMaxDuration,
     this.messageReactionConfig,
     this.config,
-  }) : super(key: key);
+  });
 
   /// Provides configuration related to voice message.
   final VoiceMessageConfiguration? config;
@@ -56,8 +55,8 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
 
   PlayerState _playerState = PlayerState.stopped;
 
-  Duration _duration = Duration();
-  Duration _position = Duration();
+  Duration _duration = const Duration();
+  Duration _position = const Duration();
 
   //PlayerState get playerState => _playerState.value;
 
@@ -218,7 +217,7 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
     //   "Voice messages are only supported with android and ios platform",
     // );
     if (kIsWeb) {
-      print('Estamos na web');
+      debugPrint('Estamos na web');
       if (_playerState == PlayerState.stopped ||
           _playerState == PlayerState.paused) {
         controller.play(UrlSource(widget.message.message));

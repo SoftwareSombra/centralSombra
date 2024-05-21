@@ -12,7 +12,7 @@ final class MissionDetailsInitial extends MissionDetailsState {}
 final class MissionDetailsLoading extends MissionDetailsState {}
 
 final class MissionDetailsLoaded extends MissionDetailsState {
-  final MissaoRelatorio missoes;
+  final MissaoRelatorio missao;
   final gmap.CameraPosition? initialPosition;
   final Set<gmap.Marker>? userMarkers;
   final Set<gmap.Polyline>? polylines;
@@ -21,8 +21,10 @@ final class MissionDetailsLoaded extends MissionDetailsState {
   final Location? middleLocation;
   final double? distancia;
   List<Message>? messages;
+  Foto? odometroInicial;
+  Foto? odometroFinal;
   MissionDetailsLoaded(
-      this.missoes,
+      this.missao,
       this.initialPosition,
       this.userMarkers,
       this.polylines,
@@ -30,7 +32,9 @@ final class MissionDetailsLoaded extends MissionDetailsState {
       this.locations,
       this.middleLocation,
       this.distancia,
-      this.messages);
+      this.messages,
+      this.odometroInicial,
+      this.odometroFinal);
 }
 
 final class MissionDetailsNoRouteFound extends MissionDetailsState {}

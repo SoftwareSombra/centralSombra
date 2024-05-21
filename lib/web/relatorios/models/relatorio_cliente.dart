@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
+import '../../../chat_view/src/models/message.dart';
 import '../../../missao/model/missao_model.dart';
 
 class DadosRelatorioCliente {
@@ -127,7 +127,11 @@ class RelatorioCliente {
   final Timestamp? serverFim;
   final List<Foto>? fotos;
   final List<Foto>? fotosPosMissao;
+  final Foto? odometroInicial;
+  final Foto? odometroFinal;
+  final List<Message>? messages;
   final String? infos;
+  final String? infosComplementares;
   final double? distancia;
   final List<CoordenadaComTimestamp>? rota;
 
@@ -149,7 +153,11 @@ class RelatorioCliente {
     this.serverFim,
     this.fotos,
     this.fotosPosMissao,
+    this.odometroInicial,
+    this.odometroFinal,
+    this.messages,
     this.infos,
+    this.infosComplementares,
     this.distancia,
     this.rota,
   });
@@ -170,6 +178,17 @@ class RelatorioCliente {
             .toList()
         : null;
 
+    final fotoOdometroInicial = data['odometroInicial'] != null
+        ? Foto.fromMap(data['odometroInicial'])
+        : null;
+    final fotoOdometroFinal = data['odometroFinal'] != null
+        ? Foto.fromMap(data['odometroFinal'])
+        : null;
+
+    List<Message>? chatMessages = data['messages'] != null
+        ? List.from(data['messages']).map((e) => Message.fromJson(e)).toList()
+        : null;
+
     return RelatorioCliente(
       cnpj: data['cnpj'],
       missaoId: data['missaoId'],
@@ -188,7 +207,11 @@ class RelatorioCliente {
       serverFim: data['serverFim'],
       fotos: fotosMapeadas,
       fotosPosMissao: fotosPosMissaoMapeadas,
+      odometroInicial: fotoOdometroInicial,
+      odometroFinal: fotoOdometroFinal,
+      messages: chatMessages,
       infos: data['infos'],
+      infosComplementares: data['infosComplementares'],
       distancia: data['distancia'],
       rota: rotaMapeada,
     );
@@ -208,9 +231,20 @@ class RelatorioCliente {
     List<Map<String, dynamic>>? rota = this.rota != null
         ? this
             .rota!
-            .map((e) => {'latitude': e.ponto.latitude, 'longitude': e.ponto.longitude})
+            .map((e) =>
+                {'latitude': e.ponto.latitude, 'longitude': e.ponto.longitude})
             .toList()
         : null;
+
+    List<Map<String, dynamic>>? chatMessages = this.messages != null
+        ? this.messages!.map((e) => e.paraJson()).toList()
+        : null;
+
+    Map<String, dynamic>? fotoOdometroInicial =
+        this.odometroInicial != null ? this.odometroInicial!.toMap() : null;
+    
+    Map<String, dynamic>? fotoOdometroFinal =
+        this.odometroFinal != null ? this.odometroFinal!.toMap() : null;
 
     return {
       'cnpj': cnpj,
@@ -230,7 +264,11 @@ class RelatorioCliente {
       'serverFim': serverFim,
       'fotos': fotos,
       'fotosPosMissao': fotosPosMissao,
+      'odometroInicial': fotoOdometroInicial,
+      'odometroFinal': fotoOdometroFinal,
+      'messages': chatMessages,
       'infos': infos,
+      'infosComplementares': infosComplementares,
       'distancia': distancia,
       'rota': rota,
     };
