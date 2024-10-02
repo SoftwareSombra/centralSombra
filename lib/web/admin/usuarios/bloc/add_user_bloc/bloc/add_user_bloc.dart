@@ -41,6 +41,7 @@ class AddUserBloc extends Bloc<AddUserEvent, AddUserState> {
           event.cargo == 'Administrador'
               ? adminServices.addAdmin(isRegisterSuccessful.item2, nome: event.name)
               : adminServices.addOperador(isRegisterSuccessful.item2, nome: event.name);
+          await userServices.resetPassword2(event.email);
         }
         emit(RegisterUserSuccess(isRegisterSuccessful.item2));
       } else {

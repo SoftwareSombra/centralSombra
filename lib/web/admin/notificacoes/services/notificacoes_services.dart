@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/notificacoes/notificacoess.dart';
+import 'package:sombra/notificacoes/notificacoess.dart';
 import '../../../../notificacoes/fcm.dart';
 
 class NotificacoesAdmServices {

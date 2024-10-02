@@ -1,7 +1,12 @@
+import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
+import '../bloc/get_empresas_bloc.dart';
+import '../bloc/get_empresas_event.dart';
 import '../model/empresa_model.dart';
 import '../services/empresa_services.dart';
 
@@ -12,16 +17,18 @@ class AddEmpresaScreen extends StatefulWidget {
   State<AddEmpresaScreen> createState() => _AddEmpresaScreenState();
 }
 
+typedef FormValidator = String? Function(String? value);
+
 class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
   final _formKey = GlobalKey<FormState>();
-  final nomeEmpresaController = TextEditingController();
-  final cnpjController = TextEditingController();
-  final enderecoController = TextEditingController();
-  final telefoneController = TextEditingController();
-  final emailController = TextEditingController();
-  final representanteLegalNomeController = TextEditingController();
-  final representanteLegalCpfController = TextEditingController();
-  final observacaoController = TextEditingController();
+  TextEditingController? nomeEmpresaController;
+  TextEditingController? cnpjController;
+  TextEditingController? enderecoController;
+  TextEditingController? telefoneController;
+  TextEditingController? emailController;
+  TextEditingController? representanteLegalNomeController;
+  TextEditingController? representanteLegalCpfController;
+  TextEditingController? observacaoController;
   DateTime? prazoContratoInicio;
   DateTime? prazoContratoFim;
   EmpresaServices empresaServices = EmpresaServices();
@@ -30,7 +37,9 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
 
   Widget buildTextFormField(
       String label, TextEditingController controller, double width,
-      {TextInputType keyboardType = TextInputType.text}) {
+      {TextInputType keyboardType = TextInputType.text,
+      List<TextInputFormatter>? formatter,
+      FormValidator? validator}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: SizedBox(
@@ -38,10 +47,10 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
             ? width * 0.6 + 10
             : width * 0.3,
         child: TextFormField(
-          //enabled: false,
+          validator: validator,
           //initialValue: empresa.representanteLegalNome,
+          inputFormatters: formatter,
           controller: controller,
-          readOnly: true,
           decoration: InputDecoration(
             fillColor: Colors.grey,
             focusColor: Colors.grey,
@@ -57,7 +66,7 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
             ),
           ),
           style: const TextStyle(
-              fontSize: 17, fontWeight: FontWeight.w300, color: Colors.grey),
+              fontSize: 17, fontWeight: FontWeight.w300, color: Colors.white),
         ),
       ),
     );
@@ -86,17 +95,27 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
   }
 
   @override
+  void initState() {
+    nomeEmpresaController = TextEditingController();
+    cnpjController = TextEditingController();
+    enderecoController = TextEditingController();
+    telefoneController = TextEditingController();
+    emailController = TextEditingController();
+    representanteLegalNomeController = TextEditingController();
+    representanteLegalCpfController = TextEditingController();
+    observacaoController = TextEditingController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return
-        // Scaffold(
-        //   appBar: AppBar(
-        //     title: const Text('Adicionar empresa'),
-        //   ),
-        //   body:
-        Material(
-      color: const Color.fromARGB(255, 3, 9, 18),
-      child: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      appBar: AppBar(
+        title: const Text('Adicionar empresa'),
+      ),
+      body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -106,27 +125,13 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Text(
-                    'Adicionar empresa',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  // const Text(
+                  //   'Adicionar empresa',
+                  //   style: TextStyle(
+                  //     fontSize: 20,
+                  //     fontWeight: FontWeight.bold,
+                  //   ),
+                  // ),
                   const SizedBox(
                     height: 20,
                   ),
@@ -139,11 +144,39 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                     children: [
                       ResponsiveRowColumnItem(
                         child: buildTextFormField(
-                            'Nome da empresa', nomeEmpresaController, width),
+                          'Nome da empresa *',
+                          nomeEmpresaController!,
+                          width,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'campo obrigatório';
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       ),
                       ResponsiveRowColumnItem(
-                        child: buildTextFormField('CNPJ', cnpjController, width,
-                            keyboardType: TextInputType.number),
+                        child: buildTextFormField(
+                          'CNPJ *',
+                          cnpjController!,
+                          width,
+                          keyboardType: TextInputType.number,
+                          formatter: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                            //limite de caracteres
+                            LengthLimitingTextInputFormatter(14),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'CNPJ é obrigatório';
+                            }
+                            if (value.length != 14) {
+                              return 'CNPJ deve ter 14 dígitos';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -156,12 +189,35 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                     children: [
                       ResponsiveRowColumnItem(
                         child: buildTextFormField(
-                            'Endereço', enderecoController, width),
+                          'Endereço *',
+                          enderecoController!,
+                          width,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'campo obrigatório';
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       ),
                       ResponsiveRowColumnItem(
                         child: buildTextFormField(
-                            'Telefone', telefoneController, width,
-                            keyboardType: TextInputType.phone),
+                          'Telefone *',
+                          telefoneController!,
+                          width,
+                          formatter: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'campo obrigatório';
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -174,12 +230,35 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                     children: [
                       ResponsiveRowColumnItem(
                         child: buildTextFormField(
-                            'Email', emailController, width,
-                            keyboardType: TextInputType.emailAddress),
+                          'Email *',
+                          emailController!,
+                          width,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email é obrigatório';
+                            }
+                            return RegExp(
+                                        r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+')
+                                    .hasMatch(value)
+                                ? null
+                                : 'Email invalido';
+                          },
+                        ),
                       ),
                       ResponsiveRowColumnItem(
-                        child: buildTextFormField('Representante legal nome',
-                            representanteLegalNomeController, width),
+                        child: buildTextFormField(
+                          'Representante legal nome *',
+                          representanteLegalNomeController!,
+                          width,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'campo obrigatório';
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -191,13 +270,27 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                     rowMainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ResponsiveRowColumnItem(
-                        child: buildTextFormField('Representante legal CPF',
-                            representanteLegalCpfController, width,
-                            keyboardType: TextInputType.number),
+                        child: buildTextFormField(
+                          'Representante legal CPF *',
+                          representanteLegalCpfController!,
+                          width,
+                          keyboardType: TextInputType.number,
+                          formatter: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                            CpfInputFormatter(),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'campo obrigatório';
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       ),
                       ResponsiveRowColumnItem(
                         child: buildTextFormField(
-                            'Observação', observacaoController, width),
+                            'Observação', observacaoController!, width),
                       ),
                     ],
                   ),
@@ -278,33 +371,35 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                       if (_formKey.currentState!.validate()) {
                         final resposta =
                             await empresaServices.addEmpresa(Empresa(
-                          nomeEmpresa: nomeEmpresaController.text.trim(),
-                          cnpj: cnpjController.text.trim(),
-                          endereco: enderecoController.text.trim(),
-                          telefone: telefoneController.text.trim(),
-                          email: emailController.text.trim(),
+                          nomeEmpresa: nomeEmpresaController!.text.trim(),
+                          cnpj: cnpjController!.text.trim(),
+                          endereco: enderecoController!.text.trim(),
+                          telefone: telefoneController!.text.trim(),
+                          email: emailController!.text.trim(),
                           representanteLegalNome:
-                              representanteLegalNomeController.text.trim(),
+                              representanteLegalNomeController!.text.trim(),
                           representanteLegalCpf:
-                              representanteLegalCpfController.text.trim(),
+                              representanteLegalCpfController!.text.trim(),
                           prazoContratoInicio: prazoContratoInicio!,
                           prazoContratoFim: prazoContratoFim!,
-                          observacao: observacaoController.text.trim(),
+                          observacao: observacaoController!.text.trim(),
                         ));
                         if (context.mounted) {
                           if (resposta) {
                             mensagemDeSucesso.showSuccessSnackbar(
                                 context, 'Empresa adicionada com sucesso!');
-                            nomeEmpresaController.clear();
-                            cnpjController.clear();
-                            enderecoController.clear();
-                            telefoneController.clear();
-                            emailController.clear();
-                            representanteLegalNomeController.clear();
-                            representanteLegalCpfController.clear();
+                            nomeEmpresaController!.clear();
+                            cnpjController!.clear();
+                            enderecoController!.clear();
+                            telefoneController!.clear();
+                            emailController!.clear();
+                            representanteLegalNomeController!.clear();
+                            representanteLegalCpfController!.clear();
                             prazoContratoInicio = null;
                             prazoContratoFim = null;
-                            observacaoController.clear();
+                            observacaoController!.clear();
+                            BlocProvider.of<GetEmpresasBloc>(context)
+                                .add(GetEmpresas());
                           } else {
                             tratamentoDeErros.showErrorSnackbar(context,
                                 'Erro ao adicionar empresa. Tente novamente.');
@@ -325,14 +420,14 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
 
   @override
   void dispose() {
-    nomeEmpresaController.dispose();
-    cnpjController.dispose();
-    enderecoController.dispose();
-    telefoneController.dispose();
-    emailController.dispose();
-    representanteLegalNomeController.dispose();
-    representanteLegalCpfController.dispose();
-    observacaoController.dispose();
+    nomeEmpresaController!.dispose();
+    cnpjController!.dispose();
+    enderecoController!.dispose();
+    telefoneController!.dispose();
+    emailController!.dispose();
+    representanteLegalNomeController!.dispose();
+    representanteLegalCpfController!.dispose();
+    observacaoController!.dispose();
     super.dispose();
   }
 }

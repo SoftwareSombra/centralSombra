@@ -1,25 +1,31 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:photo_view/photo_view.dart';
-import 'package:sombra_testes/autenticacao/screens/tratamento/error_snackbar.dart';
-import 'package:sombra_testes/autenticacao/screens/tratamento/success_snackbar.dart';
-import 'package:sombra_testes/chat_view/src/extensions/extensions.dart';
-import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
-import 'package:sombra_testes/web/relatorios/models/relatorio_cliente.dart';
-import 'package:sombra_testes/web/relatorios/services/relatorio_services.dart';
+import 'package:sombra/autenticacao/screens/tratamento/error_snackbar.dart';
+import 'package:sombra/autenticacao/screens/tratamento/success_snackbar.dart';
+import 'package:sombra/chat_view/src/extensions/extensions.dart';
+import 'package:sombra/web/home/screens/mapa_teste.dart';
+import 'package:sombra/web/relatorios/models/relatorio_cliente.dart';
+import 'package:sombra/web/relatorios/services/relatorio_services.dart';
 import '../../../chat/screens/chat_screen.dart';
 import '../../../chat_view/chatview.dart';
 import '../../../chat_view/src/widgets/chat_bubble_widget.dart';
 import '../../../chat_view/src/widgets/chat_group_header.dart';
 import '../../../missao/model/missao_model.dart';
+import '../../../widgets_comuns/elevated_button/elevated_button_2/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/elevated_button_2/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/elevated_button_2/elevated_button_bloc_state.dart';
+import '../../../widgets_comuns/elevated_button/elevated_button_bloc_3/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/elevated_button_bloc_3/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/elevated_button_bloc_3/elevated_button_bloc_state.dart';
 import '../bloc/mission_details_bloc.dart';
 import '../bloc/mission_details_event.dart';
 import '../bloc/mission_details_state.dart';
@@ -58,6 +64,8 @@ class _MissionDetailsState extends State<MissionDetails> {
   bool serverFimChecked = true;
   bool infosChecked = true;
   bool distanciaChecked = true;
+  bool distanciaIdaChecked = true;
+  bool distanciaVoltaChecked = true;
   bool fotosChecked = true;
   bool fotosPosMissaoChecked = true;
   bool rotaChecked = true;
@@ -78,6 +86,14 @@ class _MissionDetailsState extends State<MissionDetails> {
   FeatureActiveConfig? featureActiveConfig;
   final ValueNotifier<String?> _replyId = ValueNotifier(null);
   ValueNotifier<bool> showPopUp = ValueNotifier(false);
+  TextEditingController odometroInicialController = TextEditingController();
+  TextEditingController odometroFinalController = TextEditingController();
+  bool enableOdometroInicial = false;
+  bool enableOdometroFinal = false;
+  GlobalKey<FormState> odometroInicialFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> odometroFinalFormKey = GlobalKey<FormState>();
+  double? distanciaOdometro;
+  bool distanciaOdometroChecked = true;
 
   @override
   void initState() {
@@ -89,6 +105,13 @@ class _MissionDetailsState extends State<MissionDetails> {
         .add(FetchMissionDetails(widget.agenteId, widget.missaoId));
     getIcon();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    odometroFinalController.dispose();
+    odometroInicialController.dispose();
+    super.dispose();
   }
 
   @override
@@ -140,7 +163,7 @@ class _MissionDetailsState extends State<MissionDetails> {
   }
 
   Future<void> getIcon() async {
-    final icon = await gmap.BitmapDescriptor.fromAssetImage(
+    final icon = await gmap.BitmapDescriptor.asset(
         const ImageConfiguration(size: Size(40, 40)),
         'assets/images/missionIcon.png');
     setState(() {
@@ -218,7 +241,17 @@ class _MissionDetailsState extends State<MissionDetails> {
     debugPrint('!!!!!!! relatorio !!!!!!!!!');
     final uid = firebaseAuth.currentUser!.uid;
     final width = MediaQuery.of(context).size.width;
-    return Scaffold(
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        odometroInicialController.clear();
+        odometroFinalController.clear();
+        context
+        .read<MissionDetailsBloc>()
+        .add(ResetMissionDetails());
+
+      },
+      child: Scaffold(
         backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         appBar: AppBar(
           title: const Text('Detalhes da missão'),
@@ -237,6 +270,20 @@ class _MissionDetailsState extends State<MissionDetails> {
               debugPrint(' ----------> MISSAO CARREGADA !!!!!!!!!');
               // Acessando a missão carregada
               MissaoRelatorio missao = state.missao;
+              odometroInicialController.value.text.isEmpty
+                  ? odometroInicialController.text =
+                      state.missao.odometroInicial ?? ''
+                  : null;
+              odometroFinalController.value.text.isEmpty
+                  ? odometroFinalController.text =
+                      state.missao.odometroFinal ?? ''
+                  : null;
+
+              if (state.missao.odometroInicial != null &&
+                  state.missao.odometroFinal != null) {
+                distanciaOdometro = double.parse(odometroFinalController.text) -
+                    double.parse(odometroInicialController.text);
+              }
 
               debugPrint('!!! MISSAO DECLARADA !!!');
               Set<gmap.Marker> markers = _createMarkersFromLocations(
@@ -516,14 +563,38 @@ class _MissionDetailsState extends State<MissionDetails> {
                                       infosChecked,
                                       (val) =>
                                           setState(() => infosChecked = val!)),
+                                  // buildDataItem(
+                                  //     'Distância estimada (início): ',
+                                  //     state.distanciaIda != null
+                                  //         ? '${state.distanciaIda!.toStringAsFixed(2)} km'
+                                  //         : '',
+                                  //     distanciaIdaChecked,
+                                  //     (val) => setState(
+                                  //         () => distanciaIdaChecked = val!)),
+                                  // buildDataItem(
+                                  //     'Distância estimada (fim): ',
+                                  //     state.distanciaVolta != null
+                                  //         ? '${state.distanciaVolta!.toStringAsFixed(2)} km'
+                                  //         : '',
+                                  //     distanciaVoltaChecked,
+                                  //     (val) => setState(
+                                  //         () => distanciaVoltaChecked = val!)),
                                   buildDataItem(
-                                      'Distância percorrida: ',
+                                      'Distância percorrida estimada: ',
                                       state.distancia != null
-                                          ? '${state.distancia} km'
+                                          ? '${state.distancia!.toStringAsFixed(2)} km'
                                           : '',
                                       distanciaChecked,
                                       (val) => setState(
                                           () => distanciaChecked = val!)),
+                                  buildDataItem(
+                                      'Distância percorrida (odometro): ',
+                                      distanciaOdometro != null
+                                          ? '${distanciaOdometro!.toStringAsFixed(2)} km'
+                                          : '',
+                                      distanciaOdometroChecked,
+                                      (val) => setState(() =>
+                                          distanciaOdometroChecked = val!)),
                                 ],
                               ),
                             ),
@@ -612,52 +683,233 @@ class _MissionDetailsState extends State<MissionDetails> {
                                     ? const Center(
                                         child: Text('Nenhuma foto enviada'),
                                       )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                    : Column(
                                         children: [
-                                          Checkbox(
-                                            checkColor: Colors.green,
-                                            activeColor: Colors.white,
-                                            side: const BorderSide(
-                                                color: Colors.white),
-                                            value: odometroInicialChecked,
-                                            onChanged: (val) => setState(() =>
-                                                odometroInicialChecked = val!),
-                                          ),
-                                          SizedBox(
-                                            height: 150,
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: 1,
-                                              itemBuilder: (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: GestureDetector(
-                                                    onTap: () => showImageDialog(
-                                                        context,
-                                                        state.odometroInicial!
-                                                            .url,
-                                                        state.odometroInicial!
-                                                            .caption),
-                                                    child: Container(
-                                                      width: 150,
-                                                      height: 150,
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: NetworkImage(state
-                                                              .odometroInicial!
-                                                              .url),
-                                                          fit: BoxFit.cover,
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Checkbox(
+                                                checkColor: Colors.green,
+                                                activeColor: Colors.white,
+                                                side: const BorderSide(
+                                                    color: Colors.white),
+                                                value: odometroInicialChecked,
+                                                onChanged: (val) => setState(
+                                                    () =>
+                                                        odometroInicialChecked =
+                                                            val!),
+                                              ),
+                                              SizedBox(
+                                                height: 150,
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemCount: 1,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: GestureDetector(
+                                                        onTap: () => showImageDialog(
+                                                            context,
+                                                            state
+                                                                .odometroInicial!
+                                                                .url,
+                                                            state
+                                                                .odometroInicial!
+                                                                .caption),
+                                                        child: Container(
+                                                          width: 150,
+                                                          height: 150,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            image:
+                                                                DecorationImage(
+                                                              image: NetworkImage(
+                                                                  state
+                                                                      .odometroInicial!
+                                                                      .url),
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
                                                         ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              !enableOdometroInicial
+                                                  ? IconButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          enableOdometroInicial =
+                                                              !enableOdometroInicial;
+                                                        });
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.edit,
+                                                        size: 18,
+                                                        color: Colors.blue,
+                                                      ),
+                                                    )
+                                                  : BlocBuilder<
+                                                      ElevatedButtonBloc2,
+                                                      ElevatedButtonBloc2State>(
+                                                      builder: (context,
+                                                          buttonState) {
+                                                        if (buttonState
+                                                            is ElevatedButtonBloc2Loading) {
+                                                          return const Center(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          );
+                                                        } else {
+                                                          return IconButton(
+                                                            onPressed:
+                                                                () async {
+                                                              BlocProvider.of<
+                                                                          ElevatedButtonBloc2>(
+                                                                      context)
+                                                                  .add(
+                                                                ElevatedButton2Pressed(),
+                                                              );
+                                                              if (odometroInicialFormKey
+                                                                  .currentState!
+                                                                  .validate()) {
+                                                                try {
+                                                                  await relatorioServices.editarKmOdometro(
+                                                                      state
+                                                                          .missao
+                                                                          .missaoId,
+                                                                      state
+                                                                          .missao
+                                                                          .uid,
+                                                                      odometroInicialController
+                                                                          .text
+                                                                          .trim(),
+                                                                      'odometroInicial');
+
+                                                                  BlocProvider.of<
+                                                                              ElevatedButtonBloc2>(
+                                                                          context)
+                                                                      .add(
+                                                                    ElevatedButton2Reset(),
+                                                                  );
+                                                                  setState(() {
+                                                                    enableOdometroInicial =
+                                                                        false;
+                                                                  });
+                                                                  if (odometroFinalController
+                                                                          .text
+                                                                          .isNotEmpty &&
+                                                                      odometroInicialController
+                                                                          .text
+                                                                          .isNotEmpty) {
+                                                                    setState(
+                                                                        () {
+                                                                      distanciaOdometro = double.parse(odometroFinalController
+                                                                              .text) -
+                                                                          double.parse(
+                                                                              odometroInicialController.text);
+                                                                    });
+                                                                  }
+                                                                  mensagemDeSucesso
+                                                                      .showSuccessSnackbar(
+                                                                          context,
+                                                                          'Enviado com sucesso!');
+                                                                } catch (e) {
+                                                                  debugPrint(e
+                                                                      .toString());
+                                                                }
+                                                              }
+                                                            },
+                                                            icon: const Icon(
+                                                              Icons.save,
+                                                              size: 18,
+                                                              color:
+                                                                  Colors.green,
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                    ),
+
+                                              // const SizedBox(
+                                              //   width: 10,
+                                              // ),
+                                              SizedBox(
+                                                width: 150,
+                                                //height: 55,
+                                                child: Form(
+                                                  key: odometroInicialFormKey,
+                                                  child: TextFormField(
+                                                    enabled:
+                                                        enableOdometroInicial,
+                                                    controller:
+                                                        odometroInicialController,
+                                                    inputFormatters: [
+                                                      FilteringTextInputFormatter
+                                                          .digitsOnly,
+                                                      LengthLimitingTextInputFormatter(
+                                                          50),
+                                                    ],
+                                                    validator: (value) {
+                                                      if (value == '' ||
+                                                          value == null ||
+                                                          value.isEmpty) {
+                                                        return 'Preencha o campo corretamente';
+                                                      } else if (int.tryParse(
+                                                              value) ==
+                                                          null) {
+                                                        return 'Insira apenas números';
+                                                      } else {
+                                                        return null;
+                                                      }
+                                                    },
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      labelText: 'Km inicial',
+                                                      labelStyle: TextStyle(
+                                                          color: Colors.grey),
+                                                      // prefixIcon: Icon(
+                                                      //   Icons.person,
+                                                      //   color: Colors.grey,
+                                                      // ),
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                            color: Colors.grey),
+                                                      ),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                            color: Colors.grey),
+                                                      ),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                            color: Colors.grey),
                                                       ),
                                                     ),
                                                   ),
-                                                );
-                                              },
-                                            ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -678,61 +930,229 @@ class _MissionDetailsState extends State<MissionDetails> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                state.odometroFinal == null
-                                    ? const Center(
-                                        child: Text('Nenhuma foto enviada'),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Checkbox(
-                                            checkColor: Colors.green,
-                                            activeColor: Colors.white,
-                                            side: const BorderSide(
-                                                color: Colors.white),
-                                            value: odometroFinalChecked,
-                                            onChanged: (val) => setState(() =>
-                                                odometroFinalChecked = val!),
-                                          ),
-                                          SizedBox(
-                                            height: 150,
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: 1,
-                                              itemBuilder: (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: GestureDetector(
-                                                    onTap: () =>
-                                                        showImageDialog(
+                                Column(
+                                  children: [
+                                    state.odometroFinal == null
+                                        ? const Center(
+                                            child: Text('Nenhuma foto enviada'),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Checkbox(
+                                                checkColor: Colors.green,
+                                                activeColor: Colors.white,
+                                                side: const BorderSide(
+                                                    color: Colors.white),
+                                                value: odometroFinalChecked,
+                                                onChanged: (val) => setState(
+                                                    () => odometroFinalChecked =
+                                                        val!),
+                                              ),
+                                              SizedBox(
+                                                height: 150,
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemCount: 1,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: GestureDetector(
+                                                        onTap: () => showImageDialog(
                                                             context,
                                                             state.odometroFinal!
                                                                 .url,
                                                             state.odometroFinal!
                                                                 .caption),
-                                                    child: Container(
-                                                      width: 150,
-                                                      height: 150,
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: NetworkImage(
-                                                              state
-                                                                  .odometroFinal!
-                                                                  .url),
-                                                          fit: BoxFit.cover,
+                                                        child: Container(
+                                                          width: 150,
+                                                          height: 150,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            image:
+                                                                DecorationImage(
+                                                              image: NetworkImage(
+                                                                  state
+                                                                      .odometroFinal!
+                                                                      .url),
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                );
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                    const SizedBox(
+                                      height: 3,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        !enableOdometroFinal
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    enableOdometroFinal =
+                                                        !enableOdometroFinal;
+                                                  });
+                                                },
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  size: 18,
+                                                  color: Colors.blue,
+                                                ),
+                                              )
+                                            : BlocBuilder<ElevatedButtonBloc3,
+                                                ElevatedButtonBloc3State>(
+                                                builder:
+                                                    (context, buttonState) {
+                                                  if (buttonState
+                                                      is ElevatedButtonBloc3Loading) {
+                                                    return const Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    );
+                                                  } else {
+                                                    return IconButton(
+                                                      onPressed: () async {
+                                                        BlocProvider.of<
+                                                                    ElevatedButtonBloc3>(
+                                                                context)
+                                                            .add(
+                                                          ElevatedButton3Pressed(),
+                                                        );
+                                                        if (odometroFinalFormKey
+                                                            .currentState!
+                                                            .validate()) {
+                                                          try {
+                                                            await relatorioServices
+                                                                .editarKmOdometro(
+                                                                    state.missao
+                                                                        .missaoId,
+                                                                    state.missao
+                                                                        .uid,
+                                                                    odometroFinalController
+                                                                        .text
+                                                                        .trim(),
+                                                                    'odometroFinal');
+                                                            BlocProvider.of<
+                                                                        ElevatedButtonBloc3>(
+                                                                    context)
+                                                                .add(
+                                                              ElevatedButton3Reset(),
+                                                            );
+                                                            setState(() {
+                                                              enableOdometroFinal =
+                                                                  false;
+                                                            });
+                                                            if (odometroFinalController
+                                                                    .text
+                                                                    .isNotEmpty &&
+                                                                odometroInicialController
+                                                                    .text
+                                                                    .isNotEmpty) {
+                                                              setState(() {
+                                                                distanciaOdometro = double.parse(
+                                                                        odometroFinalController
+                                                                            .text) -
+                                                                    double.parse(
+                                                                        odometroInicialController
+                                                                            .text);
+                                                              });
+                                                            }
+                                                            mensagemDeSucesso
+                                                                .showSuccessSnackbar(
+                                                                    context,
+                                                                    'Enviado com sucesso!');
+                                                          } catch (e) {
+                                                            debugPrint(
+                                                                e.toString());
+                                                            tratamentoDeErros
+                                                                .showErrorSnackbar(
+                                                                    context,
+                                                                    'Erro, tente novamente!');
+                                                          }
+                                                        }
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.save,
+                                                        size: 18,
+                                                        color: Colors.green,
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                        // const SizedBox(
+                                        //   width: 10,
+                                        // ),
+                                        SizedBox(
+                                          width: 150,
+                                          //height: 55,
+                                          child: Form(
+                                            key: odometroFinalFormKey,
+                                            child: TextFormField(
+                                              enabled: enableOdometroFinal,
+                                              controller:
+                                                  odometroFinalController,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    50),
+                                              ],
+                                              validator: (value) {
+                                                if (value == '' ||
+                                                    value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Preencha o campo corretamente';
+                                                } else if (int.tryParse(
+                                                        value) ==
+                                                    null) {
+                                                  return 'Insira apenas números';
+                                                } else {
+                                                  return null;
+                                                }
                                               },
+                                              decoration: const InputDecoration(
+                                                labelText: 'Km final',
+                                                labelStyle: TextStyle(
+                                                    color: Colors.grey),
+                                                border: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey),
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey),
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                                 const SizedBox(
                                   height: 25,
                                 ),
@@ -1444,6 +1864,10 @@ class _MissionDetailsState extends State<MissionDetails> {
                                         distancia: distanciaChecked
                                             ? state.distancia
                                             : null,
+                                        distanciaOdometro:
+                                            distanciaOdometroChecked
+                                                ? distanciaOdometro
+                                                : null,
                                         rota: rotaChecked
                                             ? state.locations
                                             : null,
@@ -1487,7 +1911,9 @@ class _MissionDetailsState extends State<MissionDetails> {
             }
             return Container(); // Estado inicial ou desconhecido
           },
-        ));
+        ),
+      ),
+    );
   }
 
   void showImageDialog(BuildContext context, String imageUrl, String? caption) {
@@ -1599,6 +2025,7 @@ class _MissionDetailsState extends State<MissionDetails> {
 Widget buildDataItem(
     String title, String data, bool isChecked, Function(bool?) onChanged) {
   return Row(
+    //crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Checkbox(
         //mudar cor da borda
@@ -1611,26 +2038,28 @@ Widget buildDataItem(
         value: isChecked,
         onChanged: onChanged,
       ),
-      RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+      Expanded(
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            TextSpan(
-              text: data.isNotEmpty ? data : 'Não informado',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-                color: Colors.white,
+              TextSpan(
+                text: data.isNotEmpty ? data : 'Não informado',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ],
@@ -1751,10 +2180,14 @@ class RelatorioChatDarkTheme extends RelatorioChatAppTheme {
   RelatorioChatDarkTheme({
     Color super.flashingCircleDarkColor = Colors.grey,
     Color super.flashingCircleBrightColor = const Color(0xffeeeeee),
-    TextStyle super.incomingChatLinkTitleStyle = const TextStyle(color: Colors.black),
-    TextStyle super.outgoingChatLinkTitleStyle = const TextStyle(color: Colors.white),
-    TextStyle super.outgoingChatLinkBodyStyle = const TextStyle(color: Colors.white),
-    TextStyle super.incomingChatLinkBodyStyle = const TextStyle(color: Colors.white),
+    TextStyle super.incomingChatLinkTitleStyle =
+        const TextStyle(color: Colors.black),
+    TextStyle super.outgoingChatLinkTitleStyle =
+        const TextStyle(color: Colors.white),
+    TextStyle super.outgoingChatLinkBodyStyle =
+        const TextStyle(color: Colors.white),
+    TextStyle super.incomingChatLinkBodyStyle =
+        const TextStyle(color: Colors.white),
     double super.elevation = 1,
     Color super.repliedTitleTextColor = Colors.white,
     super.swipeToReplyIconColor = Colors.white,
@@ -1763,13 +2196,15 @@ class RelatorioChatDarkTheme extends RelatorioChatAppTheme {
     Color super.backArrowColor = Colors.white,
     Color super.backgroundColor = const Color.fromARGB(255, 35, 42, 54),
     Color super.replyDialogColor = const Color.fromARGB(255, 35, 43, 54),
-    Color super.linkPreviewOutgoingChatColor = const Color.fromARGB(255, 35, 43, 54),
+    Color super.linkPreviewOutgoingChatColor =
+        const Color.fromARGB(255, 35, 43, 54),
     Color super.linkPreviewIncomingChatColor =
         const Color.fromARGB(255, 133, 180, 255),
     TextStyle super.linkPreviewIncomingTitleStyle = const TextStyle(),
     TextStyle super.linkPreviewOutgoingTitleStyle = const TextStyle(),
     Color super.replyTitleColor = Colors.white,
-    Color super.textFieldBackgroundColor = const Color.fromARGB(255, 36, 54, 102),
+    Color super.textFieldBackgroundColor =
+        const Color.fromARGB(255, 36, 54, 102),
     Color super.outgoingChatBubbleColor = Colors.blue,
     Color super.inComingChatBubbleColor = const Color.fromARGB(255, 49, 64, 82),
     Color super.reactionPopupColor = const Color.fromARGB(255, 49, 63, 82),
@@ -1780,7 +2215,8 @@ class RelatorioChatDarkTheme extends RelatorioChatAppTheme {
     Color super.inComingChatBubbleTextColor = Colors.white,
     Color super.repliedMessageColor = const Color.fromARGB(255, 133, 178, 255),
     Color super.closeIconColor = Colors.white,
-    Color super.shareIconBackgroundColor = const Color.fromARGB(255, 49, 60, 82),
+    Color super.shareIconBackgroundColor =
+        const Color.fromARGB(255, 49, 60, 82),
     Color super.sendButtonColor = Colors.white,
     Color super.cameraIconColor = const Color(0xff757575),
     Color super.galleryIconColor = const Color(0xff757575),
@@ -1790,7 +2226,8 @@ class RelatorioChatDarkTheme extends RelatorioChatAppTheme {
     Color super.appBarTitleTextStyle = Colors.white,
     Color super.messageReactionBackGroundColor =
         const Color.fromARGB(255, 31, 45, 79),
-    Color super.messageReactionBorderColor = const Color.fromARGB(255, 29, 52, 88),
+    Color super.messageReactionBorderColor =
+        const Color.fromARGB(255, 29, 52, 88),
     Color super.verticalBarColor = const Color.fromARGB(255, 34, 53, 87),
     Color super.chatHeaderColor = Colors.white,
     Color super.themeIconColor = Colors.white,

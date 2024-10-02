@@ -2,15 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/autenticacao/screens/tratamento/error_snackbar.dart';
-import 'package:sombra_testes/autenticacao/screens/tratamento/success_snackbar.dart';
-import 'package:sombra_testes/conta_bancaria/services/conta_bancaria_services.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import 'package:sombra/autenticacao/screens/tratamento/error_snackbar.dart';
+import 'package:sombra/autenticacao/screens/tratamento/success_snackbar.dart';
+import 'package:sombra/conta_bancaria/services/conta_bancaria_services.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 import '../../../perfil_user/bloc/conta_bancaria/conta_bancaria_bloc.dart';
 import '../../../perfil_user/bloc/conta_bancaria/events.dart';
 import '../../../perfil_user/bloc/conta_bancaria/states.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
 
 class FormAddConta extends StatelessWidget {
   final TextEditingController titular;

@@ -7,7 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:sombra_testes/autenticacao/services/user_services.dart';
+import 'package:sombra/autenticacao/services/user_services.dart';
 import '../firebase_options.dart';
 import '../rotas/rotas.dart';
 import 'notificacoess.dart';
@@ -157,34 +157,19 @@ class FirebaseMessagingService {
 
   Future<void> sendNotification(
       String token, String title, String body, String? rota) async {
-    const postUrl = 'https://fcm.googleapis.com/fcm/send';
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization':
-          'key=AAAALUTJYSs:APA91bGIZAJrPMeEvLMTO1BXLC1bXYH9B_8e4bd-KSlEBKuJ5Saw'
-              'Kk0RU6tlCMFGLgBse39NvMqiBJYCmpbTXYHL8Wc0busnd3dDg__lwAMXcXzUTdQ-J4l2k'
-              'MKXZa6mWR3ECCqe1ui-',
-    };
+    const postUrl =
+        "https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/sendNotification";
+
     Dio dio = Dio();
 
     try {
       Response response = await dio.post(
         postUrl,
         data: {
-          'notification': {
-            'body': body,
-            'title': title,
-          },
-          'priority': 'high',
-          'data': {
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-            'id': '1',
-            'status': 'done',
-            //'rota': rota
-          },
-          'to': token,
+          'body': body,
+          'title': title,
+          'token': token,
         },
-        options: Options(headers: headers),
       );
 
       if (response.statusCode == 200) {

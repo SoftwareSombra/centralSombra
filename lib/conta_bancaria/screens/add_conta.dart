@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/conta_bancaria/screens/components/form_add_conta.dart';
+import 'package:sombra/conta_bancaria/screens/components/form_add_conta.dart';
 
 class AddContaBancariaScreeen extends StatelessWidget {
   AddContaBancariaScreeen({super.key});

@@ -458,6 +458,17 @@ class UserServices {
     }
   }
 
+  Future<void> resetPassword2(String email) async {
+    try {
+      if (isEmailValid(email)) {
+        await firebaseAuth.sendPasswordResetEmail(email: email);
+      }
+    } catch (e) {
+      debugPrint('Erro: $e');
+      rethrow;
+    }
+  }
+
   Future<PlatformFile?> selectImage() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,

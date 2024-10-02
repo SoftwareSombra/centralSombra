@@ -31,13 +31,14 @@ class EmpresaServices {
       });
       return true;
     } catch (e) {
+      debugPrint(e.toString());
       return false;
     }
   }
 
   //funcao para adicionar usuários da empresa, os quais podem ser 'administrador' ou 'operador
-  Future<bool> addUsuarioEmpresa(String cnpj, String cargo, String uid,
-      String nome, String email) async {
+  Future<bool> addUsuarioEmpresa(
+      String cnpj, String cargo, String uid, String nome, String email) async {
     try {
       await firestore
           .collection('Empresa')
@@ -146,13 +147,13 @@ class EmpresaServices {
 
   //funcao que retorna todas as empresas cadastradas
   Future<List<Empresa>> getAllEmpresas() async {
+    debugPrint('buscando empresas...');
     try {
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instance.collection('Empresas').get();
       List<Empresa> empresas = [];
       for (var doc in querySnapshot.docs) {
-        empresas.add(
-            Empresa.fromFirestore(doc.data() as Map<String, dynamic>));
+        empresas.add(Empresa.fromFirestore(doc.data() as Map<String, dynamic>));
       }
       return empresas;
     } catch (e) {

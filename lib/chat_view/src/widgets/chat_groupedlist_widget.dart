@@ -22,7 +22,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
-import 'package:sombra_testes/chat_view/src/extensions/extensions.dart';
+import 'package:sombra/chat_view/src/extensions/extensions.dart';
 import '../controller/chat_controller.dart';
 import '../models/chat_bubble_configuration.dart';
 import '../models/feature_active_config.dart';

@@ -1,11 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/missao/services/missao_services.dart';
+import 'package:sombra/missao/services/missao_services.dart';
 import '../../../../chat/screens/central_missao_chat.dart';
 import '../../../../chat/screens/missao_cliente.dart';
 import '../../../../chat/services/chat_services.dart';
 import '../../../missoes/agente/realtime_map.dart';
+import '../../../missoes/misoes_ativas/fotos_missao_screen.dart';
 
 class MissoesAtivasContainer extends StatelessWidget {
   MissoesAtivasContainer({super.key});
@@ -138,7 +139,7 @@ class MissoesAtivasContainer extends StatelessWidget {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 5),
                                 child: MouseRegion(
-                                  cursor: MaterialStateMouseCursor.clickable,
+                                  cursor: WidgetStateMouseCursor.clickable,
                                   child: GestureDetector(
                                     // child: GradientCard(
                                     //   gradient: g1,
@@ -174,24 +175,114 @@ class MissoesAtivasContainer extends StatelessWidget {
                                                           const Icon(
                                                             Icons.gps_fixed,
                                                             color: Colors.white,
-                                                            size: 20,
+                                                            size: 22,
                                                           ),
                                                           const SizedBox(
-                                                            width: 5,
+                                                            width: 6,
                                                           ),
-                                                          SelectableText(
-                                                            '${data['missaoID']}',
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.grey,
-                                                              fontSize: 12,
-                                                            ),
+                                                          Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              SelectableText(
+                                                                '${data['missaoID']}',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                              SelectableText(
+                                                                '${data['tipo']}',
+                                                                style:
+                                                                    const TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ],
                                                       ),
                                                       Row(
                                                         children: [
+                                                          IconButton(
+                                                            onPressed: () {
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          FotosDaMissaoScreen(
+                                                                    uid: data[
+                                                                        'agenteUid'],
+                                                                    missaoId: data[
+                                                                        'missaoID'],
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                            icon: Row(
+                                                              children: [
+                                                                StreamBuilder<
+                                                                    bool>(
+                                                                  stream: missaoServices
+                                                                      .notificacaoFoto(
+                                                                          data[
+                                                                              'agenteUid'],
+                                                                          data[
+                                                                              'missaoID']),
+                                                                  builder: (BuildContext
+                                                                          context,
+                                                                      AsyncSnapshot<
+                                                                              bool>
+                                                                          snapshot) {
+                                                                    if (snapshot
+                                                                            .hasData &&
+                                                                        snapshot
+                                                                            .data!) {
+                                                                      return Stack(
+                                                                        children: [
+                                                                          const Icon(
+                                                                            Icons.photo,
+                                                                            size:
+                                                                                20,
+                                                                          ),
+                                                                          Positioned(
+                                                                            top:
+                                                                                0,
+                                                                            right:
+                                                                                0,
+                                                                            child:
+                                                                                Container(
+                                                                              width: 9,
+                                                                              height: 9,
+                                                                              decoration: const BoxDecoration(
+                                                                                color: Colors.red, // Cor da bolinha
+                                                                                shape: BoxShape.circle,
+                                                                                // border: Border.all(
+                                                                                //   color: Colors.white, // Cor da borda da bolinha
+                                                                                //   width: 1, // Largura da borda
+                                                                                // ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    } else {
+                                                                      return const Icon(
+                                                                        Icons
+                                                                            .photo,
+                                                                        size:
+                                                                            20,
+                                                                      );
+                                                                    }
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
                                                           IconButton(
                                                             onPressed: () {
                                                               Navigator.push(
@@ -377,13 +468,12 @@ class MissoesAtivasContainer extends StatelessWidget {
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               RealTimeMapScreen(
-                                            missaoId: data['missaoID'],
-                                            missaoLatitude:
-                                                data['missaoLatitude'],
-                                            missaoLongitude:
-                                                data['missaoLongitude'],
-                                            missionData: data
-                                          ),
+                                                  missaoId: data['missaoID'],
+                                                  missaoLatitude:
+                                                      data['missaoLatitude'],
+                                                  missaoLongitude:
+                                                      data['missaoLongitude'],
+                                                  missionData: data),
                                         ),
                                       );
                                     },

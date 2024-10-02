@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/autenticacao/screens/cadastro/cadastro_screen.dart';
-import 'package:sombra_testes/autenticacao/screens/login/reset_senha_screen.dart';
+import 'package:sombra/autenticacao/screens/cadastro/cadastro_screen.dart';
+import 'package:sombra/autenticacao/screens/login/reset_senha_screen.dart';
 import '../../tratamento/error_snackbar.dart';
 import '../event_bloc.dart';
 import '../login_bloc.dart';

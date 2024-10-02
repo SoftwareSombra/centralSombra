@@ -251,7 +251,7 @@ class ChatController {
       //     .doc(chatId)
       //     .set({'sinc': 'sincronizado'});
       await firestore
-          .collection(chatCollection)
+          .collection('Chat missão')
           .doc(missaoId)
           .collection('Mensagens')
           .doc()
@@ -302,7 +302,7 @@ class ChatController {
     });
   }
 
-  Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
+Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
       {newChatCollection}) async {
     debugPrint(message.paraJson().toString());
     debugPrint('======= chegou aqui ==========');
@@ -373,6 +373,105 @@ class ChatController {
     FirebaseFirestore.instance
         .collection(chatCollection)
         .doc(missaoId)
+        .collection('Mensagens')
+        .orderBy('createdAt', descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      debugPrint('snapshot: ${snapshot.docs.length}');
+      // Itera sobre todas as alterações desde a última snapshot
+      for (var change in snapshot.docChanges) {
+        // Se uma mensagem foi adicionada, adiciona ao estado local
+        if (change.type == DocumentChangeType.added) {
+          Message message =
+              Message.fromJson(change.doc.data() as Map<String, dynamic>);
+          // message.id = change
+          //     .doc.id; // Garante que o ID esteja sendo atribuído corretamente
+          initialMessageList.add(message);
+        }
+        // Se uma mensagem foi removida, remove do estado local
+        else if (change.type == DocumentChangeType.removed) {
+          initialMessageList
+              .removeWhere((message) => message.id == change.doc.id);
+        }
+        // Adicione aqui outros tipos de alterações, como modificação, se necessário
+      }
+      // Emite a lista atualizada de mensagens
+      messageStreamController.add(List.from(initialMessageList));
+      debugPrint('initialMessageList: ${initialMessageList.length}');
+    });
+  }
+
+  Future<void> sendMessageChatClienteToFirestore(Message message) async {
+    debugPrint(message.paraJson().toString());
+    debugPrint('======= chegou aqui ==========');
+    try {
+      // Verifica se a mensagem é do tipo 'image' ou 'voice'
+      if (message.messageType == MessageType.image ||
+          message.messageType == MessageType.voice) {
+        // Supondo que `message.message` contenha o caminho do arquivo local
+        final UploadTask uploadTask;
+        if (!kIsWeb) {
+          File file = File(message.message);
+          String filePath = message.messageType == MessageType.voice
+              ? 'chatCliente/$chatId/mensagens/${DateTime.now().millisecondsSinceEpoch}.m4a'
+              : 'chatCliente/$chatId/mensagens/${DateTime.now().millisecondsSinceEpoch}';
+
+          // Faz o upload do arquivo para o Firebase Storage
+          uploadTask =
+              FirebaseStorage.instance.ref().child(filePath).putFile(file);
+        } else {
+          debugPrint('======= chegou aqui, web ==========');
+          final response = await html.window.fetch(message.message);
+          final blob = await response.blob();
+          // String filePath = message.messageType == MessageType.voice
+          //     ? 'chatApp/$uid/mensagens/${DateTime.now().millisecondsSinceEpoch}.m4a'
+          //     : 'chatApp/$uid/mensagens/${DateTime.now().millisecondsSinceEpoch}';
+
+          // // Faz o upload do arquivo para o Firebase Storage
+          // uploadTask =
+          //     FirebaseStorage.instance.ref().child(filePath).putBlob(blob);
+          final storageRef = message.messageType == MessageType.voice
+              ? FirebaseStorage.instance.ref().child(
+                  'chatCliente/audio/${DateTime.now().millisecondsSinceEpoch}.m4a')
+              : FirebaseStorage.instance.ref().child(
+                  'chatCliente/images/${DateTime.now().millisecondsSinceEpoch}');
+
+          uploadTask = storageRef.putBlob(blob);
+        }
+
+        // Aguarda a conclusão do upload e obtém a URL
+        TaskSnapshot taskSnapshot = await uploadTask;
+        String fileUrl = await taskSnapshot.ref.getDownloadURL();
+
+        // Atualiza o campo 'message' do objeto Message com a URL do arquivo
+        message.messageType == MessageType.voice
+            ? message = message.copyWith(message: '${fileUrl}.m4a')
+            : message = message.copyWith(message: fileUrl);
+      }
+
+      await firestore
+          .collection('Chat cliente')
+          .doc(chatId)
+          .collection('Mensagens')
+          .doc()
+          .set(message.paraJson());
+
+      await firestore.collection(chatCollection).doc(chatId).set({
+        'userUnreadCount': FieldValue.increment(1),
+        'lastMessageTimestamp': FieldValue.serverTimestamp()
+      });
+      // Chama addMessage para atualizar a lista local e o stream de mensagens
+      //addMessage(message);
+      messageStreamController.sink.add(initialMessageList);
+    } catch (e) {
+      debugPrint("Erro ao enviar mensagem: $e");
+    }
+  }
+
+  void startListeningForNewChatClienteMessages() {
+    FirebaseFirestore.instance
+        .collection('Chat cliente')
+        .doc(chatId)
         .collection('Mensagens')
         .orderBy('createdAt', descending: false)
         .snapshots()

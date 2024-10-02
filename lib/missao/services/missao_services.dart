@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:js_interop';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
@@ -105,13 +107,13 @@ class MissaoServices {
 
       await firestore
           .collection('Missões solicitadas')
-          .doc(missaoId)
+          .doc(cnpj)
           .set({'sinc': 'sinc'});
       await firestore
           .collection('Missões solicitadas')
-          .doc(missaoId)
-          .collection('Empresa')
           .doc(cnpj)
+          .collection('Missao')
+          .doc(missaoId)
           .set({
         'cnpj': cnpj,
         'nome da empresa': nomeDaEmpresa,
@@ -183,15 +185,15 @@ class MissaoServices {
       missaoLongitude,
       local) async {
     try {
-      await firestore.collection('Missões pendentes').doc(missaoId).set({
+      await firestore.collection('Missões pendentes').doc(cnpj).set({
         'sinc': 'sinc',
       });
       final timestamp = FieldValue.serverTimestamp();
       await firestore
           .collection('Missões pendentes')
-          .doc(missaoId)
-          .collection('Empresa')
           .doc(cnpj)
+          .collection('Missao')
+          .doc(missaoId)
           .set({
         'cnpj': cnpj,
         'nome da empresa': nomeDaEmpresa,
@@ -222,13 +224,20 @@ class MissaoServices {
     try {
       await firestore
           .collection('Missões solicitadas')
-          .doc(missaoId)
-          .collection('Empresa')
           .doc(cnpj)
+          .collection('Missao')
+          .doc(missaoId)
           .delete();
 
+      await checkMissaoSolicitadaIdAndDelete(missaoId, cnpj);
+
       await firestore
-          .collection('Solicitacoes Rejeitadas')
+          .collection('Solicitacoes rejeitadas')
+          .doc(cnpj)
+          .set({'sinc': 'sinc'});
+
+      await firestore
+          .collection('Solicitacoes rejeitadas')
           .doc(cnpj)
           .collection('Solicitacao')
           .doc(missaoId)
@@ -245,6 +254,193 @@ class MissaoServices {
     }
   }
 
+  Future<void> rejeitarSolicitacaoPendente(
+      String missaoId, String cnpj, String local, timestamp) async {
+    try {
+      await firestore
+          .collection('Missões pendentes')
+          .doc(cnpj)
+          .collection('Missao')
+          .doc(missaoId)
+          .delete();
+
+      await checkMissaoSolicitadaIdAndDelete(missaoId, cnpj);
+
+      await firestore
+          .collection('Solicitacoes rejeitadas')
+          .doc(cnpj)
+          .set({'sinc': 'sinc'});
+
+      await firestore
+          .collection('Solicitacoes rejeitadas')
+          .doc(cnpj)
+          .collection('Solicitacao')
+          .doc(missaoId)
+          .set({
+        'missaoId': missaoId,
+        'cnpj': cnpj,
+        'local': local,
+        'solicitadaEm': timestamp,
+        'rejeitadaPor': uid,
+        'rejeitadaEm': FieldValue.serverTimestamp()
+      });
+      await checkMissaoIdAndDelete(missaoId);
+      await firestore.collection('Chamado gerado').doc(missaoId).delete();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> checkMissaoIdAndDelete(String missaoId) async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      QuerySnapshot querySnapshot = await firestore
+          .collection('Convites missões')
+          .where('missaoID', isEqualTo: missaoId)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        debugPrint('Existem documentos com o missaoID $missaoId');
+        // Iterar sobre os documentos se precisar
+        for (var doc in querySnapshot.docs) {
+          await firestore.collection('Convites missões').doc(doc.id).delete();
+        }
+      } else {
+        debugPrint('Não existem documentos com o missaoID $missaoId');
+      }
+    } catch (e) {
+      debugPrint('Erro ao verificar missaoID: $e');
+    }
+  }
+
+  Future<void> checkMissaoSolicitadaIdAndDelete(
+      String missaoId, String cnpj) async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      QuerySnapshot querySnapshot = await firestore
+          .collection('Missões solicitadas')
+          .doc(cnpj)
+          .collection('Missao')
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        debugPrint('Não xistem documentos com o cnpj: $cnpj');
+        await firestore.collection('Missões solicitadas').doc(cnpj).delete();
+      } else {
+        debugPrint('Não existem documentos com o missaoID $missaoId');
+      }
+    } catch (e) {
+      debugPrint('Erro ao verificar missaoID: $e');
+    }
+  }
+
+  Future<bool?> verificarSeAgenteRejeitou(uid, missaoId) async {
+    debugPrint('verificando se agente ja rejeitou missao !!!!');
+    debugPrint(uid);
+    debugPrint(missaoId);
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc = await firestore
+          .collection('Missões recusadas')
+          .doc(missaoId)
+          .collection('Agente')
+          .doc(uid)
+          .get();
+
+      debugPrint('!!!!!!!! já?: ${doc.exists.toString()}');
+      return doc.exists;
+    } catch (e) {
+      debugPrint('Erro ao tentar verificar recusa de missao: ${e.toString()}');
+      rethrow;
+    }
+  }
+
+  Stream<bool> verificarSeAlgumAgenteAceitou(String missaoId) {
+    try {
+      return FirebaseFirestore.instance
+          .collection('Respostas dos agentes')
+          .doc(missaoId)
+          .snapshots()
+          .map((snapshot) {
+        if (snapshot.data() != null) {
+          var data = snapshot.data()!;
+          return data['notificacao'] is bool ? data['notificacao'] : false;
+        }
+        return false;
+      });
+    } catch (e) {
+      debugPrint("Erro ao buscar as missões solicitadas: $e");
+      return Stream.value(false);
+    }
+  }
+
+  Stream<bool> existeSolicitacaoPendente() {
+    try {
+      return firestore
+          .collection('Missões solicitadas')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.isNotEmpty);
+    } catch (e) {
+      debugPrint("Erro ao buscar os missoes solicitadas: $e");
+      return Stream.value(false);
+    }
+  }
+
+  Stream<List<MissaoSolicitada>> buscarMissoesSolicitadasStream() {
+    return FirebaseFirestore.instance
+        .collection('Missões solicitadas')
+        .snapshots()
+        .switchMap((missoesSnapshot) {
+      List<Stream<List<MissaoSolicitada>>> empresaStreams = [];
+
+      for (var missaoDoc in missoesSnapshot.docs) {
+        String cnpj = missaoDoc.id;
+
+        var empresaStream = FirebaseFirestore.instance
+            .collection('Missões solicitadas')
+            .doc(cnpj)
+            .collection('Missao')
+            .snapshots()
+            .map((empresasSnapshot) {
+          List<MissaoSolicitada> missoes = [];
+          debugPrint(empresasSnapshot.docs.length.toString());
+
+          for (var empresaDoc in empresasSnapshot.docs) {
+            MissaoSolicitada missao = MissaoSolicitada.fromFirestore(
+                cnpj, empresaDoc.data() as Map<String, dynamic>);
+            debugPrint(missao.toString());
+            missoes.add(missao);
+          }
+
+          return missoes;
+        });
+
+        empresaStreams.add(empresaStream);
+      }
+
+      if (empresaStreams.isEmpty) {
+        // Caso não haja sub-coleções, retorne um stream vazio
+        return Stream.value([]);
+      }
+
+      // Combine todos os streams em um único stream
+      return CombineLatestStream(empresaStreams,
+          (List<List<MissaoSolicitada>> missoesList) {
+        List<MissaoSolicitada> allMissoes = [];
+
+        for (var missoes in missoesList) {
+          allMissoes.addAll(missoes);
+        }
+
+        // Ordena as missões por data
+        allMissoes.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+        return allMissoes;
+      });
+    });
+  }
+
   Future<int> quantidadeDeMissoesPendentes() async {
     final qtd = await firestore.collection('Missões pendentes').get();
     return qtd.docs.length;
@@ -257,10 +453,33 @@ class MissaoServices {
     });
   }
 
+  Stream<int> quantidadeDeMissoesPendentesStream2() {
+    final missaoPendentesRef =
+        FirebaseFirestore.instance.collection('Missões pendentes');
+
+    return missaoPendentesRef.snapshots().switchMap((snapshot) {
+      final subCollectionsStreams = snapshot.docs.map((doc) {
+        final missaoRef = missaoPendentesRef.doc(doc.id).collection('Missao');
+        return missaoRef
+            .snapshots()
+            .map((subSnapshot) => subSnapshot.docs.length);
+      });
+
+      return Rx.combineLatest(subCollectionsStreams, (List<int> counts) {
+        return counts.reduce((a, b) => a + b);
+      });
+    });
+  }
+
   //excluir missao pendente
-  Future<bool> excluirMissaoPendente(String missaoId) async {
+  Future<bool> excluirMissaoPendente(String missaoId, String cnpj) async {
     try {
-      await firestore.collection('Missões pendentes').doc(missaoId).delete();
+      await firestore
+          .collection('Missões pendentes')
+          .doc(cnpj)
+          .collection('Missao')
+          .doc(missaoId)
+          .delete();
       return true;
     } catch (e) {
       return false;
@@ -400,12 +619,19 @@ class MissaoServices {
         'missaoLatitude': missaoLatitude,
         'missaoLongitude': missaoLongitude,
         'local': local,
+        'placaCavalo': placaCavalo,
+        'placaCarreta': placaCarreta,
+        'motorista': motorista,
+        'corVeiculo': corVeiculo,
+        'observacao': observacao,
+        'userLatitude': userLatitude,
+        'userLongitude': userLongitude,
       });
       await firestore
           .collection('Missões solicitadas')
-          .doc(missaoId)
-          .collection('Empresa')
           .doc(cnpj)
+          .collection('Missao')
+          .doc(missaoId)
           .delete();
       await firestore.collection('Convites missões').doc(uid).delete();
       await firestore.collection('Chamado gerado').doc(missaoId).delete();
@@ -585,8 +811,8 @@ class MissaoServices {
 
   Future<Tuple2<bool, String>> finalLocalMissaoSelectFunction(
       String uid, missaoId, latitude, longitude) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    var connectivityResult = await InternetConnection().hasInternetAccess;
+    if (!connectivityResult) {
       try {
         final finalLocalOff =
             await finalLocalMissaoOffline(uid, missaoId, latitude, longitude);
@@ -891,8 +1117,8 @@ class MissaoServices {
     missaoId, {
     fim,
   }) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    var connectivityResult = await InternetConnection().hasInternetAccess;
+    if (!connectivityResult) {
       try {
         final sucesso = await finalizarMissaoOffline(
           cnpj,
@@ -1030,13 +1256,19 @@ class MissaoServices {
       local,
       agente) async {
     try {
+      await firestore
+          .collection('Missões encerradas')
+          .doc(uid)
+          .set({'missaoEncerradaPelaCentral': true});
       await firestore.collection('Missões aceitas').doc(uid).delete();
+      await firestore.collection('Missão iniciada').doc(uid).delete();
       await firestore
           .collection('Empresa')
           .doc(cnpj)
           .collection('Missões ativas')
           .doc(missaoId)
           .delete();
+      await firestore.collection('Resposta do chamado').doc(uid).delete();
       final timestamp = FieldValue.serverTimestamp();
       await firestore
           .collection('Missões concluídas')
@@ -1064,7 +1296,7 @@ class MissaoServices {
         'relatorio': true,
         'finalizadaPor': 'Central'
       });
-      await relatorioMissaoRequest(
+      await relatorioMissao(
           cnpj,
           nomedaEmpresa,
           placaCavalo,
@@ -1260,8 +1492,8 @@ class MissaoServices {
 
   Future<Tuple2<bool, String>> enviarFotoRelatorioSelectFunction(
       String uid, String missaoId, String imageBase64, String caption) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    var connectivityResult = await InternetConnection().hasInternetAccess;
+    if (!connectivityResult) {
       try {
         final enviarFotoOff = await enviarFotoRelatorioOffline(
             uid, missaoId, imageBase64, caption);
@@ -1424,14 +1656,21 @@ class MissaoServices {
       missaoLongitude,
       local,
       finalizador,
-      inicio,
-      fim,
-      {List<Map<String, dynamic>>? fotosComLegendas,
+      //inicio,
+      {fim,
+      List<Map<String, dynamic>>? fotosComLegendas,
       infos}) async {
     final serverTime = FieldValue.serverTimestamp();
+
     try {
       debugPrint('Buscando fotos do relatório...');
       final fotos = await fetchFotosRelatorioMissao(uid, missaoId);
+      var inicio;
+      final inicioDoc =
+          await firestore.collection('Missões').doc(missaoId).get();
+      if (inicioDoc.exists) {
+        inicio = inicioDoc.data()!['timestamp'];
+      }
 
       var data = {
         'cnpj': cnpj,
@@ -1455,7 +1694,7 @@ class MissaoServices {
         'local': local,
         'finalizadaPor': finalizador,
         'inicio': inicio,
-        'fim': fim,
+        'fim': fim ?? FieldValue.serverTimestamp(),
         'serverFim': serverTime,
       };
 
@@ -1475,9 +1714,10 @@ class MissaoServices {
           .collection('Missões')
           .doc(missaoId)
           .set(data, SetOptions(merge: true));
-      await firestore.collection('Missões aceitas').doc(uid).delete();
-      await firestore.collection('Missão iniciada').doc(uid).delete();
-      await firestore.collection('Fotos relatório').doc(uid).delete();
+      // await firestore.collection('Missões aceitas').doc(uid).delete();
+      // await firestore.collection('Missão iniciada').doc(uid).delete();
+      // await firestore.collection('Fotos relatório').doc(uid).delete();
+      //!
       //await firestore.collection('Missões').doc(missaoId).delete();
       //await firestore.collection('Missões concluídas').doc(uid).delete();
       return true;
@@ -1510,11 +1750,33 @@ class MissaoServices {
       {List<Map<String, dynamic>>? fotosComLegendas,
       infos,
       fim}) async {
-    debugPrint('Enviando relatório...');
+    debugPrint('Enviando relatório!...');
+    debugPrint('cnpj: $cnpj');
+    debugPrint('nomeDaEmpresa: $nomedaEmpresa');
+    debugPrint('placaCavalo: $placaCavalo');
+    debugPrint('placaCarreta: $placaCarreta');
+    debugPrint('motorista: $motorista');
+    debugPrint('corVeiculo: $corVeiculo');
+    debugPrint('observacao: $observacao');
+    debugPrint('uid: $uid');
+    debugPrint('missaoId: $missaoId');
+    debugPrint('nome: $nomeDoAgente');
+    debugPrint('tipo: $tipo');
+    debugPrint('infos: $infos');
+    debugPrint('userInitialLatitude: $userInitialLatitude');
+    debugPrint('userInitialLongitude: $userInitialLongitude');
+    debugPrint('userFinalLatitude: $userFinalLatitude');
+    debugPrint('userFinalLongitude: $userFinalLongitude');
+    debugPrint('missaoLatitude: $missaoLatitude');
+    debugPrint('missaoLongitude: $missaoLongitude');
+    debugPrint('local: $local');
+    debugPrint('fim: $fim');
+    debugPrint('finalizadaPor: $finalizador');
 
     var dio = Dio();
     var url =
         'https://southamerica-east1-sombratestes.cloudfunctions.net/addRelatorioMissao';
+    //'http://127.0.0.1:5001/sombratestes/southamerica-east1/addRelatorioMissao';
     try {
       var response = await dio.post(url, data: {
         'cnpj': cnpj,
@@ -1536,7 +1798,7 @@ class MissaoServices {
         'missaoLatitude': missaoLatitude,
         'missaoLongitude': missaoLongitude,
         'local': local,
-        'fim': fim,
+        'fim': fim ?? FieldValue.serverTimestamp(),
         'finalizadaPor': finalizador
         //'inicio': inicio,
       });
@@ -1665,8 +1927,8 @@ class MissaoServices {
       infos,
       fim}) async {
     try {
-      var connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult == ConnectivityResult.none) {
+      var connectivityResult = await InternetConnection().hasInternetAccess;
+      if (!connectivityResult) {
         try {
           final relatorioOff = await relatorioMissaoOffline(
             cnpj,
@@ -1907,8 +2169,8 @@ class MissaoServices {
   Future<Tuple2<bool, String>> incrementoRelatorioMissaoSelectFunction(
       uid, missaoId,
       {List<Foto>? fotosPosMissao, infos}) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.none) {
+    var connectivityResult = await InternetConnection().hasInternetAccess;
+    if (!connectivityResult) {
       try {
         final incrementoOff = await incrementoRelatorioMissaoOffline(
             uid, missaoId,
@@ -2179,17 +2441,17 @@ class MissaoServices {
         .get();
 
     for (var missaoDoc in missoesSnapshot.docs) {
-      String missaoId = missaoDoc.id;
+      String cnpj = missaoDoc.id;
 
       QuerySnapshot empresasSnapshot = await FirebaseFirestore.instance
           .collection('Missões solicitadas')
-          .doc(missaoId)
-          .collection('Empresa')
+          .doc(cnpj)
+          .collection('Missao')
           .get();
 
       for (var empresaDoc in empresasSnapshot.docs) {
         MissaoSolicitada missao = MissaoSolicitada.fromFirestore(
-            missaoId, empresaDoc.data() as Map<String, dynamic>);
+            cnpj, empresaDoc.data() as Map<String, dynamic>);
         missoes.add(missao);
       }
     }
@@ -2226,14 +2488,21 @@ class MissaoServices {
     try {
       await FirebaseFirestore.instance
           .collection('Missões solicitadas')
-          .doc(missaoId)
-          .collection('Empresa')
           .doc(cnpj)
-          .delete();
-      await FirebaseFirestore.instance
-          .collection('Missões solicitadas')
+          .collection('Missao')
           .doc(missaoId)
           .delete();
+      final collection = await FirebaseFirestore.instance
+          .collection('Missões solicitadas')
+          .doc(cnpj)
+          .collection('Missao')
+          .get();
+      if (collection.docs.isEmpty) {
+        await FirebaseFirestore.instance
+            .collection('Missões solicitadas')
+            .doc(cnpj)
+            .delete();
+      }
       return true;
     } catch (e) {
       return false;
@@ -2251,19 +2520,19 @@ class MissaoServices {
     debugPrint('Missões pendentes: ${missoesSnapshot.docs.length}');
 
     for (var missaoDoc in missoesSnapshot.docs) {
-      String missaoId = missaoDoc.id;
+      String cnpj = missaoDoc.id;
 
-      debugPrint('Missão ID: $missaoId');
+      debugPrint('CNPJ: $cnpj');
 
       QuerySnapshot empresasSnapshot = await FirebaseFirestore.instance
           .collection('Missões pendentes')
-          .doc(missaoId)
-          .collection('Empresa')
+          .doc(cnpj)
+          .collection('Missao')
           .get();
 
       for (var empresaDoc in empresasSnapshot.docs) {
         MissaoSolicitada missao = MissaoSolicitada.fromFirestore(
-            missaoId, empresaDoc.data() as Map<String, dynamic>);
+            cnpj, empresaDoc.data() as Map<String, dynamic>);
         missoes.add(missao);
       }
     }
@@ -2318,5 +2587,102 @@ class MissaoServices {
 
     // Verificar se o documento existe e retornar o resultado
     return docSnapshot.exists;
+  }
+
+  Future<Map<String, dynamic>?> getUltimoPontoRota(String missaoId) async {
+    try {
+      final rotaExiste = await verificaSeRotaExiste(missaoId);
+
+      if (rotaExiste) {
+        final rota = await firestore
+            .collection('Rotas')
+            .doc(missaoId)
+            .collection('Rota')
+            .orderBy('timestamp', descending: true)
+            .limit(1)
+            .get();
+
+        if (rota.docs.isNotEmpty) {
+          final ultimoDoc = rota.docs.first;
+          final data = ultimoDoc.data();
+          return data;
+        } else {
+          // Não há documentos na coleção
+          return null;
+        }
+      } else {
+        // A rota não existe
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar o último ponto da rota: $e');
+      rethrow;
+    }
+  }
+
+  Future<void>? getDistanceBetweenTwoPoints() {}
+
+  Future<void> marcarFotoComoEnviada(
+      String uid, String missaoId, String urlFoto) async {
+    try {
+      DocumentReference documentRef = FirebaseFirestore.instance
+          .collection('Fotos relatório')
+          .doc(uid)
+          .collection('Missões')
+          .doc(missaoId);
+
+      DocumentSnapshot documentSnapshot = await documentRef.get();
+      List<dynamic> fotos = documentSnapshot.get('fotos');
+
+      // Encontre a foto que precisa ser atualizada
+      for (int i = 0; i < fotos.length; i++) {
+        if (fotos[i]['url'] == urlFoto) {
+          fotos[i]['enviada'] = true;
+          break;
+        }
+      }
+
+      // Atualize o documento com a lista de fotos modificada
+      await documentRef.update({'fotos': fotos, 'notificacaoCliente': true});
+    } catch (e) {
+      debugPrint('Erro ao atualizar a foto: $e');
+      rethrow;
+    }
+  }
+
+  Stream<bool> notificacaoFoto(String uid, String missaoId) {
+    debugPrint('chegou aqui !!!!!');
+    return FirebaseFirestore.instance
+        .collection('Fotos relatório')
+        .doc(uid)
+        .collection('Missões')
+        .doc(missaoId)
+        .snapshots()
+        .map((snapshot) {
+      bool hasNotification = false;
+      if (snapshot.data() != null) {
+        if (snapshot.data()!['notificacaoCentral'] != null &&
+            snapshot.data()!['notificacaoCentral'] == true) {
+          hasNotification = true;
+        }
+      }
+      debugPrint('Notificação Foto: $hasNotification');
+      return hasNotification;
+    });
+  }
+
+  Future<void> fotoVisualizada(String uid, String missaoId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Fotos relatório')
+          .doc(uid)
+          .collection('Missões')
+          .doc(missaoId)
+          .set({'notificacaoCentral': false}, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint(
+          'Erro ao contabilizar visalização de foto da missão: ${e.toString()}');
+      rethrow;
+    }
   }
 }

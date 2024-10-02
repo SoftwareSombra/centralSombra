@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/missao/services/missao_services.dart';
+import 'package:sombra/missao/services/missao_services.dart';
 import 'missoes_solicitadas_event.dart';
 import 'missoes_solicitadas_state.dart';
 

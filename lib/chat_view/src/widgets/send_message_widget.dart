@@ -23,7 +23,7 @@ import 'dart:io' if (kIsWeb) 'dart:html';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/chat_view/src/extensions/extensions.dart';
+import 'package:sombra/chat_view/src/extensions/extensions.dart';
 
 import '../../chatview.dart';
 import '../utils/constants/constants.dart';

@@ -24,20 +24,20 @@ class TopBar {
         ?.remove(); // Remove a TopBar anterior se estiver sendo exibida
     _currentOverlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: 40,
-        left: MediaQuery.of(context).size.width * 0.12,
-        right: MediaQuery.of(context).size.width * 0.12,
+        top: 1,
+        left: MediaQuery.of(context).size.width * 0.005,
+        right: MediaQuery.of(context).size.width * 0.005,
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(1),
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(5),
             ),
             child: Text(
               message,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 13),
               textAlign: TextAlign.center,
             ),
           ),

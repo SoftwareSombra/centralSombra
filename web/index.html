@@ -16,27 +16,24 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Sombra assessoramento, preservação e acompanhamento de veículos e cargas.">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="sombra_testes">
+  <meta name="apple-mobile-web-app-title" content="SOMBRA">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  
 
-  <title>sombra_testes</title>
+  <title>SOMBRA</title>
   <link rel="manifest" href="manifest.json">
-
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = null;
-  </script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU"></script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer=""></script>
   <style id="splash-screen-style">
     html {
       height: 100%
@@ -110,40 +107,22 @@
       <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
       <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
   </picture>
+  <script src="flutter_bootstrap.js" async=""></script>
   <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
+    {{flutter_js}}
+    {{flutter_build_config}}
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const forceCanvaskit = searchParams.get('force_canvaskit') === 'true';
+    const userConfig = forceCanvaskit ? {'renderer': 'canvaskit'} : {};
+
+    _flutter.loader.load({
+      config: userConfig,
+      serviceWorkerSettings: {
+        serviceWorkerVersion: {{flutter_service_worker_version}},
+      },
     });
   </script>
-
-<!-- <script>
-  if ('serviceWorker' in navigator) {
-    // Service workers are supported. Use them.
-    window.addEventListener('load', function () {
-      // ADD THIS LINE
-      navigator.serviceWorker.register('/firebase-messaging-sw.js');
-
-      // Wait for registration to finish before dropping the <script> tag.
-      // Otherwise, the browser will load the script multiple times,
-      // potentially different versions.
-      var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
-
-      //  ...
-    });
-  }
-</script> -->
-
-<!-- <script src="main.dart.js" type="application/javascript"></script> -->
 
   <script>
        if ('serviceWorker' in navigator) {
@@ -155,13 +134,12 @@
             // Wait for registration to finish before dropping the <script> tag.
             // Otherwise, the browser will load the script multiple times,
             // potentially different versions.
-            var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+            var serviceWorkerUrl = 'flutter_service_worker.js?v=' + {{flutter_service_worker_version}};
 
             //  ...
           });
       }
   </script>
-
 
 
 </body></html>

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/agente/services/agente_services.dart';
+import 'package:sombra/agente/services/agente_services.dart';
 import '../../model/agente_model.dart';
 import 'events.dart';
 import 'states.dart';

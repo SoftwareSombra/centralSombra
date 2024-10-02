@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
+import 'package:sombra/web/home/screens/mapa_teste.dart';
 import '../../../chat_view/src/models/message.dart';
 import '../../../missao/model/missao_model.dart';
 
@@ -24,6 +24,7 @@ class DadosRelatorioCliente {
   final bool? fotosPosMissao;
   final bool? infos;
   final bool? distancia;
+  final bool? distanciaOdometro;
   final bool? rota;
   final String uidOperadorSombra;
 
@@ -48,6 +49,7 @@ class DadosRelatorioCliente {
     this.fotosPosMissao,
     this.infos,
     this.distancia,
+    this.distanciaOdometro,
     this.rota,
     required this.uidOperadorSombra,
   });
@@ -75,6 +77,7 @@ class DadosRelatorioCliente {
       fotosPosMissao: data['fotosPosMissao'] ?? false,
       infos: data['infos'] ?? false,
       distancia: data['distancia'] ?? false,
+      distanciaOdometro: data['distanciaOdometro'] ?? false,
       rota: data['rota'] ?? false,
       uidOperadorSombra: data['uidOperadorSombra'],
     );
@@ -103,6 +106,7 @@ class DadosRelatorioCliente {
       'fotosPosMissao': fotosPosMissao ?? false,
       'infos': infos ?? false,
       'distancia': distancia ?? false,
+      'distanciaOdometro': distanciaOdometro ?? false,
       'rota': rota ?? false,
       'uidOperadorSombra': uidOperadorSombra,
     };
@@ -133,6 +137,7 @@ class RelatorioCliente {
   final String? infos;
   final String? infosComplementares;
   final double? distancia;
+  final double? distanciaOdometro;
   final List<CoordenadaComTimestamp>? rota;
 
   RelatorioCliente({
@@ -159,6 +164,7 @@ class RelatorioCliente {
     this.infos,
     this.infosComplementares,
     this.distancia,
+    this.distanciaOdometro,
     this.rota,
   });
 
@@ -213,6 +219,7 @@ class RelatorioCliente {
       infos: data['infos'],
       infosComplementares: data['infosComplementares'],
       distancia: data['distancia'],
+      distanciaOdometro: data['distanciaOdometro'],
       rota: rotaMapeada,
     );
   }
@@ -242,7 +249,7 @@ class RelatorioCliente {
 
     Map<String, dynamic>? fotoOdometroInicial =
         this.odometroInicial != null ? this.odometroInicial!.toMap() : null;
-    
+
     Map<String, dynamic>? fotoOdometroFinal =
         this.odometroFinal != null ? this.odometroFinal!.toMap() : null;
 
@@ -270,6 +277,7 @@ class RelatorioCliente {
       'infos': infos,
       'infosComplementares': infosComplementares,
       'distancia': distancia,
+      'distanciaOdometro': distanciaOdometro,
       'rota': rota,
     };
   }

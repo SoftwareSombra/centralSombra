@@ -2,10 +2,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-
 import '../../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import '../../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_state.dart';
 import '../../../../missao/screens/missoes_pendentes/missoes_pendentes_screen.dart';
+import '../../../../missao/services/missao_services.dart';
+import '../../../missoes/criar_missao/screens/components/solicitacao_card.dart';
+import 'solicitacoes/bloc/solicitacoes_bloc/notificacao_chat_bloc.dart';
 
 class SecondRow extends StatelessWidget {
   const SecondRow({super.key});
@@ -39,7 +41,7 @@ class SecondRow extends StatelessWidget {
               ResponsiveGridCol(
                 xs: 3,
                 md: 3,
-                child: const AttWidget(),
+                child: AttWidget(),
               ),
             ],
           ),
@@ -62,7 +64,7 @@ class MissoesPendentesContainer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: Container(
           //width: 400,
-          height: 180,
+          height: 190,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
@@ -112,7 +114,7 @@ class MissoesPendentesContainer extends StatelessWidget {
                 child: Icon(Icons.arrow_forward, color: Colors.white),
               ),
               MouseRegion(
-                cursor: MaterialStateMouseCursor.clickable,
+                cursor: WidgetStateMouseCursor.clickable,
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
@@ -210,9 +212,11 @@ class MissoesPendentesContainer extends StatelessWidget {
 }
 
 class AttWidget extends StatelessWidget {
-  const AttWidget({super.key});
+  AttWidget({super.key});
 
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
+  final MissaoServices _missaoServices = MissaoServices();
+  final ScrollController missoesScrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +224,7 @@ class AttWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Container(
         //width: 400,
-        height: 180,
+        height: 190,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
@@ -253,81 +257,166 @@ class AttWidget extends StatelessWidget {
           ],
           //color: Colors.blue,
         ),
-        child: Stack(
-          children: [
-            // Positioned(
-            //   top: -16,
-            //   left: MediaQuery.of(context).size.width * 0.548,
-            //   child: Icon(
-            //     Icons.new_releases_outlined,
-            //     color: Colors.blue.withOpacity(0.1),
-            //     size: 100,
-            //   ),
+        child:
+            // Stack(
+            //   children: [
+            //     // Positioned(
+            //     //   top: -16,
+            //     //   left: MediaQuery.of(context).size.width * 0.548,
+            //     //   child: Icon(
+            //     //     Icons.new_releases_outlined,
+            //     //     color: Colors.blue.withOpacity(0.1),
+            //     //     size: 100,
+            //     //   ),
+            //     // ),
+            //     const Positioned(
+            //       top: 145,
+            //       left: 1095,
+            //       child: Icon(Icons.arrow_forward, color: Colors.white),
+            //     ),
+            //     GestureDetector(
+            //       child: Padding(
+            //         padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 3),
+            //         child: Row(
+            //           children: [
+            //             Expanded(
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //                 children: [
+            // Column(
+            //   children: [
+            //     Icon(
+            //       Icons.access_time,
+            //       color: Colors.white.withOpacity(0.3),
+            //       size: 100,
+            //     ),
+            //   ],
             // ),
-            const Positioned(
-              top: 145,
-              left: 1095,
-              child: Icon(Icons.arrow_forward, color: Colors.white),
-            ),
-            GestureDetector(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Column(
-                          //   children: [
-                          //     Icon(
-                          //       Icons.access_time,
-                          //       color: Colors.white.withOpacity(0.3),
-                          //       size: 100,
-                          //     ),
-                          //   ],
-                          // ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 5, top: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(
-                                  children: [
-                                    AutoSizeText(
-                                      'ATUALIZAÇÕES',
-                                      maxFontSize: 20,
-                                      minFontSize: 18,
-                                      style: TextStyle(
-                                          fontSize: 100,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 1,
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                  child: const AutoSizeText(
-                                    'O relatório da missão XXXXXXXXXXXXXXXXXXXXXX foi enviado hoje às 18:30h',
-                                    maxFontSize: 14,
-                                    minFontSize: 10,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.grey),
-                                  ),
-                                ),
-                              ],
-                            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 5, top: 10),
+            //   child:
+            // Column(
+            //   crossAxisAlignment: CrossAxisAlignment.start,
+            //   children: [
+            //     const Row(
+            //       children: [
+            //         AutoSizeText(
+            //           'ATUALIZAÇÕES',
+            //           maxFontSize: 20,
+            //           minFontSize: 18,
+            //           style: TextStyle(
+            //               fontSize: 100,
+            //               fontWeight: FontWeight.w400),
+            //         ),
+            //       ],
+            //     ),
+            //     const SizedBox(
+            //       height: 1,
+            //     ),
+            //     Container(
+            //       width:
+            //           MediaQuery.of(context).size.width * 0.5,
+            //       child: const AutoSizeText(
+            //         'O relatório da missão XXXXXXXXXXXXXXXXXXXXXX foi enviado hoje às 18:30h',
+            //         maxFontSize: 14,
+            //         minFontSize: 10,
+            //         textAlign: TextAlign.start,
+            //         style: TextStyle(
+            //             fontSize: 14, color: Colors.grey),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            Stack(
+          children: [
+            BlocBuilder<MissoesSolicitadasStreamBloc,
+                MissoesSolicitadasStreamState>(
+              builder: (context, missoesStreamState) {
+                if (missoesStreamState is MissoesSolicitadasStreamError) {
+                  return const Center(
+                      child: Text('Erro ao buscar missoes solicitadas.'));
+                }
+
+                if (missoesStreamState is MissoesSolicitadasStreamLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (missoesStreamState is MissoesSolicitadasStreamLoaded) {
+                  return missoesStreamState.missoesSolicitadas.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              AutoSizeText(
+                                textAlign: TextAlign.center,
+                                'SEM SOLICITAÇÃO NO MOMENTO',
+                                maxFontSize: 20,
+                                minFontSize: 18,
+                                style: TextStyle(
+                                    fontSize: 100, fontWeight: FontWeight.w400),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(
+                              //horizontal: 30,
+                              horizontal: 15),
+                          child: ListView.builder(
+                            //physics: const NeverScrollableScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            controller: missoesScrollController,
+                            shrinkWrap: true,
+                            itemCount:
+                                missoesStreamState.missoesSolicitadas.length,
+                            itemBuilder: (context, index) {
+                              return SolicitacaoMissaoCard(
+                                missaoSolicitada: missoesStreamState
+                                    .missoesSolicitadas[index],
+                                padding: false,
+                              );
+                            },
+                          ),
+                        );
+                } else {
+                  return const Center(
+                      child: Text('Falha na conexão, atualize a tela'));
+                }
+              },
+            ),
+            Positioned(
+              left: 10, //adjust the position as needed
+              top: 0,
+              bottom: 0,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                // seta para a esquerda
+                onPressed: () {
+                  // Aqui, você implementa a lógica para rolar a ListView para a esquerda
+                  missoesScrollController.animateTo(
+                    missoesScrollController.offset - 300,
+                    // 200 é o valor que você quer rolar. Ajuste conforme necessário
+                    curve: Curves.linear,
+                    duration: const Duration(milliseconds: 500),
+                  );
+                },
+              ),
+            ),
+            Positioned(
+              right: 10, //adjust the position as needed
+              top: 0,
+              bottom: 0,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_forward_ios),
+                // seta para a direita
+                onPressed: () {
+                  missoesScrollController.animateTo(
+                    missoesScrollController.offset + 300,
+                    curve: Curves.linear,
+                    duration: const Duration(milliseconds: 400),
+                  );
+                },
               ),
             ),
           ],

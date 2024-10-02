@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/autenticacao/services/user_services.dart';
+import 'package:sombra/autenticacao/services/user_services.dart';
 import '../model/agente_model.dart';
 
 class AgenteServices {

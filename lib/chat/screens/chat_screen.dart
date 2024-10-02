@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/chat/services/chat_services.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:sombra/chat/services/chat_services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../chat_view/chatview.dart';
 import '../../notificacoes/fcm.dart';
@@ -47,15 +48,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _showHideTypingIndicator() {
     _chatController.setTypingIndicator = !_chatController.showTypingIndicator;
-  }
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getConversationMessages() {
-    return FirebaseFirestore.instance
-        .collection('Chat')
-        .doc(uid!)
-        .collection('Mensagens')
-        .orderBy('Timestamp', descending: false)
-        .snapshots();
   }
 
   Future<void> resetUserUnreadCount(String uid) async {
@@ -130,6 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
     chatStatus.isInChatScreen = false;
     _chatController.dispose();
     _messagesSubscription.cancel();
+    chatViewController.dispose();
     super.dispose();
   }
 
@@ -257,7 +250,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   /// send your message reciepts to the other client
                   debugPrint('Message Read');
                 },
-                
                 senderNameTextStyle:
                     TextStyle(color: theme.inComingChatBubbleTextColor),
                 color: theme.inComingChatBubbleColor,
@@ -310,6 +302,24 @@ class _ChatScreenState extends State<ChatScreen> {
                   defaultIconColor: theme.shareIconColor,
                   onPressed: (p0) {},
                 ),
+                onTap: (message) {
+                  showDialog(
+                    context: context,
+                    builder: (_) {
+                      return Dialog(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: PhotoView(
+                            minScale: PhotoViewComputedScale.contained,
+                            maxScale: PhotoViewComputedScale.contained * 2.5,
+                            imageProvider: NetworkImage(message),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
             // profileCircleConfig: ProfileCircleConfiguration(
@@ -679,10 +689,14 @@ class DarkTheme extends AppTheme {
   DarkTheme({
     Color super.flashingCircleDarkColor = Colors.grey,
     Color super.flashingCircleBrightColor = const Color(0xffeeeeee),
-    TextStyle super.incomingChatLinkTitleStyle = const TextStyle(color: Colors.black),
-    TextStyle super.outgoingChatLinkTitleStyle = const TextStyle(color: Colors.white),
-    TextStyle super.outgoingChatLinkBodyStyle = const TextStyle(color: Colors.white),
-    TextStyle super.incomingChatLinkBodyStyle = const TextStyle(color: Colors.white),
+    TextStyle super.incomingChatLinkTitleStyle =
+        const TextStyle(color: Colors.black),
+    TextStyle super.outgoingChatLinkTitleStyle =
+        const TextStyle(color: Colors.white),
+    TextStyle super.outgoingChatLinkBodyStyle =
+        const TextStyle(color: Colors.white),
+    TextStyle super.incomingChatLinkBodyStyle =
+        const TextStyle(color: Colors.white),
     double super.elevation = 1,
     Color super.repliedTitleTextColor = Colors.white,
     super.swipeToReplyIconColor = Colors.white,
@@ -691,13 +705,15 @@ class DarkTheme extends AppTheme {
     Color super.backArrowColor = Colors.white,
     Color super.backgroundColor = const Color.fromARGB(255, 35, 42, 54),
     Color super.replyDialogColor = const Color.fromARGB(255, 35, 43, 54),
-    Color super.linkPreviewOutgoingChatColor = const Color.fromARGB(255, 35, 43, 54),
+    Color super.linkPreviewOutgoingChatColor =
+        const Color.fromARGB(255, 35, 43, 54),
     Color super.linkPreviewIncomingChatColor =
         const Color.fromARGB(255, 133, 180, 255),
     TextStyle super.linkPreviewIncomingTitleStyle = const TextStyle(),
     TextStyle super.linkPreviewOutgoingTitleStyle = const TextStyle(),
     Color super.replyTitleColor = Colors.white,
-    Color super.textFieldBackgroundColor = const Color.fromARGB(255, 36, 54, 102),
+    Color super.textFieldBackgroundColor =
+        const Color.fromARGB(255, 36, 54, 102),
     Color super.outgoingChatBubbleColor = Colors.blue,
     Color super.inComingChatBubbleColor = const Color.fromARGB(255, 49, 64, 82),
     Color super.reactionPopupColor = const Color.fromARGB(255, 49, 63, 82),
@@ -708,7 +724,8 @@ class DarkTheme extends AppTheme {
     Color super.inComingChatBubbleTextColor = Colors.white,
     Color super.repliedMessageColor = const Color.fromARGB(255, 133, 178, 255),
     Color super.closeIconColor = Colors.white,
-    Color super.shareIconBackgroundColor = const Color.fromARGB(255, 49, 60, 82),
+    Color super.shareIconBackgroundColor =
+        const Color.fromARGB(255, 49, 60, 82),
     Color super.sendButtonColor = Colors.white,
     Color super.cameraIconColor = const Color(0xff757575),
     Color super.galleryIconColor = const Color(0xff757575),
@@ -718,7 +735,8 @@ class DarkTheme extends AppTheme {
     Color super.appBarTitleTextStyle = Colors.white,
     Color super.messageReactionBackGroundColor =
         const Color.fromARGB(255, 31, 45, 79),
-    Color super.messageReactionBorderColor = const Color.fromARGB(255, 29, 52, 88),
+    Color super.messageReactionBorderColor =
+        const Color.fromARGB(255, 29, 52, 88),
     Color super.verticalBarColor = const Color.fromARGB(255, 34, 53, 87),
     Color super.chatHeaderColor = Colors.white,
     Color super.themeIconColor = Colors.white,

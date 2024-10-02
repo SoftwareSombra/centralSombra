@@ -1,17 +1,18 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
-import 'package:sombra_testes/agente/model/agente_model.dart';
-import 'package:sombra_testes/mapa/services/mapa_services.dart';
-import 'package:sombra_testes/web/home/notificacao/not_teste.dart';
+import 'package:sombra/agente/model/agente_model.dart';
+import 'package:sombra/mapa/services/mapa_services.dart';
+import 'package:sombra/web/home/notificacao/not_teste.dart';
 import 'dart:ui' as ui;
 import '../../../agente/services/agente_services.dart';
 import '../../../autenticacao/services/user_services.dart';
 import 'dart:math';
+
+import 'mapa_teste.dart';
 
 class SearchAdminScreen extends StatefulWidget {
   const SearchAdminScreen({super.key});
@@ -23,17 +24,17 @@ class SearchAdminScreen extends StatefulWidget {
 enum ActiveField { start, end, mission }
 
 class _SearchAdminScreenState extends State<SearchAdminScreen> {
-  final places = FlutterGooglePlacesSdk(
-    'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
-    locale: const Locale('pt', 'BR'),
-  );
-  List<AutocompletePrediction>? _predictions;
+  // final places = places_sdk.FlutterGooglePlacesSdk(
+  //   'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
+  //   locale: const Locale('pt', 'BR'),
+  // );
+  // List<places_sdk.AutocompletePrediction>? _predictions;
   final _startController = TextEditingController();
   final _endController = TextEditingController();
   // Place? startPosition;
   // Place? endPosition;
   final _missionController = TextEditingController();
-  Place? missionPosition;
+  //places_sdk.Place? missionPosition;
   String? _selectedPlaceId;
   NotTesteService notTesteService = NotTesteService();
 
@@ -45,46 +46,46 @@ class _SearchAdminScreenState extends State<SearchAdminScreen> {
   void initState() {
     super.initState();
 
-    _startController.addListener(() {
-      _onTextChanged(_startController, ActiveField.start);
-    });
+    // _startController.addListener(() {
+    //   _onTextChanged(_startController, ActiveField.start);
+    // });
 
-    _endController.addListener(() {
-      _onTextChanged(_endController, ActiveField.end);
-    });
+    // _endController.addListener(() {
+    //   _onTextChanged(_endController, ActiveField.end);
+    // });
 
-    _missionController.addListener(() {
-      _onTextChanged(_missionController, ActiveField.mission);
-    });
+    // _missionController.addListener(() {
+    //   _onTextChanged(_missionController, ActiveField.mission);
+    // });
   }
 
-  _onTextChanged(TextEditingController controller, ActiveField activeField) {
-    if (controller.text.isEmpty) {
-      setState(() {
-        _predictions = null;
-      });
-      return;
-    }
+  // _onTextChanged(TextEditingController controller, ActiveField activeField) {
+  //   if (controller.text.isEmpty) {
+  //     setState(() {
+  //       _predictions = null;
+  //     });
+  //     return;
+  //   }
 
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
+  //   if (_debounce?.isActive ?? false) _debounce?.cancel();
 
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      performSearch(controller.text, activeField);
-    });
-  }
+  //   _debounce = Timer(const Duration(milliseconds: 500), () {
+  //     performSearch(controller.text, activeField);
+  //   });
+  // }
 
-  performSearch(String query, ActiveField activeField) async {
-    if (query.isNotEmpty) {
-      final result = await places.findAutocompletePredictions(query);
+  // performSearch(String query, ActiveField activeField) async {
+  //   if (query.isNotEmpty) {
+  //     final result = await places.findAutocompletePredictions(query);
 
-      if (result.predictions.isNotEmpty) {
-        setState(() {
-          _predictions = result.predictions;
-          _activeField = activeField;
-        });
-      }
-    }
-  }
+  //     if (result.predictions.isNotEmpty) {
+  //       setState(() {
+  //         _predictions = result.predictions;
+  //         _activeField = activeField;
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -122,66 +123,66 @@ class _SearchAdminScreenState extends State<SearchAdminScreen> {
                 suffixIcon: Icon(Icons.search),
               ),
             ),
-            if (_predictions != null && _predictions!.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _predictions!.length,
-                  itemBuilder: (context, index) {
-                    final prediction = _predictions![index];
-                    bool isSelected = prediction.placeId == _selectedPlaceId;
+            // if (_predictions != null && _predictions!.isNotEmpty)
+            //   Expanded(
+            //     child: ListView.builder(
+            //       itemCount: _predictions!.length,
+            //       itemBuilder: (context, index) {
+            //         final prediction = _predictions![index];
+            //         bool isSelected = prediction.placeId == _selectedPlaceId;
 
-                    return ListTile(
-                        title: Text(prediction.fullText),
-                        trailing: isSelected ? const Icon(Icons.check) : null,
-                        onTap: () async {
-                          final fields = [
-                            PlaceField.Name,
-                            PlaceField.Address,
-                            PlaceField
-                                .Location, // Alterado de Location para LatLng
-                          ];
+            //         return ListTile(
+            //             title: Text(prediction.fullText),
+            //             trailing: isSelected ? const Icon(Icons.check) : null,
+            //             onTap: () async {
+            //               final fields = [
+            //                 places_sdk.PlaceField.Name,
+            //                 places_sdk.PlaceField.Address,
+            //                 places_sdk.PlaceField
+            //                     .Location, // Alterado de Location para LatLng
+            //               ];
 
-                          final response = await places
-                              .fetchPlace(prediction.placeId, fields: fields);
-                          Place? details = response.place;
+            //               final response = await places
+            //                   .fetchPlace(prediction.placeId, fields: fields);
+            //               places_sdk.Place? details = response.place;
 
-                          setState(() {
-                            _selectedPlaceId = prediction.placeId;
-                            if (_activeField == ActiveField.mission) {
-                              missionPosition = details;
-                              _missionController.text = details!.address!;
-                              _missionController.selection =
-                                  TextSelection.fromPosition(
-                                TextPosition(
-                                    offset: _missionController.text.length),
-                              );
-                            }
+            //               setState(() {
+            //                 _selectedPlaceId = prediction.placeId;
+            //                 if (_activeField == ActiveField.mission) {
+            //                   missionPosition = details;
+            //                   _missionController.text = details!.address!;
+            //                   _missionController.selection =
+            //                       TextSelection.fromPosition(
+            //                     TextPosition(
+            //                         offset: _missionController.text.length),
+            //                   );
+            //                 }
 
-                            debugPrint(missionPosition
-                                .toString()); // Adicionando o log para o missionPosition
-                            _predictions = null;
-                          });
-                        });
-                  },
-                ),
-              ),
-            ElevatedButton(
-              onPressed: (missionPosition != null)
-                  ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MapAdminScreen(
-                            // startPosition: startPosition,
-                            // endPosition: endPosition,
-                            missionPosition: missionPosition,
-                          ),
-                        ),
-                      );
-                    }
-                  : null,
-              child: const Text('Open Map'),
-            )
+            //                 debugPrint(missionPosition
+            //                     .toString()); // Adicionando o log para o missionPosition
+            //                 _predictions = null;
+            //               });
+            //             });
+            //       },
+            //     ),
+            //   ),
+            // ElevatedButton(
+            //   onPressed: (missionPosition != null)
+            //       ? () {
+            //           Navigator.push(
+            //             context,
+            //             MaterialPageRoute(
+            //               builder: (context) => MapAdminScreen(
+            //                 // startPosition: startPosition,
+            //                 // endPosition: endPosition,
+            //                 missionPosition: missionPosition,
+            //               ),
+            //             ),
+            //           );
+            //         }
+            //       : null,
+            //   child: const Text('Open Map'),
+            // )
           ],
         ),
       ),
@@ -220,16 +221,16 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
     super.initState();
     _initialPosition = gmap.CameraPosition(
       target: gmap.LatLng(
-        widget.missionPosition!.latLng!.lat,
-        widget.missionPosition!.latLng!.lng,
+        widget.missionPosition!.latLng!.latitude,
+        widget.missionPosition!.latLng!.longitude,
       ),
       zoom: 14.4746,
     );
     _loadPhotoBytes();
     _loadUserLocations().then((_) {
       fetchNearestUsersToMission(gmap.LatLng(
-        widget.missionPosition!.latLng!.lat,
-        widget.missionPosition!.latLng!.lng,
+        widget.missionPosition!.latLng!.latitude,
+        widget.missionPosition!.latLng!.longitude,
       ));
     });
     _testGetPlaceFromLatLng();
@@ -299,8 +300,8 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
         gmap.Marker(
           markerId: const gmap.MarkerId('mission'),
           position: gmap.LatLng(
-            widget.missionPosition!.latLng!.lat,
-            widget.missionPosition!.latLng!.lng,
+            widget.missionPosition!.latLng!.latitude,
+            widget.missionPosition!.latLng!.longitude,
           ),
           icon: gmap.BitmapDescriptor.fromBytes(_userIcon!),
         )
@@ -403,9 +404,9 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
       Place? startPoint, Place? endPoint) async {
     try {
       debugPrint(
-          "Ponto de início: ${startPoint?.latLng?.lat}, ${startPoint?.latLng?.lng}");
+          "Ponto de início: ${startPoint?.latLng?.latitude}, ${startPoint?.latLng?.longitude}");
       debugPrint(
-          "Ponto final: ${endPoint?.latLng?.lat}, ${endPoint?.latLng?.lng}");
+          "Ponto final: ${endPoint?.latLng?.latitude}, ${endPoint?.latLng?.longitude}");
 
       final Dio dio = Dio();
 
@@ -416,8 +417,8 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
       final response = await dio.get(
         firebaseFunctionUrl,
         queryParameters: {
-          "origin": "${startPoint!.latLng!.lat},${startPoint.latLng!.lng}",
-          "destination": "${endPoint!.latLng!.lat},${endPoint.latLng!.lng}",
+          "origin": "${startPoint!.latLng!.latitude},${startPoint.latLng!.longitude}",
+          "destination": "${endPoint!.latLng!.latitude},${endPoint.latLng!.longitude}",
           "mode": "driving",
           "key": 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
           "language": "pt_BR"
@@ -486,7 +487,7 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
   Future<void> fetchNearestUsersToMission(missionPosition) async {
     debugPrint('Fetching nearest users...');
     debugPrint(
-        "Lat: ${widget.missionPosition!.latLng!.lat}, Lng: ${widget.missionPosition!.latLng!.lng}");
+        "Lat: ${widget.missionPosition!.latLng!.latitude}, Lng: ${widget.missionPosition!.latLng!.longitude}");
 
     final List<UserLocation> userLocations =
         await MapaServices().fetchAllUsersLocations();
@@ -527,7 +528,7 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
     const apiKey = 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU';
     final dio = Dio();
     final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.lat},${latLng.lng}&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.latitude},${latLng.longitude}&key=$apiKey';
 
     try {
       final response = await dio.get(url);
@@ -569,7 +570,7 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
   }
 
   Future<void> _testGetPlaceFromLatLng() async {
-    LatLng rioCoord = const LatLng(lat: -22.9519, lng: -43.2105);
+    LatLng rioCoord = LatLng(-22.9519, -43.2105);
     Place? place = await getPlaceFromLatLng(rioCoord);
     if (place != null) {
       debugPrint('Endereço encontrado: ${place.address}');
@@ -578,4 +579,61 @@ class _MapAdminScreenState extends State<MapAdminScreen> {
           'Nenhum endereço foi encontrado para as coordenadas fornecidas.');
     }
   }
+}
+
+class Place {
+  final String? address;
+  final LatLng? latLng;
+  final String? name;
+  final List<String>? addressComponents;
+  final String? businessStatus;
+  final List<String>? attributions;
+  final String? openingHours;
+  final String? phoneNumber;
+  final List<String>? photoMetadatas;
+  final String? plusCode;
+  final int? priceLevel;
+  final double? rating;
+  final List<String>? types;
+  final int? userRatingsTotal;
+  final int? utcOffsetMinutes;
+  final Viewport? viewport;
+  final Uri? websiteUri;
+  final String? id;
+
+  Place({
+    required this.address,
+    required this.latLng,
+    required this.name,
+    this.addressComponents,
+    this.businessStatus,
+    this.attributions,
+    this.openingHours,
+    this.phoneNumber,
+    this.photoMetadatas,
+    this.plusCode,
+    this.priceLevel,
+    this.rating,
+    this.types,
+    this.userRatingsTotal,
+    this.utcOffsetMinutes,
+    this.viewport,
+    this.websiteUri,
+    this.id,
+  });
+}
+
+// Classes auxiliares LatLng e Viewport
+class LatLng {
+  final double latitude;
+  final double longitude;
+
+  LatLng(this.latitude, this.longitude);
+}
+
+class Viewport {
+  final LatLng northeast;
+  final LatLng southwest;
+
+  Viewport(this.northeast, this.southwest);
 }

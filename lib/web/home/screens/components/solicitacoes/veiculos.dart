@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/web/home/screens/components/solicitacoes/agente.dart';
+import 'package:sombra/web/home/screens/components/solicitacoes/agente.dart';
 import '../../../../../veiculos/bloc/solicitacoes_list/solicitacoes_veiculos_bloc.dart';
 import '../../../../../veiculos/bloc/solicitacoes_list/states.dart';
 import '../../../../../veiculos/model/veiculo_model.dart';

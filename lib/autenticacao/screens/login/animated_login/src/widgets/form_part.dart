@@ -255,7 +255,7 @@ class _PolicyCheckboxRow extends StatelessWidget {
               color: loginTheme.borderColor ?? activeColor,
               width: 1.5,
             ),
-            fillColor: MaterialStateProperty.all<Color>(
+            fillColor: WidgetStateProperty.all<Color>(
               loginTheme.fillColor ?? activeColor,
             ),
           );

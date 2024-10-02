@@ -2,23 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
+import '../../../../../chat/screens/missao_cliente.dart';
+import '../../../../../chat/services/chat_services.dart';
 import '../../../../../missao/bloc/missoes_solicitadas/missoes_solicitadas_bloc.dart';
 import '../../../../../missao/bloc/missoes_solicitadas/missoes_solicitadas_event.dart';
 import '../../../../../missao/model/missao_solicitada.dart';
 import '../../../../../missao/screens/criar_missao_screen.dart';
 import '../../../../../missao/services/missao_services.dart';
-import '../../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import '../../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 
 class SolicitacaoMissaoCard extends StatefulWidget {
   final MissaoSolicitada missaoSolicitada;
   final BuildContext? initialContext;
+  final bool? padding;
   const SolicitacaoMissaoCard(
-      {super.key, required this.missaoSolicitada, this.initialContext});
+      {super.key,
+      required this.missaoSolicitada,
+      this.initialContext,
+      this.padding});
   @override
   State<SolicitacaoMissaoCard> createState() => _SolicitacaoMissaoCardState();
 }
+
+final ChatServices chatServices = ChatServices();
 
 class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
@@ -43,7 +51,9 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
     //       ),
     //     );
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: widget.padding != null
+          ? const EdgeInsets.symmetric(horizontal: 5, vertical: 5)
+          : const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child:
           //BlocBuilder<MissaoSolicitacaoCardBloc, MissaoSolicitacaoCardState>(
           //   builder: (context, state) {
@@ -183,10 +193,10 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             //mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'MISSÃO SOLICITADA:',
                     style: TextStyle(
                       fontSize: 16,
@@ -194,42 +204,93 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                       color: Colors.white,
                     ),
                   ),
-                  //icone de expandir
-                  Icon(
-                    Bootstrap.plus_circle,
-                    size: 16,
-                  ),
-                  //padding: const EdgeInsets.all(0),
+                  widget.padding == null
+                      ? MouseRegion(
+                          cursor: WidgetStateMouseCursor.clickable,
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ClienteMissaoChatScreen(
+                                  missaoId: widget.missaoSolicitada.missaoId,
+                                  agenteUid: widget.missaoSolicitada.cnpj,
+                                  agenteNome:
+                                      widget.missaoSolicitada.nomeDaEmpresa,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Bootstrap.whatsapp,
+                                  size: 16,
+                                ),
+                                StreamBuilder<int>(
+                                  stream: chatServices
+                                      .getCentralMissionClientConversationsUnreadCount(
+                                          widget.missaoSolicitada.missaoId),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<int> snapshot) {
+                                    if (snapshot.hasData &&
+                                        snapshot.data! > 0) {
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 2.0),
+                                        child: Text(
+                                          '(${snapshot.data})',
+                                          style: const TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          //padding: const EdgeInsets.all(0),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
 
               // const SizedBox(
               //   height: 3,
               // ),
-              SelectableText(
-                'Em: ${DateFormat('dd/MM/yyyy').format(widget.missaoSolicitada.timestamp)}'
-                ' às ${DateFormat('kk:mm').format(widget.missaoSolicitada.timestamp)}h',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
-                ),
-              ),
-              SelectableText(
-                'Tipo: ${widget.missaoSolicitada.tipo}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
-                ),
-              ),
-              SelectableText(
-                'Id: ${widget.missaoSolicitada.missaoId}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(
-                height: 20,
+              widget.padding == null
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SelectableText(
+                          'Em: ${DateFormat('dd/MM/yyyy').format(widget.missaoSolicitada.timestamp)}'
+                          ' às ${DateFormat('kk:mm').format(widget.missaoSolicitada.timestamp)}h',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SelectableText(
+                          'Tipo: ${widget.missaoSolicitada.tipo}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SelectableText(
+                          'Id: ${widget.missaoSolicitada.missaoId}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+              SizedBox(
+                height: widget.padding == null ? 20 : 10,
               ),
               //texts
               //Text('Empresa: ${missaoSolicitada.nomeDaEmpresa}'),
@@ -246,11 +307,13 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Empresa:',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w300),
-                      ),
+                      widget.padding == null
+                          ? const Text(
+                              'Empresa:',
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w300),
+                            )
+                          : const SizedBox.shrink(),
                       Text(
                         widget.missaoSolicitada.nomeDaEmpresa,
                         maxLines: 2,
@@ -282,11 +345,13 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Local:',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w300),
-                      ),
+                      widget.padding == null
+                          ? const Text(
+                              'Local:',
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w300),
+                            )
+                          : const SizedBox.shrink(),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.2,
                         child: Text(
@@ -309,14 +374,14 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                 children: [
                   ElevatedButton(
                     style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.green),
-                      minimumSize: MaterialStatePropertyAll(
+                      backgroundColor: WidgetStatePropertyAll(Colors.green),
+                      minimumSize: WidgetStatePropertyAll(
                         Size(30, 35),
                       ),
-                      maximumSize: MaterialStatePropertyAll(
+                      maximumSize: WidgetStatePropertyAll(
                         Size(80, 50),
                       ),
-                      padding: MaterialStatePropertyAll(
+                      padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(
                           horizontal: 15,
                           vertical: 12,
@@ -352,14 +417,14 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                   ),
                   ElevatedButton(
                     style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.red),
-                      minimumSize: MaterialStatePropertyAll(
+                      backgroundColor: WidgetStatePropertyAll(Colors.red),
+                      minimumSize: WidgetStatePropertyAll(
                         Size(30, 35),
                       ),
-                      maximumSize: MaterialStatePropertyAll(
+                      maximumSize: WidgetStatePropertyAll(
                         Size(80, 50),
                       ),
-                      padding: MaterialStatePropertyAll(
+                      padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(
                           horizontal: 15,
                           vertical: 12,

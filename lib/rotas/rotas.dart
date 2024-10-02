@@ -4,7 +4,6 @@ import '../autenticacao/checagem/checagem.dart';
 import '../autenticacao/screens/login/login_screen.dart';
 import '../autenticacao/screens/login/reset_senha_screen.dart';
 import '../chat/screens/chat_screen.dart';
-import '../home/nav_bar/nav_bar.dart';
 import '../perfil_user/screens/add_infos.dart';
 import '../web/checagem/checagem.dart';
 import '../web/home/screens/dashboard.dart';
@@ -16,7 +15,7 @@ class Rotas {
     '/login': (_) => const LoginScreen(),
     //'/cadastro': (_) => const CadastroScreen(),
     '/redefinirsenha': (_) => RedefinirSenha(),
-    '/home': (_) => kIsWeb ? const WebLoginHome() : const NavBar(),
+    '/home': (_) => const WebLoginHome(),
     // '/home': (_) {
     //   //final String uid = ModalRoute.of(_)!.settings.arguments as String;
     //   return ChatScreen();

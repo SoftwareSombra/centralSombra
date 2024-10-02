@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/v4.dart';
 import '../../../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../../../screens/add_cargos.dart';
@@ -27,7 +28,7 @@ class _FormAddUserState extends State<FormAddUser> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isButtonEnabled = false;
-  String pass = '1234567';
+  String pass = const UuidV4().generate();
 
   @override
   void initState() {
@@ -179,12 +180,14 @@ class _FormAddUserState extends State<FormAddUser> {
                       onPressed: _isButtonEnabled
                           ? () async {
                               if (widget.formKey.currentState!.validate()) {
-                                registerBloc.add(RegisterUserEvent(
-                                  nameController.text,
-                                  emailController.text,
-                                  pass,
-                                  cargo: selectedOption,
-                                ));
+                                registerBloc.add(
+                                  RegisterUserEvent(
+                                    nameController.text,
+                                    emailController.text,
+                                    pass,
+                                    cargo: selectedOption,
+                                  ),
+                                );
                               }
                             }
                           : null,

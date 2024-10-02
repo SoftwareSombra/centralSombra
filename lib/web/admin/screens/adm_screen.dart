@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_card/image_card.dart';
 import '../../empresa/screens/empresas_list.dart';
 import '../agentes/screens/agentes_list.dart';
 import '../notificacoes/screens/notificacoes_screen.dart';
@@ -18,53 +17,6 @@ class AddRolesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    int crossAxisCount = (screenWidth ~/ 400).clamp(3, 4);
-    List cards = [
-      AdmCard(
-        title: 'Adicionar cargos',
-        imagePath: 'assets/images/escudo.png',
-        destination: const AddCargos(),
-        descricao: 'Adicione cargos para os usuários do sistema',
-        cards: crossAxisCount,
-      ),
-      AdmCard(
-        title: 'Relatórios',
-        imagePath: 'assets/images/relatorios.jpeg',
-        destination: AdmRelatoriosScreen(cargo: cargo, nome: nome,),
-        descricao: 'Acesse os relatórios completos das missões',
-        cards: crossAxisCount,
-      ),
-      AdmCard(
-        title: 'Agentes',
-        imagePath: 'assets/images/agentes.jpeg',
-        destination: const AgentesList(),
-        descricao: 'Acesse a lista de agentes cadastrados',
-        cards: crossAxisCount,
-      ),
-      AdmCard(
-        title: 'Empresas',
-        imagePath: 'assets/images/empresas.png',
-        destination: const EmpresasScreen(),
-        descricao: 'Acesse a lista de empresas cadastradas',
-        cards: crossAxisCount,
-      ),
-      AdmCard(
-        title: 'Usuários',
-        imagePath: 'assets/images/users.jpg',
-        destination: const UsersList(),
-        descricao: 'Acesse a lista de usuários cadastrados',
-        cards: crossAxisCount,
-      ),
-      AdmCard(
-        title: 'Notificações',
-        imagePath: 'assets/images/notificacao.jpeg',
-        destination: const NotificacoesAdmScreen(),
-        descricao: 'Envie notificações e avisos',
-        cards: crossAxisCount,
-      ),
-    ];
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -72,95 +24,119 @@ class AddRolesScreen extends StatelessWidget {
         title: const Text('Administrador'),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: Container(
-                constraints:
-                    BoxConstraints(maxWidth: screenWidth > 1200 ? 1200 : 800),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 100),
-                  child: GridView.builder(
-                    //physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: cards.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 30,
-                      mainAxisSpacing: 30,
-                    ),
-                    itemBuilder: (context, index) {
-                      return cards[index];
-                    },
-                  ),
-                ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 50,
               ),
-            ),
-          ],
+              const AdmButtonCard(
+                  title: 'Adicionar cargos',
+                  imagePath: 'assets/images/escudo.png',
+                  destination: AddCargos(),
+                  descricao: 'Adicione cargos para os usuários do sistema'),
+              AdmButtonCard(
+                title: 'Relatórios',
+                imagePath: 'assets/images/relatorios.jpeg',
+                destination: AdmRelatoriosScreen(
+                  cargo: cargo,
+                  nome: nome,
+                ),
+                descricao: 'Acesse os relatórios completos das missões',
+              ),
+              const AdmButtonCard(
+                title: 'Agentes',
+                imagePath: 'assets/images/agentes.jpeg',
+                destination: AgentesList(),
+                descricao: 'Acesse a lista de agentes cadastrados',
+              ),
+              const AdmButtonCard(
+                title: 'Empresas',
+                imagePath: 'assets/images/empresas.png',
+                destination: EmpresasScreen(),
+                descricao: 'Acesse a lista de empresas cadastradas',
+              ),
+              const AdmButtonCard(
+                title: 'Usuários',
+                imagePath: 'assets/images/users.jpg',
+                destination: UsersList(),
+                descricao: 'Acesse a lista de usuários cadastrados',
+              ),
+              const AdmButtonCard(
+                title: 'Notificações',
+                imagePath: 'assets/images/notificacao.jpeg',
+                destination: NotificacoesAdmScreen(),
+                descricao: 'Envie notificações e avisos',
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class AdmCard extends StatelessWidget {
+class AdmButtonCard extends StatelessWidget {
   final String title;
   final String imagePath;
   final Widget destination;
   final String descricao;
-  final int cards;
 
-  const AdmCard(
+  const AdmButtonCard(
       {super.key,
       required this.title,
       required this.imagePath,
       required this.destination,
-      this.descricao = '',
-      required this.cards});
+      this.descricao = ''});
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-        'MediaQuery.of(context).size.width: ${MediaQuery.of(context).size.width}');
-    return MouseRegion(
-      cursor: MaterialStateMouseCursor.clickable,
-      child: GestureDetector(
-        child: FillImageCard(
-          color: Colors.blue.withAlpha(30),
-          width: double.infinity,
-          heightImage: cards == 3 && MediaQuery.of(context).size.width > 1200
-              ? 210
-              : 160,
-          imageProvider: AssetImage(imagePath),
-          tags: const [],
-          title: Row(
-            children: [
-              Text(title),
-            ],
-          ),
-          description: MediaQuery.of(context).size.width > 1200 &&
-                  MediaQuery.of(context).size.height > 700
-              ? Row(
-                  children: [
-                    SizedBox(
-                      width: 200,
-                      child: Text(
-                        descricao,
-                        textAlign: TextAlign.start,
-                        style: const TextStyle(color: Colors.grey),
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: MouseRegion(
+        cursor: WidgetStateMouseCursor.clickable,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          },
+          child: Container(
+            width: 300,
+            height: 65,
+            decoration: BoxDecoration(
+              color: Colors.blue.withAlpha(30),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 0),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        bottomLeft: Radius.circular(15),
+                      ),
+                      child: Image.asset(
+                        imagePath,
+                        height: 65,
+                        width: 65,
+                        fit: BoxFit.fitHeight,
                       ),
                     ),
-                  ],
-                )
-              : null,
+                  ),
+                  Text(title),
+                  const Icon(Icons.arrow_forward),
+                ],
+              ),
+            ),
+          ),
         ),
-        onTap: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => destination));
-        },
       ),
     );
   }

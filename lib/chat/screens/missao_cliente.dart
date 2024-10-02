@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/chat/services/chat_services.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:sombra/chat/services/chat_services.dart';
 import '../../chat_view/chatview.dart';
 import '../../notificacoes/fcm.dart';
 import '../../notificacoes/notificacoess.dart';
@@ -42,7 +43,6 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
   final FirebaseMessagingService firebaseMessagingService =
       FirebaseMessagingService(NotificationService());
   late ChatController chatViewController;
-
 
   // Stream<QuerySnapshot<Map<String, dynamic>>> getConversationMessages() {
   //   return FirebaseFirestore.instance
@@ -299,8 +299,27 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
                   defaultIconBackgroundColor: theme.shareIconBackgroundColor,
                   defaultIconColor: theme.shareIconColor,
                 ),
+                onTap: (message) {
+                  showDialog(
+                    context: context,
+                    builder: (_) {
+                      return Dialog(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: PhotoView(
+                            minScale: PhotoViewComputedScale.contained,
+                            maxScale: PhotoViewComputedScale.contained * 2.5,
+                            imageProvider: NetworkImage(message),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
+
             profileCircleConfig: ProfileCircleConfiguration(
               profileImageUrl: fotoUrl,
             ),
@@ -357,16 +376,17 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
     await FirebaseFirestore.instance
         .collection('Chat missão cliente')
         .doc(widget.missaoId)
-        .set({'userUnreadCount': FieldValue.increment(1)}, SetOptions(merge: true));
+        .set({'userUnreadCount': FieldValue.increment(1)},
+            SetOptions(merge: true));
 
     // Enviar a notificação usando o token FCM.
-    List<String> userTokens =
-        await chatServices.fetchUserTokens(widget.agenteUid!);
+    // List<String> userTokens =
+    //     await chatServices.fetchUserTokens(widget.agenteUid!);
 
-    for (String token in userTokens) {
-      await firebaseMessagingService.sendNotification(
-          token, 'Nova mensagem', message, null);
-    }
+    // for (String token in userTokens) {
+    //   await firebaseMessagingService.sendNotification(
+    //       token, 'Nova mensagem', message, null);
+    // }
     Future.delayed(const Duration(milliseconds: 300), () {
       _chatController.initialMessageList.last.setStatus =
           MessageStatus.undelivered;
@@ -375,5 +395,4 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
       _chatController.initialMessageList.last.setStatus = MessageStatus.read;
     });
   }
-
 }

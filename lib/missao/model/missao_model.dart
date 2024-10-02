@@ -114,35 +114,38 @@ class MissaoRelatorio {
   final String? nome;
   final Timestamp? serverFim;
   final String? infosComplementares;
+  final String? odometroInicial;
+  final String? odometroFinal;
 
-  MissaoRelatorio({
-    required this.cnpj,
-    required this.nomeDaEmpresa,
-    this.placaCavalo,
-    this.placaCarreta,
-    this.motorista,
-    this.corVeiculo,
-    this.observacao,
-    required this.tipo,
-    required this.missaoId,
-    required this.uid,
-    required this.userLatitude,
-    required this.userLongitude,
-    this.userFinalLatitude,
-    this.userFinalLongitude,
-    required this.missaoLatitude,
-    required this.missaoLongitude,
-    this.local,
-    this.inicio,
-    this.fim,
-    // Inicialização dos novos campos
-    this.fotos,
-    this.fotosPosMissao,
-    this.infos,
-    this.nome,
-    this.serverFim,
-    this.infosComplementares,
-  });
+  MissaoRelatorio(
+      {required this.cnpj,
+      required this.nomeDaEmpresa,
+      this.placaCavalo,
+      this.placaCarreta,
+      this.motorista,
+      this.corVeiculo,
+      this.observacao,
+      required this.tipo,
+      required this.missaoId,
+      required this.uid,
+      required this.userLatitude,
+      required this.userLongitude,
+      this.userFinalLatitude,
+      this.userFinalLongitude,
+      required this.missaoLatitude,
+      required this.missaoLongitude,
+      this.local,
+      this.inicio,
+      this.fim,
+      // Inicialização dos novos campos
+      this.fotos,
+      this.fotosPosMissao,
+      this.infos,
+      this.nome,
+      this.serverFim,
+      this.infosComplementares,
+      this.odometroInicial,
+      this.odometroFinal});
 
   factory MissaoRelatorio.fromFirestore(Map<String, dynamic> data) {
     // Mapeamento de 'fotos'
@@ -155,32 +158,33 @@ class MissaoRelatorio {
         : null; // Ou atribua uma lista vazia se preferir: []
 
     return MissaoRelatorio(
-      cnpj: data['cnpj'],
-      nomeDaEmpresa: data['nome da empresa'],
-      placaCavalo: data['placaCavalo'],
-      placaCarreta: data['placaCarreta'],
-      motorista: data['motorista'],
-      corVeiculo: data['corVeiculo'],
-      observacao: data['observacao'],
-      tipo: data['tipo'],
-      missaoId: data['missaoId'],
-      uid: data['uid'],
-      userLatitude: data['userInitialLatitude'],
-      userLongitude: data['userInitialLongitude'],
-      userFinalLatitude: data['userFinalLatitude'],
-      userFinalLongitude: data['userFinalLongitude'],
-      missaoLatitude: data['missaoLatitude'],
-      missaoLongitude: data['missaoLongitude'],
-      local: data['local'],
-      inicio: data['inicio'],
-      fim: data['fim'],
-      fotos: fotos,
-      fotosPosMissao: fotosPosMissao,
-      infos: data['infos'],
-      nome: data['nome'] ?? '', // Valor padrão vazio
-      serverFim: data['serverFim'],
-      infosComplementares: data['infosComplementares'],
-    );
+        cnpj: data['cnpj'],
+        nomeDaEmpresa: data['nome da empresa'],
+        placaCavalo: data['placaCavalo'],
+        placaCarreta: data['placaCarreta'],
+        motorista: data['motorista'],
+        corVeiculo: data['corVeiculo'],
+        observacao: data['observacao'],
+        tipo: data['tipo'],
+        missaoId: data['missaoId'],
+        uid: data['uid'],
+        userLatitude: data['userInitialLatitude'],
+        userLongitude: data['userInitialLongitude'],
+        userFinalLatitude: data['userFinalLatitude'],
+        userFinalLongitude: data['userFinalLongitude'],
+        missaoLatitude: data['missaoLatitude'],
+        missaoLongitude: data['missaoLongitude'],
+        local: data['local'],
+        inicio: data['inicio'],
+        fim: data['fim'],
+        fotos: fotos,
+        fotosPosMissao: fotosPosMissao,
+        infos: data['infos'],
+        nome: data['nome'] ?? '', // Valor padrão vazio
+        serverFim: data['serverFim'],
+        infosComplementares: data['infosComplementares'],
+        odometroInicial: data['odometroInicial'],
+        odometroFinal: data['odometroFinal']);
   }
 
   //metodo toMap para converter os dados do objeto MissaoRelatorio em um Map
@@ -211,6 +215,8 @@ class MissaoRelatorio {
       'nome': nome,
       'serverFim': serverFim,
       'infosComplementares': infosComplementares,
+      'odometroInicial': odometroInicial,
+      'odometroFinal': odometroFinal
     };
   }
 
@@ -242,37 +248,66 @@ class MissaoRelatorio {
       'nome': relatorio.nome,
       'serverFim': relatorio.serverFim,
       'infosComplementares': relatorio.infosComplementares,
+      //'odometroInicial': relatorio.odometroInicial,
+      //'odometroFinal': relatorio.odometroFinal,
     };
   }
 }
 
 // Classe auxiliar para Foto
+// class Foto {
+//   final String caption;
+//   final Timestamp timestamp;
+//   final String url;
+//   final bool? enviada;
+
+//   Foto({required this.caption, required this.timestamp, required this.url, this.enviada});
+
+//   factory Foto.fromMap(Map<String, dynamic> data) {
+//     return Foto(
+//       caption: data['caption'] ?? '',
+//       timestamp: data['timestamp'] ?? //valor zerado se for nulo
+//           Timestamp.fromDate(DateTime.fromMillisecondsSinceEpoch(0)),
+//       url: data['url'],
+//       enviada: data['enviada']
+//     );
+//   }
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'url': url,
+//       'caption': caption,
+//       'timestamp': timestamp.toDate().toIso8601String(),
+//       'enviada': enviada
+//     };
+//   }
+// }
+
 class Foto {
   final String caption;
   final Timestamp timestamp;
   final String url;
+  final bool? enviada;
 
-  Foto({required this.caption, required this.timestamp, required this.url});
+  Foto({required this.caption, required this.timestamp, required this.url, this.enviada});
 
   factory Foto.fromMap(Map<String, dynamic> data) {
     return Foto(
       caption: data['caption'] ?? '',
       timestamp: data['timestamp'] ?? //valor zerado se for nulo
-          Timestamp.fromDate(DateTime.fromMillisecondsSinceEpoch(0)),
+          DateTime.now(),
       url: data['url'],
+      enviada: data['enviada']
     );
   }
   Map<String, dynamic> toMap() {
     return {
       'url': url,
       'caption': caption,
-      'timestamp': timestamp.toDate().toIso8601String(),
+      'timestamp': timestamp.toDate(),
+      'enviada': enviada
     };
   }
-
-  
 }
-
 // class FotoIncremento {
 //   final String caption;
 //   final String filePath;

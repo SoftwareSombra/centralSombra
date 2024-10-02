@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
 import '../../../../../missao/model/missao_model.dart';
 import '../../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../../autenticacao/screens/tratamento/success_snackbar.dart';
-import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 import '../bloc/mission_details_bloc.dart';
 import '../bloc/mission_details_event.dart';
 import '../services/relatorio_services.dart';
@@ -372,88 +372,6 @@ class _EditRelatorioDialogState extends State<EditRelatorioDialog> {
                                   ? width * 0.6 + 10
                                   : width * 0.3,
                               child: TextFormField(
-                                controller: localController,
-                                decoration: const InputDecoration(
-                                  fillColor: Colors.white,
-                                  focusColor: Colors.white,
-                                  hoverColor: Colors.white,
-                                  labelText: 'Local',
-                                  labelStyle: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        ResponsiveBreakpoints.of(context).smallerThan(DESKTOP)
-                            ? const ResponsiveRowColumnItem(
-                                child: SizedBox(height: 10),
-                              )
-                            : const ResponsiveRowColumnItem(
-                                child: SizedBox(width: 10),
-                              ),
-                        ResponsiveRowColumnItem(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: SizedBox(
-                              width: ResponsiveBreakpoints.of(context)
-                                      .smallerThan(DESKTOP)
-                                  ? width * 0.6 + 10
-                                  : width * 0.3,
-                              child: TextFormField(
-                                controller: infosController,
-                                decoration: const InputDecoration(
-                                  fillColor: Colors.white,
-                                  focusColor: Colors.white,
-                                  hoverColor: Colors.white,
-                                  labelText: 'Informações da missão',
-                                  labelStyle: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    ResponsiveRowColumn(
-                      layout:
-                          ResponsiveBreakpoints.of(context).smallerThan(DESKTOP)
-                              ? ResponsiveRowColumnType.COLUMN
-                              : ResponsiveRowColumnType.ROW,
-                      rowMainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ResponsiveRowColumnItem(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: SizedBox(
-                              width: ResponsiveBreakpoints.of(context)
-                                      .smallerThan(DESKTOP)
-                                  ? width * 0.6 + 10
-                                  : width * 0.3,
-                              child: TextFormField(
                                 controller: nomeController,
                                 decoration: const InputDecoration(
                                   fillColor: Colors.white,
@@ -494,7 +412,95 @@ class _EditRelatorioDialogState extends State<EditRelatorioDialog> {
                                   ? width * 0.6 + 10
                                   : width * 0.3,
                               child: TextFormField(
+                                controller: localController,
+                                decoration: const InputDecoration(
+                                  fillColor: Colors.white,
+                                  focusColor: Colors.white,
+                                  hoverColor: Colors.white,
+                                  labelText: 'Local',
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    ResponsiveRowColumn(
+                      layout:
+                          ResponsiveBreakpoints.of(context).smallerThan(DESKTOP)
+                              ? ResponsiveRowColumnType.COLUMN
+                              : ResponsiveRowColumnType.ROW,
+                      rowMainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ResponsiveRowColumnItem(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: SizedBox(
+                              width: ResponsiveBreakpoints.of(context)
+                                      .smallerThan(DESKTOP)
+                                  ? width * 0.6 + 10
+                                  : width * 0.6 + 10,
+                              child: TextFormField(
+                                controller: infosController,
+                                minLines: 1,
+                                maxLines: 10,
+                                decoration: const InputDecoration(
+                                  fillColor: Colors.white,
+                                  focusColor: Colors.white,
+                                  hoverColor: Colors.white,
+                                  labelText: 'Informações da missão',
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    ResponsiveRowColumn(
+                      layout:
+                          ResponsiveBreakpoints.of(context).smallerThan(DESKTOP)
+                              ? ResponsiveRowColumnType.COLUMN
+                              : ResponsiveRowColumnType.ROW,
+                      rowMainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ResponsiveRowColumnItem(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: SizedBox(
+                              width: ResponsiveBreakpoints.of(context)
+                                      .smallerThan(DESKTOP)
+                                  ? width * 0.6 + 10
+                                  : width * 0.6 + 10,
+                              child: TextFormField(
                                 controller: infosComplementaresController,
+                                minLines: 1,
+                                maxLines: 10,
                                 decoration: const InputDecoration(
                                   fillColor: Colors.white,
                                   focusColor: Colors.white,

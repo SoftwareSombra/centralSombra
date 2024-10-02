@@ -6,9 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import '../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 import '../../services/admin_services.dart';
 import '../model/agente_model.dart';
 

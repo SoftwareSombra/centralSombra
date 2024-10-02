@@ -4,10 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/chat/services/chat_services.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:sombra/chat/services/chat_services.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 import '../../chat_view/chatview.dart';
 import '../../notificacoes/fcm.dart';
 import '../../notificacoes/notificacoess.dart';
@@ -312,6 +313,24 @@ class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
                     dialogoParaEnviarImagem(foto);
                   },
                 ),
+                onTap: (message) {
+                  showDialog(
+                    context: context,
+                    builder: (_) {
+                      return Dialog(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: PhotoView(
+                            minScale: PhotoViewComputedScale.contained,
+                            maxScale: PhotoViewComputedScale.contained * 2.5,
+                            imageProvider: NetworkImage(message),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
             profileCircleConfig: ProfileCircleConfiguration(

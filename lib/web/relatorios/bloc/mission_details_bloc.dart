@@ -3,7 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' as latlong;
 import '../../../chat/services/chat_services.dart';
 import '../../../chat_view/src/models/message.dart';
 import '../../../missao/model/missao_model.dart';
@@ -16,6 +16,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
+import 'dart:convert';
 
 class MissionDetailsBloc
     extends Bloc<MissionDetailsEvent, MissionDetailsState> {
@@ -31,9 +32,16 @@ class MissionDetailsBloc
           Set<gmap.Marker> userMarkers = {};
           //final Set<gmap.Polyline> polylines = <gmap.Polyline>{};
           Set<gmap.Polyline>? polylines = {};
+          Set<gmap.Polyline>? newPolylines = {};
           double? distancia;
+          double? distanciaIda;
+          double? distanciaVolta;
 
           //List<CoordenadaComTimestamp> route = [];
+
+          MissaoRelatorio? missao;
+          missao =
+              await missaoServices.buscarRelatorio(event.uid, event.missaoId);
 
           final route = await missaoServices.fetchCoordinates(event.missaoId);
           if (route.isEmpty) {
@@ -53,11 +61,13 @@ class MissionDetailsBloc
           debugPrint(
               'rotaFiltradaPorVelocidadeMax: ${rotaFiltradaPorVelocidadeMax.length}');
 
-          List<CoordenadaComTimestamp> routeFiltrada =
+          List<CoordenadaComTimestamp> routeFiltradaPorMinuto =
               ordenarPorTimestampEManterPrimeiroPorMinuto(
                   rotaFiltradaPorVelocidadeMax);
 
-          debugPrint('routeFiltrada: ${routeFiltrada.length}');
+          debugPrint('routeFiltrada: ${routeFiltradaPorMinuto.length}');
+
+          List<CoordenadaComTimestamp> routeFiltrada = filtrarPontosPorVelocidade(route);
 
           //List<Location> locations = convertToLocations(routeFiltrada);
           List<Location> locations = convertToLocations(routeFiltrada);
@@ -68,39 +78,67 @@ class MissionDetailsBloc
           calcularDistanciaComLatLong2(rotaLocations);
 
           if (locations.length > 3) {
-            final Map<String, dynamic>? pontosComSnapToRoads =
-                await obterPontosComSnapToRoads(locations);
+            // final Map<String, dynamic>? pontosComSnapToRoads =
+            //     await obterPontosComSnapToRoads(locations);
 
-            debugPrint('pontosComSnapToRoads: $pontosComSnapToRoads');
+            // debugPrint('pontosComSnapToRoads: $pontosComSnapToRoads');
 
-            //capturar os pontos da snapToRoads no map e transformar em uma lista de locations
-            List<Location> locationsSnapToRoads = [];
+            // //capturar os pontos da snapToRoads no map e transformar em uma lista de locations
+            // List<Location> locationsSnapToRoads = [];
 
-            if (pontosComSnapToRoads != null) {
-              for (var ponto in pontosComSnapToRoads['snappedPoints']) {
-                locationsSnapToRoads.add(Location(ponto['location']['latitude'],
-                    ponto['location']['longitude']));
-              }
-            }
-            debugPrint('locationsSnapToRoads: $locationsSnapToRoads');
+            // if (pontosComSnapToRoads != null) {
+            //   for (var ponto in pontosComSnapToRoads['snappedPoints']) {
+            //     locationsSnapToRoads.add(Location(ponto['location']['latitude'],
+            //         ponto['location']['longitude']));
+            //   }
+            // }
+            // debugPrint('locationsSnapToRoads: $locationsSnapToRoads');
 
-            //debugPrint das coordenadas em comum entre a locations e a locationsSnapToRoads
-            for (var location in locations) {
-              if (locationsSnapToRoads.contains(location)) {
-                debugPrint(' ----- location ======== $location --------');
-              }
-            }
+            // //debugPrint das coordenadas em comum entre a locations e a locationsSnapToRoads
+            // for (var location in locations) {
+            //   if (locationsSnapToRoads.contains(location)) {
+            //     debugPrint(' ----- location ======== $location --------');
+            //   }
+            // }
 
-            final distanciaEpolilinha =
-                await calcularDistanciaComFirebaseFunction(
-                    locationsSnapToRoads);
-            debugPrint('distanciaEpolilinha: $distanciaEpolilinha');
+            // final distanciaEpolilinha =
+            //     await calcularDistanciaComFirebaseFunction(
+            //         locationsSnapToRoads);
+            // debugPrint('distanciaEpolilinha: $distanciaEpolilinha');
 
-            distancia = double.parse(distanciaEpolilinha!['totalDistanceKm']);
-            debugPrint('distancia: $distancia');
+            // distancia = double.parse(distanciaEpolilinha!['totalDistanceKm']);
+            // debugPrint('distancia: $distancia');
 
-            polylines = createPolylinesFromEncodedString(
-                distanciaEpolilinha['polyline']);
+            // polylines = createPolylinesFromEncodedString(
+            //     distanciaEpolilinha['polyline']);
+
+            final firstAndLastCoordinates =
+                getFirstAndLastCoordinates(locations);
+            String firstCoordinate = firstAndLastCoordinates['first']!;
+            String lastCoordinate = firstAndLastCoordinates['last']!;
+
+            String missionCoordinates =
+                '${missao!.missaoLatitude.toString()},${missao.missaoLongitude.toString()}';
+
+            distanciaIda = await getDistanceWithMatrix(
+                firstCoordinate, missionCoordinates);
+            distanciaVolta =
+                await getDistanceWithMatrix(missionCoordinates, lastCoordinate);
+
+            distancia = distanciaIda! + distanciaVolta!;
+
+            List<gmap.LatLng> locationsToLatLng = locations
+                .map((location) =>
+                    gmap.LatLng(location.latitude, location.longitude))
+                .toList();
+
+            newPolylines.add(
+              gmap.Polyline(
+                  polylineId: const gmap.PolylineId('newPolyline'),
+                  points: locationsToLatLng,
+                  color: Colors.blue,
+                  width: 2),
+            );
 
             debugPrint('polylines: $polylines');
           } else {
@@ -118,9 +156,6 @@ class MissionDetailsBloc
           // debugPrint('Rota: $rota');
           // debugPrint(route.toString());
           // _addRouteToMap(rota, userMarkers, polylines);
-          MissaoRelatorio? missao;
-          missao =
-              await missaoServices.buscarRelatorio(event.uid, event.missaoId);
 
           missao != null
               ? debugPrint(' ---------> MISSAO encontrada com sucesso !!!!!!!')
@@ -139,23 +174,37 @@ class MissionDetailsBloc
           Foto? odometroFinal = await relatorioServices.buscarFotoOdometroFinal(
               event.uid, event.missaoId);
 
+          // final List<CoordenadaComTimestamp> testeApi =
+          //     await filtrarPorVelocidade(routeFiltrada);
+
+          // List<Location> locationsTesteApi = convertToLocations(testeApi);
+
+          // for (var location in locationsTesteApi) {
+          //   debugPrint(
+          //       ' >>> TESTE API result -------------------> ${location.toString()}');
+          // }
+
           //debugPrint de cada campo da missao
 
           if (missao != null) {
             debugPrint('missao: ${missao.toMap()}');
-            emit(MissionDetailsLoaded(
-                missao,
-                initialPosition,
-                userMarkers,
-                polylines,
-                route[0].ponto,
-                routeFiltrada,
-                //route,
-                middleLocation,
-                distancia,
-                messages,
-                odometroInicial,
-                odometroFinal));
+            emit(
+              MissionDetailsLoaded(
+                  missao,
+                  initialPosition,
+                  userMarkers,
+                  newPolylines,
+                  route[0].ponto,
+                  routeFiltrada,
+                  //route,
+                  middleLocation,
+                  distancia,
+                  distanciaIda,
+                  distanciaVolta,
+                  messages,
+                  odometroInicial,
+                  odometroFinal),
+            );
           } else {
             emit(RelatorioNaoEncontrado('Relatório não encontrado'));
           }
@@ -168,6 +217,7 @@ class MissionDetailsBloc
         }
       },
     );
+    on<ResetMissionDetails>(_onResetMissionDetails);
   }
 
   Set<gmap.Polyline> createPolylinesFromEncodedString(String encodedPolyline) {
@@ -218,7 +268,7 @@ class MissionDetailsBloc
   List<CoordenadaComTimestamp> filtrarPontosProximos(
       List<CoordenadaComTimestamp> locations) {
     List<CoordenadaComTimestamp> pontosFiltrados = [];
-    const Distance distancia = Distance();
+    const latlong.Distance distancia = latlong.Distance();
 
     // Adicionar o primeiro ponto
     if (locations.isNotEmpty) {
@@ -227,8 +277,9 @@ class MissionDetailsBloc
 
     for (int i = 0; i < locations.length - 1; i++) {
       final double dist = distancia(
-        LatLng(locations[i].ponto.latitude, locations[i].ponto.longitude),
-        LatLng(
+        latlong.LatLng(
+            locations[i].ponto.latitude, locations[i].ponto.longitude),
+        latlong.LatLng(
             locations[i + 1].ponto.latitude, locations[i + 1].ponto.longitude),
       );
 
@@ -372,10 +423,14 @@ class MissionDetailsBloc
 
   List<CoordenadaComTimestamp> ordenarPorTimestamp(
       List<CoordenadaComTimestamp> route) {
-    route.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    route.sort(
+      (a, b) => a.timestamp.compareTo(b.timestamp),
+    );
     //retirar as duas primeiras coordenadas
     debugPrint('route: ${route.length}');
+
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     if (route.length > 3) {
       route.removeAt(0);
       //route.removeAt(0);
@@ -392,16 +447,17 @@ class MissionDetailsBloc
     }
 
     List<CoordenadaComTimestamp> resultado = [];
-    const Distance calculadoraDistancia = Distance();
+    const latlong.Distance calculadoraDistancia = latlong.Distance();
 
     for (int i = 1; i < coordenadas.length; i++) {
       final coordenadaAtual = coordenadas[i];
       final coordenadaAnterior = coordenadas[i - 1];
 
       final distancia = calculadoraDistancia(
-        LatLng(coordenadaAnterior.ponto.latitude,
+        latlong.LatLng(coordenadaAnterior.ponto.latitude,
             coordenadaAnterior.ponto.longitude),
-        LatLng(coordenadaAtual.ponto.latitude, coordenadaAtual.ponto.longitude),
+        latlong.LatLng(
+            coordenadaAtual.ponto.latitude, coordenadaAtual.ponto.longitude),
       );
 
       final duracaoSegundos = coordenadaAtual.timestamp
@@ -416,6 +472,8 @@ class MissionDetailsBloc
         if (velocidade <= velocidadeMaximaKmH) {
           debugPrint('Adicionando coordenada com velocidade $velocidade');
           resultado.add(coordenadaAtual);
+        } else {
+          debugPrint('velocidade maior que 200km/h removida');
         }
       } else {
         // Aqui você decide o que fazer se duracaoSegundos for 0.
@@ -429,6 +487,135 @@ class MissionDetailsBloc
     debugPrint('resultado: ${resultado.length}');
     return resultado;
   }
+
+  Future<List<CoordenadaComTimestamp>> filtrarPorVelocidade(
+      List<CoordenadaComTimestamp> coordenadas) async {
+    const apiKey = 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU';
+
+    // Converter a lista de coordenadas para o formato necessário para a API
+    final path = coordenadas
+        .map((coord) => '${coord.ponto.latitude},${coord.ponto.longitude}')
+        .join('|');
+
+    final url =
+        'https://roads.googleapis.com/v1/speedLimits?path=$path&key=$apiKey';
+
+    final response = await Dio().get(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load speed limits: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.data);
+    final speedLimits = data['speedLimits'];
+
+    List<CoordenadaComTimestamp> resultado = [];
+
+    for (int i = 1; i < coordenadas.length; i++) {
+      final coordenadaAtual = coordenadas[i];
+      final coordenadaAnterior = coordenadas[i - 1];
+
+      final distancia = _calculateDistance(
+        coordenadaAnterior.ponto.latitude,
+        coordenadaAnterior.ponto.longitude,
+        coordenadaAtual.ponto.latitude,
+        coordenadaAtual.ponto.longitude,
+      );
+
+      final duracaoSegundos = coordenadaAtual.timestamp
+          .difference(coordenadaAnterior.timestamp)
+          .inSeconds;
+
+      if (duracaoSegundos > 0) {
+        final velocidadeKmH = (distancia / 1000) / (duracaoSegundos / 3600);
+        final velocidade = double.parse(velocidadeKmH.toStringAsFixed(2));
+
+        final limiteVelocidade = speedLimits[i - 1]['speedLimit'] as int;
+        final velocidadePermitida = limiteVelocidade * 2;
+
+        if (velocidade <= velocidadePermitida) {
+          resultado.add(coordenadaAtual);
+        }
+      }
+    }
+
+    return resultado;
+  }
+
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
+    const double p = 0.017453292519943295; // Pi/180
+    const double Function(num radians) c = cos;
+    final a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a)) * 1000; // 2*R*asin...
+  }
+
+  // List<CoordenadaComTimestamp> filtrarPorVelocidadeMaxima(
+  //     List<CoordenadaComTimestamp> coordenadas, double velocidadeMaximaKmH) {
+  //   debugPrint('coordenadas: ${coordenadas.length}');
+  //   if (coordenadas.length <= 3) {
+  //     return coordenadas;
+  //   }
+
+  //   coordenadas.sort(
+  //     (a, b) => a.timestamp.compareTo(b.timestamp),
+  //   );
+
+  //   List<CoordenadaComTimestamp> resultado = [];
+  //   const Distance calculadoraDistancia = Distance();
+  //   double ultimaVelocidade = 0;
+
+  //   for (int i = 1; i < coordenadas.length; i++) {
+  //     final coordenadaAtual = coordenadas[i];
+  //     final coordenadaAnterior = coordenadas[i - 1];
+
+  //     final distancia = calculadoraDistancia(
+  //       LatLng(coordenadaAnterior.ponto.latitude,
+  //           coordenadaAnterior.ponto.longitude),
+  //       LatLng(coordenadaAtual.ponto.latitude, coordenadaAtual.ponto.longitude),
+  //     );
+
+  //     final duracaoSegundos = coordenadaAtual.timestamp
+  //         .difference(coordenadaAnterior.timestamp)
+  //         .inSeconds;
+
+  //     if (duracaoSegundos > 0) {
+  //       final velocidadeKmH = (distancia / 1000) / (duracaoSegundos / 3600);
+  //       final velocidade = double.parse(velocidadeKmH.toStringAsFixed(2));
+  //       debugPrint('velocidadeKmH: $velocidade');
+
+  //       // Adicionar ao resultado somente se a velocidade estiver dentro do intervalo permitido
+  //       if (velocidade <= velocidadeMaximaKmH && velocidade <= 290) {
+  //         if (velocidade >= 4) {
+  //           debugPrint('Adicionando coordenada com velocidade $velocidade');
+  //           resultado.add(coordenadaAtual);
+  //           ultimaVelocidade = velocidade;
+  //         } else {
+  //           // Verificar a última velocidade armazenada
+  //           if (ultimaVelocidade >= 4) {
+  //             debugPrint(
+  //                 'Adicionando coordenada com velocidade menor que 10 km/h, pois a última velocidade armazenada é maior que 10 km/h');
+  //             resultado.add(coordenadaAtual);
+  //             ultimaVelocidade = velocidade;
+  //           } else {
+  //             debugPrint(
+  //                 'Não adicionando coordenada com velocidade menor que 10 km/h, pois a última velocidade armazenada também é menor que 10 km/h');
+  //           }
+  //         }
+  //       }
+  //     } else {
+  //       // Adicionar a coordenada atual ao resultado se duracaoSegundos for 0
+  //       debugPrint('duracaoSegundos é 0, adicionando coordenada por padrão');
+  //       resultado.add(coordenadaAtual);
+  //       ultimaVelocidade = 0; // Resetar a última velocidade
+  //     }
+  //   }
+
+  //   debugPrint('resultado: ${resultado.length}');
+  //   return resultado;
+  // }
 
 //   List<CoordenadaComTimestamp> ordenarPorTimestampEManterPrimeiroPorMinuto(
 //     List<CoordenadaComTimestamp> route) {
@@ -497,41 +684,94 @@ class MissionDetailsBloc
       return route;
     }
 
-    // Um Map para contar as ocorrências de cada combinação de ano, mês, dia, hora e minuto
-    final Map<String, int> timestampCounts = {};
-    for (var coord in route) {
-      String key =
-          "${coord.timestamp.year}-${coord.timestamp.month}-${coord.timestamp.day}-${coord.timestamp.hour}-${coord.timestamp.minute}";
-      timestampCounts.update(key, (value) => value + 1, ifAbsent: () => 1);
-    }
+    // Um Set para armazenar as combinações únicas de ano, mês, dia, hora e minuto já adicionadas
+    final Set<String> minutosAdicionados = {};
 
     List<CoordenadaComTimestamp> filtrado = [];
-    CoordenadaComTimestamp? ultimoAdicionado;
 
     for (var coord in route) {
       String key =
           "${coord.timestamp.year}-${coord.timestamp.month}-${coord.timestamp.day}-${coord.timestamp.hour}-${coord.timestamp.minute}";
 
-      // Verifica se a diferença de tempo entre o ponto atual e o último adicionado é maior que 1 hora
-      bool maiorQueUmaHora = ultimoAdicionado != null &&
-          coord.timestamp.difference(ultimoAdicionado.timestamp).inHours > 1;
-
-      // Adiciona ao `filtrado` apenas se a combinação de timestamp é única em `route`
-      // e a diferença para o último ponto adicionado não é maior que 1 hora
-      if (timestampCounts[key] == 1 && !maiorQueUmaHora) {
-        filtrado.add(coord);
-        ultimoAdicionado = coord; // Atualiza o último ponto adicionado
+      // Adiciona ao `filtrado` apenas o **primeiro ponto** de cada minuto
+      if (!minutosAdicionados.contains(key)) {
+        filtrado.add(coord); // Adiciona o ponto atual à lista filtrada
+        minutosAdicionados.add(key); // Marca o minuto como já adicionado
       }
     }
 
-    //debugPrint do timestamp de cada ponto da lista 'route'
+    // debugPrint do timestamp de cada ponto da lista 'route'
     for (var coord in route) {
       debugPrint('timestamp do ponto da lista route: ${coord.timestamp}');
     }
 
-    //debugPrint do timestamp de cada ponto
+    // debugPrint do timestamp de cada ponto filtrado
     for (var coord in filtrado) {
       debugPrint('timestamp do ponto: ${coord.timestamp}');
+    }
+
+    return filtrado;
+  }
+
+  double calcularDistancia2(
+      CoordenadaComTimestamp p1, CoordenadaComTimestamp p2) {
+    const R = 6371.0; // Raio da Terra em km
+    double lat1 = p1.ponto.latitude * pi / 180; // Converter para radianos
+    double lat2 = p2.ponto.latitude * pi / 180; // Converter para radianos
+    double lon1 = p1.ponto.longitude * pi / 180; // Converter para radianos
+    double lon2 = p2.ponto.longitude * pi / 180; // Converter para radianos
+
+    double dlat = lat2 - lat1;
+    double dlon = lon2 - lon1;
+
+    double a = sin(dlat / 2) * sin(dlat / 2) +
+        cos(lat1) * cos(lat2) * sin(dlon / 2) * sin(dlon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distancia = R * c; // Distância em km
+
+    return distancia;
+  }
+
+// Função para calcular a velocidade entre dois pontos em km/h
+  double calcularVelocidade(
+      CoordenadaComTimestamp p1, CoordenadaComTimestamp p2) {
+    double distancia = calcularDistancia2(p1, p2); // Distância em km
+    Duration diferencaTempo = p2.timestamp
+        .difference(p1.timestamp); // Diferença de tempo entre os dois pontos
+
+    // Converter a diferença de tempo para horas
+    double horas = diferencaTempo.inSeconds / 3600.0;
+
+    // Evitar divisão por zero
+    if (horas == 0) {
+      return 0;
+    }
+
+    // Velocidade em km/h
+    double velocidade = distancia / horas;
+
+    return velocidade;
+  }
+
+// Função para filtrar os pontos com velocidade menor que 5 km/h
+  List<CoordenadaComTimestamp> filtrarPontosPorVelocidade(
+      List<CoordenadaComTimestamp> route) {
+    if (route.length <= 1) {
+      return route;
+    }
+
+    List<CoordenadaComTimestamp> filtrado = [
+      route.first
+    ]; // Adicionar o primeiro ponto
+
+    for (int i = 1; i < route.length; i++) {
+      double velocidade = calcularVelocidade(route[i - 1], route[i]);
+
+      // Apenas adicionar o ponto se a velocidade for >= 5 km/h
+      if (velocidade >= 10) {
+        filtrado.add(route[i]);
+      }
     }
 
     return filtrado;
@@ -565,6 +805,63 @@ class MissionDetailsBloc
     }).join('|');
 
     return waypoints;
+  }
+
+  String getCoordinatesString(Location location) {
+    return '${location.latitude},${location.longitude}';
+  }
+
+  Map<String, String> getFirstAndLastCoordinates(List<Location> locations) {
+    if (locations.isEmpty) {
+      return {
+        'first': '',
+        'last': '',
+      };
+    }
+
+    String firstLocation = getCoordinatesString(locations.first);
+    String lastLocation = getCoordinatesString(locations.last);
+
+    return {
+      'first': firstLocation,
+      'last': lastLocation,
+    };
+  }
+
+  Future<double?> getDistanceWithMatrix(
+      String origins, String destinations) async {
+    const url =
+        //'https://southamerica-east1-sombratestes.cloudfunctions.net/getDistance';
+        'https://southamerica-east1-sombratestes.cloudfunctions.net/getDistance';
+
+    try {
+      final response = await Dio().post(url,
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+          }),
+          data: {
+            'origins': origins,
+            'destinations': destinations,
+          });
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final elements = data['rows'][0]['elements'][0];
+        if (elements['status'] == 'OK') {
+          final distance = elements['distance']['value']; // Distância em metros
+          return distance / 1000; // Convertendo para quilômetros
+        } else {
+          debugPrint('Erro na resposta: ${elements['status']}');
+          return null;
+        }
+      } else {
+        debugPrint('Erro na requisição: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erro na requisição: $e');
+      return null;
+    }
   }
 
   Future<Map<String, dynamic>?> calcularDistanciaComFirebaseFunction(
@@ -753,10 +1050,10 @@ class MissionDetailsBloc
     double totalDistance = 0.0;
 
     for (int i = 0; i < locations.length - 1; i++) {
-      totalDistance += const Distance().as(
-        LengthUnit.Kilometer,
-        LatLng(locations[i].latitude, locations[i].longitude),
-        LatLng(locations[i + 1].latitude, locations[i + 1].longitude),
+      totalDistance += const latlong.Distance().as(
+        latlong.LengthUnit.Kilometer,
+        latlong.LatLng(locations[i].latitude, locations[i].longitude),
+        latlong.LatLng(locations[i + 1].latitude, locations[i + 1].longitude),
       );
     }
 
@@ -780,5 +1077,11 @@ class MissionDetailsBloc
 
   double _toRadians(double degree) {
     return degree * (pi / 180);
+  }
+
+  void _onResetMissionDetails(
+      ResetMissionDetails event, Emitter<MissionDetailsState> emit) {
+    // Reseta o estado para o inicial
+    emit(MissionDetailsInitial());
   }
 }

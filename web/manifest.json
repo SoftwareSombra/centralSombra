@@ -1,11 +1,11 @@
 {
-    "name": "sombra_testes",
-    "short_name": "sombra_testes",
+    "name": "sombra",
+    "short_name": "sombra",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Sombra assessoramento, preservação e acompanhamento de veículos e cargas.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

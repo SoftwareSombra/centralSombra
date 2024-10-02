@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../../../paginated_data_table/paginated_data_table.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 import '../../admin/services/admin_services.dart';
 import '../bloc/get_empresas_bloc.dart';
 import '../bloc/get_empresas_event.dart';
@@ -179,18 +179,20 @@ class _EmpresasScreenState extends State<EmpresasScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-                  content: SizedBox(
-                    height: height * 0.8,
-                    width: width * 0.8,
-                    child: const AddEmpresaScreen(),
-                  ),
-                );
-              });
+          // showDialog(
+          //     context: context,
+          //     builder: (context) {
+          //       return AlertDialog(
+          //         backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //         content: SizedBox(
+          //           height: height * 0.8,
+          //           width: width * 0.8,
+          //           child: const AddEmpresaScreen(),
+          //         ),
+          //       );
+          //     });
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const AddEmpresaScreen()));
         },
         backgroundColor: Colors.blue.withOpacity(0.11),
         child: const Icon(
@@ -307,36 +309,36 @@ class EmpresaDataSource extends DataTableSource {
         DataCell(
           Row(
             children: [
-              MouseRegion(
-                cursor: MaterialStateMouseCursor.clickable,
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.edit,
-                        color: Colors.blue.withOpacity(0.8),
-                        size: 15,
-                      ),
-                      const SizedBox(
-                        height: 1,
-                      ),
-                      const Text(
-                        'Editar',
-                        style: TextStyle(
-                          //color: Colors.blue,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 20,
-              ),
+              // MouseRegion(
+              //   cursor: MaterialStateMouseCursor.clickable,
+              //   child: GestureDetector(
+              //     onTap: () {},
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.center,
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: [
+              //         Icon(
+              //           Icons.edit,
+              //           color: Colors.blue.withOpacity(0.8),
+              //           size: 15,
+              //         ),
+              //         const SizedBox(
+              //           height: 1,
+              //         ),
+              //         const Text(
+              //           'Editar',
+              //           style: TextStyle(
+              //             //color: Colors.blue,
+              //             fontSize: 10,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(
+              //   width: 20,
+              // ),
               MouseRegion(
                 cursor: MaterialStateMouseCursor.clickable,
                 child: GestureDetector(

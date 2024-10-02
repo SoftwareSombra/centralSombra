@@ -7,10 +7,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   emoji_picker_flutter
   file_selector_linux
   flutter_localization
-  irondash_engine_context
   printing
   record_linux
-  super_native_extensions
   url_launcher_linux
 )
 

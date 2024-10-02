@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stepper_a/stepper_a.dart';
+//import 'package:stepper_a/stepper_a.dart';
 import '../../autenticacao/services/user_services.dart';
 import 'components/form_add_infos.dart';
 
@@ -14,7 +14,7 @@ class AddInfosScreen extends StatelessWidget {
   final TextEditingController cpf = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final UserServices userServices = UserServices();
-  final StepperAController stepperController = StepperAController();
+  //final StepperAController stepperController = StepperAController();
   final TextEditingController logradouroController = TextEditingController();
   final TextEditingController numeroController = TextEditingController();
   final TextEditingController complementoController = TextEditingController();
@@ -51,7 +51,7 @@ class AddInfosScreen extends StatelessWidget {
                 rg: rg,
                 cpf: cpf,
                 formKey: formKey,
-                stepperController: stepperController,
+                //stepperController: stepperController,
                 logradouroController: logradouroController,
                 numeroController: numeroController,
                 complementoController: complementoController,

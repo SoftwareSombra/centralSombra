@@ -84,9 +84,9 @@ class RelatorioServices {
           .doc(relatorio.uid)
           .collection('Missões')
           .doc(relatorio.missaoId)
-          .update(
+          .set(
             MissaoRelatorio.objectToMap(relatorio),
-            //SetOptions(merge: true),
+            SetOptions(merge: true),
           );
     } catch (e) {
       rethrow;
@@ -260,7 +260,56 @@ class RelatorioServices {
       return null;
     }
   }
+
+  Future<void> editarKmOdometro(
+      String missaoId, String uid, String valor, String tipo) async {
+    try {
+      await firestore
+          .collection('Relatórios')
+          .doc(uid)
+          .collection('Missões')
+          .doc(missaoId)
+          .set(
+        {tipo: valor},
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Stream<List<Foto>> streamDeFotosDaMissao(String uid, String missaoId) {
+    try {
+      return firestore
+          .collection('Fotos relatório')
+          .doc(uid)
+          .collection('Missões')
+          .doc(missaoId)
+          .snapshots()
+          .map((doc) {
+        final data = doc.data();
+        if (data != null && data.containsKey('fotos')) {
+          // final fotos =
+          //     List.from(data['fotos']).map((e) => Foto.fromMap(e)).toList();
+          // for (var foto in fotos) {
+          //   debugPrint(foto.url);
+          // }
+          return List.from(data['fotos']).map((e) => Foto.fromMap(e)).toList();
+        } else {
+          return [];
+        }
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
+
+// Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+//         List<Foto> fotos = List.from(data['fotos'])
+//             .map((e) => Foto.fromMap(e))
+//             .cast<Foto>()
+//             .toList();
 
 class FunctionResult {
   final bool success;

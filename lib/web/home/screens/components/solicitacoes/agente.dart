@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:sombra_testes/autenticacao/screens/tratamento/error_snackbar.dart';
+import 'package:sombra/autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../../../agente/bloc/solicitacoes/events.dart';
 import '../../../../../agente/bloc/solicitacoes/solicitacoes_agente_bloc.dart';
 import '../../../../../agente/bloc/solicitacoes/states.dart';

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
 import 'package:intl/intl.dart';
-import 'package:sombra_testes/missao/services/missao_services.dart';
+import 'package:sombra/missao/services/missao_services.dart';
 import 'dart:math';
+import 'admin_mapa.dart';
 
 class MapaRotaTeste extends StatefulWidget {
   final Place? missionPosition;
@@ -152,8 +152,8 @@ class _MapaRotaTesteState extends State<MapaRotaTeste> {
         gmap.Marker(
           markerId: const gmap.MarkerId('mission'),
           position: gmap.LatLng(
-            widget.missionPosition!.latLng!.lat,
-            widget.missionPosition!.latLng!.lng,
+            widget.missionPosition!.latLng!.latitude,
+            widget.missionPosition!.latLng!.longitude,
           ),
           //icon: gmap.BitmapDescriptor.fromBytes(_userIcon!),
         )
@@ -210,9 +210,9 @@ class _MapaRotaTesteState extends State<MapaRotaTeste> {
       Place? startPoint, Place? endPoint) async {
     try {
       debugPrint(
-          "Ponto de início: ${startPoint?.latLng?.lat}, ${startPoint?.latLng?.lng}");
+          "Ponto de início: ${startPoint?.latLng?.latitude}, ${startPoint?.latLng?.longitude}");
       debugPrint(
-          "Ponto final: ${endPoint?.latLng?.lat}, ${endPoint?.latLng?.lng}");
+          "Ponto final: ${endPoint?.latLng?.latitude}, ${endPoint?.latLng?.longitude}");
 
       final Dio dio = Dio();
 
@@ -223,8 +223,8 @@ class _MapaRotaTesteState extends State<MapaRotaTeste> {
       final response = await dio.get(
         firebaseFunctionUrl,
         queryParameters: {
-          "origin": "${startPoint!.latLng!.lat},${startPoint.latLng!.lng}",
-          "destination": "${endPoint!.latLng!.lat},${endPoint.latLng!.lng}",
+          "origin": "${startPoint!.latLng!.latitude},${startPoint.latLng!.longitude}",
+          "destination": "${endPoint!.latLng!.latitude},${endPoint.latLng!.longitude}",
           "mode": "driving",
           "key": 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
           "language": "pt_BR"
@@ -294,7 +294,7 @@ class _MapaRotaTesteState extends State<MapaRotaTeste> {
     const apiKey = 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU';
     final dio = Dio();
     final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.lat},${latLng.lng}&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${latLng.latitude},${latLng.longitude}&key=$apiKey';
 
     try {
       final response = await dio.get(url);

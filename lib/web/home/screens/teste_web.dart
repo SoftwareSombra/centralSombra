@@ -1,13 +1,15 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/chat/services/chat_services.dart';
-import 'package:sombra_testes/missao/services/missao_services.dart';
-import 'package:sombra_testes/web/home/notificacao/not_teste.dart';
-import 'package:sombra_testes/web/home/screens/components/second_row.dart';
-import 'package:sombra_testes/web/home/screens/components/solicitacoes.dart';
-import 'package:sombra_testes/web/home/screens/mapa_teste.dart';
+import 'package:sombra/chat/services/chat_services.dart';
+import 'package:sombra/missao/services/missao_services.dart';
+import 'package:sombra/web/home/notificacao/not_teste.dart';
+import 'package:sombra/web/home/screens/components/second_row.dart';
+import 'package:sombra/web/home/screens/components/solicitacoes.dart';
+import 'package:sombra/web/home/screens/mapa_teste.dart';
+import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../../../autenticacao/services/user_services.dart';
 import '../../../chat/screens/central_missao_chat.dart';
 import '../../../chat/screens/chat_screen.dart';
@@ -16,7 +18,9 @@ import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_event.dart';
 import '../../admin/services/admin_services.dart';
 import '../../missoes/agente/realtime_map.dart';
+import '../../perfil/screens/perfil_screen.dart';
 import 'components/missoes_ativas.dart';
+import 'components/solicitacoes/bloc/solicitacoes_bloc/notificacao_chat_bloc.dart';
 
 class HomeLoginWeb extends StatefulWidget {
   final String cargo;
@@ -35,6 +39,7 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
   List<CoordenadaComTimestamp> portoRealRoute = [];
   MissaoServices missaoServices = MissaoServices();
   AdminServices adminServices = AdminServices();
+  late final StreamSubscription<bool> missaoSolicitadaPendenteListener;
   //String funcao = 'carregando...';
   //String nome = 'carregando...';
 
@@ -46,6 +51,21 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
     context.read<QtdMissoesPendentesBloc>().add(
           BuscarQtdMissoesPendentes(),
         );
+    BlocProvider.of<MissoesSolicitadasStreamBloc>(context)
+        .add(BuscarMissoesSolicitadasStream());
+    missaoSolicitadaPendenteListener =
+        missaoServices.existeSolicitacaoPendente().listen((existe) {
+      if (existe) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          TopBar.show(context, 'Solicitação de missão recebida', Colors.red,
+              duration: const Duration(days: 356));
+        });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          TopBar.hide();
+        });
+      }
+    });
     //buscarFuncao();
     userServices.addFcmToken();
   }
@@ -91,10 +111,22 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundImage:
-                        AssetImage('assets/images/fotoDePerfilNull.jpg'),
+                  MouseRegion(
+                    cursor: WidgetStateMouseCursor.clickable,
+                    child: GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const CentralPerfilScreen()));
+                      },
+                      child: const CircleAvatar(
+                        radius: 20,
+                        backgroundImage:
+                            AssetImage('assets/images/fotoDePerfilNull.jpg'),
+                      ),
+                    ),
                   ),
                   const SizedBox(
                     width: 10,

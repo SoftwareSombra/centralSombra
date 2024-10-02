@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:sombra_testes/missao/screens/criar_missao_screen.dart';
-import 'package:sombra_testes/web/admin/notificacoes/blocs/avisos/avisos_bloc_event.dart';
-import 'package:sombra_testes/web/admin/notificacoes/blocs/avisos/avisos_bloc_state.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import 'package:sombra_testes/widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import 'package:sombra/web/admin/notificacoes/blocs/avisos/avisos_bloc_event.dart';
+import 'package:sombra/web/admin/notificacoes/blocs/avisos/avisos_bloc_state.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 import '../../../../autenticacao/screens/tratamento/error_snackbar.dart';
+import '../../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../blocs/avisos/avisos_bloc_bloc.dart';
 import '../services/notificacoes_services.dart';
 
@@ -22,6 +22,7 @@ class NotificacoesAdmScreen extends StatefulWidget {
 String? _selectedOption;
 QuillController _controller = QuillController.basic();
 TratamentoDeErros tratamento = TratamentoDeErros();
+MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
 final NotificacoesAdmServices notificacoesAdmServices =
     NotificacoesAdmServices();
 TextEditingController? notTituloController;
@@ -138,7 +139,7 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
                           _controller.clear();
                         });
                         if (context.mounted) {
-                           BlocProvider.of<AvisosBloc>(context)
+                          BlocProvider.of<AvisosBloc>(context)
                               .add(BuscarAvisos());
                           Navigator.of(context).pop();
                           mensagemDeSucesso.showSuccessSnackbar(
@@ -695,76 +696,77 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
                           height: 5,
                         ),
                         Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: BlocBuilder<AvisosBloc, AvisosBlocState>(
-                              builder: (context, state) {
-                                if (state is AvisosBlocLoading) {
-                                  return const CircularProgressIndicator();
-                                } else if (state is AvisosBlocError) {
-                                  return const Text(
-                                      'Erro ao buscar avisos, tente novamente!');
-                                } else if (state is AvisosBlocIsEmpty) {
-                                  return const Text(
-                                      'Nenhum aviso está sendo exibido atualmente');
-                                } else if (state is AvisosBlocLoaded) {
-                                  return SizedBox(
-                                    height: 400,
-                                    child: ListView.builder(
-                                      itemCount: state.avisos!.length,
-                                      itemBuilder: (context, index) {
-                                        return GestureDetector(
-                                          onTap: () {
-                                            QuillController quillController =
-                                                QuillController(
-                                                    document: Document.fromJson(
-                                                        state.avisos![index]
-                                                            .aviso),
-                                                    selection:
-                                                        const TextSelection
-                                                            .collapsed(
-                                                            offset: 0));
-                                            showAviso(context, quillController,
-                                                state.avisos![index].titulo);
-                                          },
-                                          child: MouseRegion(
-                                            cursor: MaterialStateMouseCursor
-                                                .clickable,
-                                            child: Card(
-                                              color: const Color.fromARGB(
-                                                  255, 3, 9, 18),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(20.0),
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                        'Título: ${state.avisos![index].titulo}'),
-                                                    const Spacer(),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        excluirAvisoDialog(context, state
-                                                            .avisos![index].id);
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.close),
-                                                    ),
-                                                  ],
-                                                ),
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: BlocBuilder<AvisosBloc, AvisosBlocState>(
+                            builder: (context, state) {
+                              if (state is AvisosBlocLoading) {
+                                return const CircularProgressIndicator();
+                              } else if (state is AvisosBlocError) {
+                                return const Text(
+                                    'Erro ao buscar avisos, tente novamente!');
+                              } else if (state is AvisosBlocIsEmpty) {
+                                return const Text(
+                                    'Nenhum aviso está sendo exibido atualmente');
+                              } else if (state is AvisosBlocLoaded) {
+                                return SizedBox(
+                                  height: 400,
+                                  child: ListView.builder(
+                                    itemCount: state.avisos!.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          QuillController quillController =
+                                              QuillController(
+                                                  document: Document.fromJson(
+                                                      state.avisos![index]
+                                                          .aviso),
+                                                  selection: const TextSelection
+                                                      .collapsed(offset: 0));
+                                          showAviso(context, quillController,
+                                              state.avisos![index].titulo);
+                                        },
+                                        child: MouseRegion(
+                                          cursor: MaterialStateMouseCursor
+                                              .clickable,
+                                          child: Card(
+                                            color: const Color.fromARGB(
+                                                255, 3, 9, 18),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(20.0),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                      'Título: ${state.avisos![index].titulo}'),
+                                                  const Spacer(),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      excluirAvisoDialog(
+                                                          context,
+                                                          state.avisos![index]
+                                                              .id);
+                                                    },
+                                                    icon:
+                                                        const Icon(Icons.close),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                } else {
-                                  return const Text(
-                                      'Algum erro ocorreu, recarregue a página');
-                                }
-                              },
-                            ),),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              } else {
+                                return const Text(
+                                    'Algum erro ocorreu, recarregue a página');
+                              }
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ),

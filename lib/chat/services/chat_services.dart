@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/chat_view/chatview.dart';
-import 'package:sombra_testes/notificacoes/notificacoess.dart';
-import 'package:sombra_testes/sqfLite/missao/model/missao_db_model.dart';
-import 'package:sombra_testes/sqfLite/missao/services/db_helper.dart';
+import 'package:sombra/chat_view/chatview.dart';
+import 'package:sombra/notificacoes/notificacoess.dart';
+import 'package:sombra/sqfLite/missao/model/missao_db_model.dart';
+import 'package:sombra/sqfLite/missao/services/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../notificacoes/fcm.dart';
 
@@ -265,23 +265,66 @@ class ChatServices {
         .snapshots();
   }
 
+  Stream<QuerySnapshot<Map<String, dynamic>>> getClientsConversations() {
+    debugPrint('buscando conversas com os clientes');
+    return FirebaseFirestore.instance
+        .collection('Chat cliente')
+        .orderBy('lastMessageTimestamp', descending: true)
+        .snapshots();
+  }
+
   Stream<bool> notificacaoChat() {
     debugPrint('chegou aqui !!!!!');
     return FirebaseFirestore.instance
         .collection('Chat')
         .snapshots()
         .map((snapshot) {
+      bool hasUnreadMessages = false;
       for (var doc in snapshot.docs) {
         debugPrint('doc: ${doc.id}');
-        if (doc.data()['unreadCount'] > 0) {
-          debugPrint('Notificação Chat: true');
-          return true;
+        if (doc.data()['unreadCount'] != null &&
+            doc.data()['unreadCount'] > 0) {
+          hasUnreadMessages = true;
+          break; // Saia do loop assim que encontrar uma mensagem não lida
         }
       }
-      debugPrint('Notificação Chat: false');
-      return false;
+      debugPrint('Notificação Chat: $hasUnreadMessages');
+      return hasUnreadMessages;
     });
   }
+
+  Stream<bool> notificacaoChatCliente() {
+    debugPrint('chegou aqui/chatclientnotification !!!!!');
+    return FirebaseFirestore.instance
+        .collection('Chat cliente')
+        .snapshots()
+        .map((snapshot) {
+      bool hasUnreadMessages = false;
+      for (var doc in snapshot.docs) {
+        debugPrint('doc: ${doc.id}');
+        if (doc.data()['unreadCount'] != null &&
+            doc.data()['unreadCount'] > 0) {
+          hasUnreadMessages = true;
+          break; // Saia do loop assim que encontrar uma mensagem não lida
+        }
+      }
+      debugPrint('Notificação Chat cliente: $hasUnreadMessages');
+      return hasUnreadMessages;
+    });
+  }
+
+  //   void notificacaoChat(messageStreamController, uid) {
+  //   FirebaseFirestore.instance.collection('Chat').doc(uid).snapshots().listen(
+  //     (snapshot) {
+  //       debugPrint('snapshot: ${snapshot.data()}');
+  //       if (snapshot.exists && snapshot.data()!['unreadCount'] > 0) {
+  //         messageStreamController.add(true);
+  //       } else {
+  //         messageStreamController.add(false);
+  //       }
+  //     },
+  //   );
+  // }
 
   Stream<int> getUsersMissionConversationsUnreadCount(String missaoId) {
     return FirebaseFirestore.instance
@@ -373,11 +416,45 @@ class ChatServices {
     return names;
   }
 
+  Future<Map<String, String>> getEmpresasNames(List<String> cnpjs) async {
+    // A coleção de onde você quer buscar os nomes dos usuários
+    final collection = FirebaseFirestore.instance.collection('Empresas');
+
+    // Dividindo os uids em lotes de 10, porque Firestore tem um limite para o número de itens na cláusula whereIn
+    final List<Map<String, String>> namesBatch = [];
+    for (var i = 0; i < cnpjs.length; i += 10) {
+      final batchUids =
+          cnpjs.sublist(i, i + 10 > cnpjs.length ? cnpjs.length : i + 10);
+
+      // Realizando a busca
+      final querySnapshot = await collection
+          .where(FieldPath.documentId, whereIn: batchUids)
+          .get();
+
+      // Processando os resultados e adicionando ao mapa
+      for (var doc in querySnapshot.docs) {
+        final cnpj = doc.id;
+        final name = doc['Nome da empresa'] ??
+            ''; // Use um valor padrão ou manipule a ausência de nome como achar melhor
+        namesBatch.add({cnpj: name});
+      }
+    }
+
+    // Combinando todos os lotes em um único mapa
+    final Map<String, String> names = {};
+    for (var batch in namesBatch) {
+      names.addAll(batch);
+    }
+
+    return names;
+  }
+
   Future<List<Message>?> buscarChatMissao(String missaoId) async {
     final get = await firestore
         .collection('Chat missão cliente')
         .doc(missaoId)
-        .collection('Mensagens').orderBy('createdAt', descending: false)
+        .collection('Mensagens')
+        .orderBy('createdAt', descending: false)
         .get();
 
     if (get.docs.isEmpty) {

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/chat_view/src/extensions/extensions.dart';
+import 'package:sombra/chat_view/src/extensions/extensions.dart';
 import '../../chatview.dart';
 import '../utils/constants/constants.dart';
 import 'link_preview.dart';
@@ -86,26 +86,32 @@ class TextMessageView extends StatelessWidget {
             color: highlightMessage ? highlightColor : _color,
             borderRadius: _borderRadius(textMessage),
           ),
-          child: textMessage.isUrl
-              ? LinkPreview(
-                  linkPreviewConfig: _linkPreviewConfig,
-                  url: textMessage,
-                )
-              : Text(
-                  textMessage,
-                  style: _textStyle ??
-                      textTheme.bodyMedium!.copyWith(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                ),
+          child: Column(
+            children: [
+              textMessage.isUrl
+                  ? LinkPreview(
+                      linkPreviewConfig: _linkPreviewConfig,
+                      url: textMessage,
+                    )
+                  : SelectableText(
+                      textMessage,
+                      style: _textStyle ??
+                          textTheme.bodyMedium!.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                    ),
+            ],
+          ),
         ),
         if (message.reaction.reactions.isNotEmpty)
-          ReactionWidget(
-            key: key,
-            isMessageBySender: isMessageBySender,
-            reaction: message.reaction,
-            messageReactionConfig: messageReactionConfig,
+          Positioned(
+            bottom: -15, // ajuste a posição conforme necessário
+            child: ReactionWidget(
+              isMessageBySender: isMessageBySender,
+              reaction: message.reaction,
+              messageReactionConfig: messageReactionConfig,
+            ),
           ),
       ],
     );

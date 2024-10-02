@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import '../../../agente/services/agente_services.dart';
 import '../../../sqfLite/missao/services/db_helper.dart';
 import '../../model/missao_model.dart';
@@ -11,9 +11,7 @@ import 'events.dart';
 import 'states.dart';
 
 class AgentMissionBloc extends Bloc<AgentEvent, AgentState> {
-
-  AgentMissionBloc()
-      : super(LoadingAgentState()) {
+  AgentMissionBloc() : super(LoadingAgentState()) {
     //ChatServices chatServices = ChatServices();
     AgenteServices agenteServices = AgenteServices();
     final MissaoServices missaoServices = MissaoServices();
@@ -38,7 +36,7 @@ class AgentMissionBloc extends Bloc<AgentEvent, AgentState> {
         emit(FetchMissionLoading(uid));
 
         //verificar se ha conexao com a internet
-        final hasConnection = await InternetConnectionChecker().hasConnection;
+        final hasConnection = await InternetConnection().hasInternetAccess;
 
         if (!hasConnection) {
           debugPrint('sem conexao');

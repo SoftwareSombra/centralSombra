@@ -12,13 +12,13 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:printing/printing.dart';
-import 'package:sombra_testes/chat_view/chatview.dart';
+import 'package:sombra/chat_view/chatview.dart';
 import 'dart:html' as html;
 import 'dart:ui' as ui;
 import '../../../missao/model/missao_model.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 
 class PdfScreen extends StatefulWidget {
   final MissaoRelatorio missao;
@@ -415,24 +415,26 @@ class _PdfScreenState extends State<PdfScreen> {
       return isChecked
           ? pw.Row(
               children: [
-                pw.RichText(
-                  text: pw.TextSpan(
-                    children: [
-                      pw.TextSpan(
-                        text: title,
-                        style: pw.TextStyle(
-                          fontSize: 12,
-                          fontWeight: pw.FontWeight.bold,
+                pw.Expanded(
+                  child: pw.RichText(
+                    text: pw.TextSpan(
+                      children: [
+                        pw.TextSpan(
+                          text: title,
+                          style: pw.TextStyle(
+                            fontSize: 12,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      pw.TextSpan(
-                        text: data,
-                        style: pw.TextStyle(
-                          fontSize: 12,
-                          fontWeight: pw.FontWeight.normal,
+                        pw.TextSpan(
+                          text: data,
+                          style: pw.TextStyle(
+                            fontSize: 12,
+                            fontWeight: pw.FontWeight.normal,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

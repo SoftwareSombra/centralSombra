@@ -73,6 +73,7 @@ class ObscuredTextFormFieldState extends State<ObscuredTextFormField> {
     final theme = context.read<LoginTheme>();
     return BaseTextFormFieldWrapper(
       formField: TextFormField(
+        cursorColor: Colors.grey,
         focusNode: widget.focusNode,
         controller: widget.controller,
         textInputAction: widget.textInputAction,

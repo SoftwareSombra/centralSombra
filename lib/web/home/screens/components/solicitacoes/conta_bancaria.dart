@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/web/home/screens/components/solicitacoes/agente.dart';
+import 'package:sombra/web/home/screens/components/solicitacoes/agente.dart';
 import '../../../../../conta_bancaria/bloc/solicitacoes_conta_bancaria_bloc.dart';
 import '../../../../../conta_bancaria/bloc/solicitacoes_conta_bancaria_state.dart';
 import '../../../../../conta_bancaria/model/conta_bancaria_model.dart';
@@ -314,8 +314,8 @@ class _ContaBancariaCardState extends State<ContaBancariaCard> {
             for (String token in userTokens) {
               debugPrint('FCM Token: $token');
               try {
-                await firebaseMessagingService.sendNotification(
-                    token, 'Atualização', 'Conta bancária atualizada', 'cadastro');
+                await firebaseMessagingService.sendNotification(token,
+                    'Atualização', 'Conta bancária atualizada', 'cadastro');
               } catch (e) {
                 debugPrint('Erro ao enviar notificação: $e');
               }

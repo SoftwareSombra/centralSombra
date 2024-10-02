@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sombra_testes/veiculos/services/veiculos_services.dart';
+import 'package:sombra/veiculos/services/veiculos_services.dart';
 import 'resposta_solicitacao_veiculo_event.dart';
 import 'resposta_solicitacao_veiculo_state.dart';
 

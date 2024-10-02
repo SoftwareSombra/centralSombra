@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
-
+import '../../../../../chat/screens/missao_cliente.dart';
+import '../../../../../chat/services/chat_services.dart';
+import '../../../../../missao/bloc/missoes_pendentes/missoes_pendentes_bloc.dart';
+import '../../../../../missao/bloc/missoes_pendentes/missoes_pendentes_event.dart';
 import '../../../../../missao/model/missao_solicitada.dart';
 import '../../../../../missao/screens/criar_missao_screen.dart';
+import '../../../../../missao/services/missao_services.dart';
+import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 
 class MissaoPendenteCard extends StatelessWidget {
   final MissaoSolicitada missaoSolicitada;
   final BuildContext initialContext;
-  const MissaoPendenteCard({super.key, required this.missaoSolicitada, required this.initialContext});
+  MissaoPendenteCard(
+      {super.key,
+      required this.missaoSolicitada,
+      required this.initialContext});
 
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
+  final ChatServices chatServices = ChatServices();
+  final MissaoServices missaoServices = MissaoServices();
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +32,7 @@ class MissaoPendenteCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Container(
-        height: 300,
+        height: 310,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
@@ -176,21 +189,54 @@ class MissaoPendenteCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.blue),
-                    ),
-                    onPressed: () {
-                      mostrarListaAgentes(context, width);
+                  StreamBuilder(
+                    stream: MissaoServices().verificarSeAlgumAgenteAceitou(
+                        missaoSolicitada.missaoId),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      return Stack(
+                        children: [
+                          IconButton(
+                            style: const ButtonStyle(
+                              backgroundColor:
+                                  WidgetStatePropertyAll(Colors.blue),
+                            ),
+                            onPressed: () {
+                              mostrarListaAgentes(context, width);
+                            },
+                            icon: const Icon(Icons.person_outlined),
+                          ),
+                          snapshot.data != null
+                              ? snapshot.data!
+                                  ? Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red, // Cor da bolinha
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors
+                                                .white, // Cor da borda da bolinha
+                                            width: 1, // Largura da borda
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink()
+                              : const SizedBox.shrink(),
+                        ],
+                      );
                     },
-                    icon: const Icon(Icons.person_outlined),
                   ),
                   const SizedBox(
                     width: 20,
                   ),
                   IconButton(
                     style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.green),
+                      backgroundColor: WidgetStatePropertyAll(Colors.green),
                     ),
                     onPressed: () {
                       Navigator.push(
@@ -220,28 +266,75 @@ class MissaoPendenteCard extends StatelessWidget {
                   ),
                   IconButton(
                     style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.red),
+                      backgroundColor: WidgetStatePropertyAll(Colors.red),
                     ),
                     onPressed: () {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text('Aviso'),
-                            content: const SingleChildScrollView(
-                              child: ListBody(
-                                children: <Widget>[
-                                  Text('Em desenvolvimento'),
-                                ],
-                              ),
+                            title: const Text('Atenção'),
+                            content: const Column(
+                              children: [
+                                Text(
+                                    'Excluir missão? Esta ação não poderá ser desfeita!')
+                              ],
                             ),
                             actions: <Widget>[
-                              TextButton(
-                                child: const Text('Ok'),
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
+                              BlocBuilder<ElevatedButtonBloc,
+                                  ElevatedButtonBlocState>(
+                                builder: (context, state) {
+                                  if (state is ElevatedButtonBlocLoading) {
+                                    return const CircularProgressIndicator();
+                                  }
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton(
+                                        child: const Text('Excluir'),
+                                        onPressed: () async {
+                                          context
+                                              .read<ElevatedButtonBloc>()
+                                              .add(ElevatedButtonPressed());
+                                          try {
+                                            await missaoServices
+                                                .rejeitarSolicitacaoPendente(
+                                                    missaoSolicitada.missaoId,
+                                                    missaoSolicitada.cnpj,
+                                                    missaoSolicitada.local,
+                                                    missaoSolicitada.timestamp);
+                                            context
+                                                .read<ElevatedButtonBloc>()
+                                                .add(ElevatedButtonReset());
+                                            BlocProvider.of<
+                                                    MissoesPendentesBloc>(context)
+                                                .add(BuscarMissoesPendentes());
+                                            Navigator.of(context).pop();
+                                          } catch (e) {
+                                            context
+                                                .read<ElevatedButtonBloc>()
+                                                .add(ElevatedButtonReset());
+                                            debugPrint(
+                                                'erro ao excluir missao: ${e.toString()}');
+                                            tratamentoDeErros.showErrorSnackbar(
+                                                context,
+                                                'Erro, tente novamente');
+                                          }
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text(
+                                          'Voltar',
+                                          style: TextStyle(color: Colors.blue),
+                                        ),
+                                        onPressed: () async {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
                                 },
-                              ),
+                              )
                             ],
                           );
                         },
@@ -249,47 +342,96 @@ class MissaoPendenteCard extends StatelessWidget {
                     },
                     icon: const Icon(Icons.delete_outlined),
                   ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(Colors.white),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ClienteMissaoChatScreen(
+                                missaoId: missaoSolicitada.missaoId,
+                                agenteUid: missaoSolicitada.uid,
+                                agenteNome: missaoSolicitada.nomeDaEmpresa,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.message_outlined,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      StreamBuilder<int>(
+                        stream: chatServices
+                            .getCentralMissionClientConversationsUnreadCount(
+                                missaoSolicitada.missaoId),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<int> snapshot) {
+                          if (snapshot.hasData && snapshot.data! > 0) {
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 2.0),
+                              child: Text(
+                                '(${snapshot.data})',
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     ElevatedButton(
+                  //       style: const ButtonStyle(
+                  //         backgroundColor: MaterialStatePropertyAll(Colors.red),
+                  //       ),
+                  //       onPressed: () {
+                  //         showDialog(
+                  //           context: context,
+                  //           builder: (BuildContext context) {
+                  //             return AlertDialog(
+                  //               title: const Text('Aviso'),
+                  //               content: const SingleChildScrollView(
+                  //                 child: ListBody(
+                  //                   children: <Widget>[
+                  //                     Text('Em desenvolvimento'),
+                  //                   ],
+                  //                 ),
+                  //               ),
+                  //               actions: <Widget>[
+                  //                 TextButton(
+                  //                   child: const Text('Ok'),
+                  //                   onPressed: () async {
+                  //                     Navigator.of(context).pop();
+                  //                   },
+                  //                 ),
+                  //               ],
+                  //             );
+                  //           },
+                  //         );
+                  //       },
+                  //       child: const Text('Rejeitar missão'),
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     ElevatedButton(
-              //       style: const ButtonStyle(
-              //         backgroundColor: MaterialStatePropertyAll(Colors.red),
-              //       ),
-              //       onPressed: () {
-              //         showDialog(
-              //           context: context,
-              //           builder: (BuildContext context) {
-              //             return AlertDialog(
-              //               title: const Text('Aviso'),
-              //               content: const SingleChildScrollView(
-              //                 child: ListBody(
-              //                   children: <Widget>[
-              //                     Text('Em desenvolvimento'),
-              //                   ],
-              //                 ),
-              //               ),
-              //               actions: <Widget>[
-              //                 TextButton(
-              //                   child: const Text('Ok'),
-              //                   onPressed: () async {
-              //                     Navigator.of(context).pop();
-              //                   },
-              //                 ),
-              //               ],
-              //             );
-              //           },
-              //         );
-              //       },
-              //       child: const Text('Rejeitar missão'),
-              //     ),
-              //   ],
-              // )
             ],
           ),
         ),
@@ -302,10 +444,14 @@ class MissaoPendenteCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Agentes disponíveis'),
+              const SizedBox.shrink(),
+              const Text('AGENTES DISPONÍVEIS'),
+              IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close))
             ],
           ),
           content: SizedBox(
@@ -314,13 +460,13 @@ class MissaoPendenteCard extends StatelessWidget {
               missaoSolicitada: missaoSolicitada,
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Fechar'),
-              onPressed: () async {
-                Navigator.of(context).pop();
-              },
-            ),
+          actions: const [
+            // TextButton(
+            //   child: const Text('Fechar'),
+            //   onPressed: () async {
+            //     Navigator.of(context).pop();
+            //   },
+            // ),
           ],
         );
       },

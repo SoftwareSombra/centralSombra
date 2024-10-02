@@ -10,9 +10,9 @@ import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../../../autenticacao/services/user_services.dart';
 import '../../../missao/services/missao_services.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_event.dart';
-import '../../../widgets_comuns/elevated_button/bloc/bloc/elevated_button_bloc_state.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
+import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 
 class RealTimeMapScreen extends StatefulWidget {
   final String missaoId;
@@ -205,6 +205,11 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
                                 .read<ElevatedButtonBloc>()
                                 .add(ElevatedButtonPressed());
                             debugPrint(widget.missionData.toString());
+
+                            // final initialCordinates =
+                            //    await missaoServices.getPrimeiroPontoRota(
+                            //         widget.missionData['missaoID']);
+
                             bool sucesso =
                                 await missaoServices.forcarEncerrarMissao(
                               widget.missionData['cnpj'],
@@ -214,19 +219,19 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
                               widget.missionData['motorista'],
                               widget.missionData['corVeiculo'],
                               widget.missionData['observacao'],
-                              widget.missionData['userUid'],
+                              widget.missionData['agenteUid'],
                               widget.missionData['userLatitude'],
                               widget.missionData['userLongitude'],
                               //widget.data['userFinalLatitude'],
                               //widget.data['userFinalLongitude'],
-                              newLat,
-                              newLng,
+                              newLat ?? 0,
+                              newLng ?? 0,
                               widget.missionData['missaoLatitude'],
                               widget.missionData['missaoLongitude'],
-                              widget.missionData['tipo de missao'],
+                              widget.missionData['tipo'],
                               widget.missionData['missaoID'],
                               widget.missionData['local'],
-                              widget.missionData['agente'] ?? 'Não informado',
+                              widget.missionData['nome'] ?? 'Não informado',
                             );
                             if (sucesso && context.mounted) {
                               context

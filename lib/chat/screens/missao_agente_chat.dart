@@ -9,8 +9,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:sombra_testes/chat/screens/chat_screen.dart';
-import 'package:sombra_testes/chat/services/chat_services.dart';
+import 'package:sombra/chat/screens/chat_screen.dart';
+import 'package:sombra/chat/services/chat_services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MissaoChatScreen extends StatefulWidget {

@@ -21,9 +21,8 @@
  */
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:sombra_testes/chat_view/src/extensions/extensions.dart';
+import 'package:sombra/chat_view/src/extensions/extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../chatview.dart';
 import '../utils/constants/constants.dart';
 

@@ -10,3 +10,5 @@ final class FetchMissionDetails extends MissionDetailsEvent {
     //this.missoes
   );
 }
+
+final class ResetMissionDetails extends MissionDetailsEvent {}

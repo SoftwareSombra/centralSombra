@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
   LoginViewTheme get _desktopTheme => _mobileTheme.copyWith(
         // To set the color of button text, use foreground color.
         actionButtonStyle: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all(Colors.white),
+          foregroundColor: WidgetStateProperty.all(Colors.white),
         ),
         dialogTheme: const AnimatedDialogTheme(
           languageDialogTheme: LanguageDialogTheme(
@@ -131,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
         formFieldBackgroundColor: Colors.white,
         formWidthRatio: 60,
         actionButtonStyle: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all(blueColor),
+          foregroundColor: WidgetStateProperty.all(blueColor),
         ),
         animatedComponentOrder: const <AnimatedComponent>[
           AnimatedComponent(
@@ -319,7 +319,9 @@ class DialogBuilder {
           content: SizedBox(
             height: 100,
             width: 100,
-            child: Center(child: Text(text, textAlign: TextAlign.center)),
+            child: Center(
+              child: Text(text, textAlign: TextAlign.center),
+            ),
           ),
         ),
       );

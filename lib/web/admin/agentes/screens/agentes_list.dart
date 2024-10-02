@@ -55,134 +55,139 @@ class _AgentesListState extends State<AgentesList> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       ),
-      body: BlocBuilder<AgentesListBloc, AgentesListState>(
-        builder: (context, state) {
-          if (state is AgentesListInitial) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is AgentesListLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is AgentesListError) {
-            return Center(
-              child: Text(state.message),
-            );
-          } else if (state is AgentesListEmpty) {
-            return const Center(
-              child: Text('Nenhum agente cadastrado'),
-            );
-          } else if (state is AgentesListLoaded) {
-            agentes = state.agentes;
+      body: SingleChildScrollView(
+        child: BlocBuilder<AgentesListBloc, AgentesListState>(
+          builder: (context, state) {
+            if (state is AgentesListInitial) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is AgentesListLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is AgentesListError) {
+              return Center(
+                child: Text(state.message),
+              );
+            } else if (state is AgentesListEmpty) {
+              return const Center(
+                child: Text('Nenhum agente cadastrado'),
+              );
+            } else if (state is AgentesListLoaded) {
+              agentes = state.agentes;
 
-            List<AgenteAdmList?> agentesFiltrados =
-                filtrarAgentes(agentes, searchController.text);
+              List<AgenteAdmList?> agentesFiltrados =
+                  filtrarAgentes(agentes, searchController.text);
 
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 15),
-                      child: SizedBox(
-                        width: width * 0.4,
-                        height: 40,
-                        child: TextFormField(
-                          controller: searchController,
-                          cursorHeight: 15,
-                          decoration: InputDecoration(
-                            labelText: 'Buscar agente pelo nome',
-                            labelStyle: TextStyle(
-                                color: Colors.grey[500], fontSize: 12),
-                            suffixIcon: Icon(
-                              Icons.search,
-                              size: 20,
-                              color: Colors.grey[500]!,
+              return Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 15),
+                        child: SizedBox(
+                          width: width * 0.4,
+                          height: 40,
+                          child: TextFormField(
+                            controller: searchController,
+                            cursorHeight: 15,
+                            decoration: InputDecoration(
+                              labelText: 'Buscar agente pelo nome',
+                              labelStyle: TextStyle(
+                                  color: Colors.grey[500], fontSize: 12),
+                              suffixIcon: Icon(
+                                Icons.search,
+                                size: 20,
+                                color: Colors.grey[500]!,
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey[500]!),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey[500]!),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey[500]!),
+                              ),
                             ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey[500]!),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey[500]!),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey[500]!),
-                            ),
+                            onChanged: (text) {
+                              setState(() {
+                                //relatorios = filtrarRelatorios();
+                              });
+                            },
                           ),
-                          onChanged: (text) {
-                            setState(() {
-                              //relatorios = filtrarRelatorios();
-                            });
-                          },
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Container(
-                  color: const Color.fromARGB(255, 3, 9, 18),
-                  width: width * 0.99,
-                  child: agentesFiltrados.isNotEmpty
-                      ? PaginatedDataTable2(
-                          colors: [
-                            canvasColor.withOpacity(0.3),
-                            canvasColor.withOpacity(0.33),
-                            canvasColor.withOpacity(0.35),
-                            canvasColor.withOpacity(0.38),
-                            canvasColor.withOpacity(0.4),
-                            canvasColor.withOpacity(0.43),
-                            canvasColor.withOpacity(0.45),
-                            canvasColor.withOpacity(0.48),
-                            canvasColor.withOpacity(0.5),
-                            canvasColor.withOpacity(0.53),
-                            canvasColor.withOpacity(0.55),
-                            canvasColor.withOpacity(0.58),
-                          ],
-                          columns: columns,
-                          source: EmpresaDataSource(
-                            agentes: agentesFiltrados,
-                            context: context,
-                          ),
-                          header: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Agentes'),
+                    ],
+                  ),
+                  Container(
+                    color: const Color.fromARGB(255, 3, 9, 18),
+                    width: width * 0.99,
+                    child: agentesFiltrados.isNotEmpty
+                        ? PaginatedDataTable2(
+                            colors: [
+                              canvasColor.withOpacity(0.3),
+                              canvasColor.withOpacity(0.33),
+                              canvasColor.withOpacity(0.35),
+                              canvasColor.withOpacity(0.38),
+                              canvasColor.withOpacity(0.4),
+                              canvasColor.withOpacity(0.43),
+                              canvasColor.withOpacity(0.45),
+                              canvasColor.withOpacity(0.48),
+                              canvasColor.withOpacity(0.5),
+                              canvasColor.withOpacity(0.53),
+                              canvasColor.withOpacity(0.55),
+                              canvasColor.withOpacity(0.58),
                             ],
+                            columns: columns,
+                            source: EmpresaDataSource(
+                              agentes: agentesFiltrados,
+                              context: context,
+                            ),
+                            header: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Agentes'),
+                              ],
+                            ),
+                            columnSpacing:
+                                MediaQuery.of(context).size.width * 0.05,
+                            showCheckboxColumn: true,
+                            rowsPerPage: state.agentes.length < 10
+                                ? state.agentes.length
+                                : 10,
+                          )
+                        : const Center(
+                            child: Text('Nenhum agente cadastrado'),
                           ),
-                          columnSpacing:
-                              MediaQuery.of(context).size.width * 0.05,
-                          showCheckboxColumn: true,
-                          rowsPerPage: state.agentes.length < 10
-                              ? state.agentes.length
-                              : 10,
-                        )
-                      : const Center(
-                          child: Text('Nenhum agente cadastrado'),
-                        ),
-                ),
-              ],
-            );
-          } else {
-            return const Center(
-              child: Text('Recarregue a página'),
-            );
-          }
-        },
+                  ),
+                ],
+              );
+            } else {
+              return const Center(
+                child: Text('Recarregue a página'),
+              );
+            }
+          },
+        ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: () {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => const AddEmpresaScreen(),
+        //   ),
+        // );
+        //   },
+        //   child: const Icon(Icons.add),
+        // ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => const AddEmpresaScreen(),
-      //   ),
-      // );
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
     );
   }
 }

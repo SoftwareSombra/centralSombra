@@ -294,7 +294,7 @@ class _AgenteCardState extends State<AgenteCard> {
               children: [
                 ElevatedButton(
                   style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.green)),
+                      backgroundColor: WidgetStatePropertyAll(Colors.green)),
                   onPressed: aprovarAgente,
                   child: const Text('Aprovar'),
                 ),
@@ -303,7 +303,7 @@ class _AgenteCardState extends State<AgenteCard> {
 
                 ElevatedButton(
                   style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                      backgroundColor: WidgetStatePropertyAll(Colors.red)),
                   onPressed: () {
                     if (mostrarCheckboxes &&
                         camposParaReprovar.containsValue(true)) {
