@@ -17,11 +17,13 @@ class SolicitacaoMissaoCard extends StatefulWidget {
   final MissaoSolicitada missaoSolicitada;
   final BuildContext? initialContext;
   final bool? padding;
+  final bool home;
   const SolicitacaoMissaoCard(
       {super.key,
       required this.missaoSolicitada,
       this.initialContext,
-      this.padding});
+      this.padding,
+      required this.home});
   @override
   State<SolicitacaoMissaoCard> createState() => _SolicitacaoMissaoCardState();
 }
@@ -52,7 +54,7 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
     //     );
     return Padding(
       padding: widget.padding != null
-          ? const EdgeInsets.symmetric(horizontal: 5, vertical: 5)
+          ? const EdgeInsets.symmetric(horizontal: 10, vertical: 5)
           : const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child:
           //BlocBuilder<MissaoSolicitacaoCardBloc, MissaoSolicitacaoCardState>(
@@ -156,36 +158,13 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
           Container(
         height: 310,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              canvasColor.withOpacity(0.3),
-              canvasColor.withOpacity(0.33),
-              canvasColor.withOpacity(0.35),
-              canvasColor.withOpacity(0.38),
-              canvasColor.withOpacity(0.4),
-              canvasColor.withOpacity(0.43),
-              canvasColor.withOpacity(0.45),
-              canvasColor.withOpacity(0.48),
-              canvasColor.withOpacity(0.5),
-              canvasColor.withOpacity(0.53),
-              canvasColor.withOpacity(0.55),
-              canvasColor.withOpacity(0.58),
-            ],
-          ),
+          color: widget.home ? Colors.grey[200] : Colors.white,
+          //color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.blue.withOpacity(0.1),
-            width: 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: canvasColor.withOpacity(0.1),
-              blurRadius: 10,
-            )
-          ],
-          //color: Colors.blue,
+          // border: Border.all(
+          //   color: canvasColor,
+          //   width: 0.2,
+          // ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -201,7 +180,7 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: canvasColor,
                     ),
                   ),
                   widget.padding == null
@@ -375,12 +354,12 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                   ElevatedButton(
                     style: const ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Colors.green),
-                      minimumSize: WidgetStatePropertyAll(
-                        Size(30, 35),
-                      ),
-                      maximumSize: WidgetStatePropertyAll(
-                        Size(80, 50),
-                      ),
+                      // minimumSize: WidgetStatePropertyAll(
+                      //   Size(30, 35),
+                      // ),
+                      // maximumSize: WidgetStatePropertyAll(
+                      //   Size(80, 50),
+                      // ),
                       padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(
                           horizontal: 15,
@@ -410,20 +389,32 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                         ),
                       );
                     },
-                    child: const Text('Criar'),
+                    child: const SizedBox(
+                      width: 60,
+                      height: 18,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Criar',
+                            //style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(
-                    width: 20,
+                    width: 10,
                   ),
                   ElevatedButton(
                     style: const ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Colors.red),
-                      minimumSize: WidgetStatePropertyAll(
-                        Size(30, 35),
-                      ),
-                      maximumSize: WidgetStatePropertyAll(
-                        Size(80, 50),
-                      ),
+                      // minimumSize: WidgetStatePropertyAll(
+                      //   Size(30, 35),
+                      // ),
+                      // maximumSize: WidgetStatePropertyAll(
+                      //   Size(80, 50),
+                      // ),
                       padding: WidgetStatePropertyAll(
                         EdgeInsets.symmetric(
                           horizontal: 15,
@@ -515,7 +506,19 @@ class _SolicitacaoMissaoCardState extends State<SolicitacaoMissaoCard> {
                         },
                       );
                     },
-                    child: const Text('Rejeitar'),
+                    child: const SizedBox(
+                      width: 60,
+                      height: 18,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Rejeitar',
+                            //style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -21,7 +21,7 @@ class ContaBancariaListDialog extends StatelessWidget {
         }
         if (state is SolicitacoesContaBancariaNotFound) {
           return AlertDialog(
-            backgroundColor: bgColor,
+            backgroundColor: Colors.grey[300],
             title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,7 +45,7 @@ class ContaBancariaListDialog extends StatelessWidget {
             itemCount: state.conta.length,
             itemBuilder: (context, index) {
               return AlertDialog(
-                backgroundColor: bgColor,
+                backgroundColor: Colors.grey[300],
                 title: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -124,7 +124,7 @@ class CadastroContaBancariaList extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              backgroundColor: bgColor,
+              backgroundColor: Colors.grey[300],
               title: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

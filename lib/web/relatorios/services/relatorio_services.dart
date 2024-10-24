@@ -51,7 +51,6 @@ class RelatorioServices {
 
       for (var relatorio in relatoriosSnapshot.docs) {
         String uid = relatorio.id;
-        debugPrint('UID: $uid');
 
         // Busca todos os documentos na coleção 'Missões' para cada 'Relatório'
         QuerySnapshot missoesSnapshot = await FirebaseFirestore.instance
@@ -62,7 +61,6 @@ class RelatorioServices {
             .get();
 
         for (var docMissao in missoesSnapshot.docs) {
-          debugPrint('Dados do Documento: ${docMissao.data()}');
           todasMissoes.add(MissaoRelatorio.fromFirestore(
               docMissao.data() as Map<String, dynamic>));
         }
@@ -192,6 +190,11 @@ class RelatorioServices {
           double? lat = data['latitude'] as double?;
           double? lng = data['longitude'] as double?;
           Timestamp? timestamp = data['timestamp'] as Timestamp?;
+          bool online = data['online'] != null
+              ? data['online'] == 'true'
+                  ? true
+                  : false
+              : true;
 
           if (lat != null && lng != null && timestamp != null) {
             String formattedTimestamp =
@@ -200,9 +203,7 @@ class RelatorioServices {
             debugPrint(
                 'Latitude: $lat, Longitude: $lng, Timestamp: $formattedTimestamp');
             return CoordenadaComTimestamp(
-              gmap.LatLng(lat, lng),
-              timestamp.toDate(),
-            );
+                gmap.LatLng(lat, lng), timestamp.toDate(), online);
           } else {
             debugPrint('Dados inválidos encontrados no documento ${doc.id}.');
             return null;

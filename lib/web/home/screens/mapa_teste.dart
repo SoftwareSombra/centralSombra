@@ -223,8 +223,10 @@ class _MapaRotaTesteState extends State<MapaRotaTeste> {
       final response = await dio.get(
         firebaseFunctionUrl,
         queryParameters: {
-          "origin": "${startPoint!.latLng!.latitude},${startPoint.latLng!.longitude}",
-          "destination": "${endPoint!.latLng!.latitude},${endPoint.latLng!.longitude}",
+          "origin":
+              "${startPoint!.latLng!.latitude},${startPoint.latLng!.longitude}",
+          "destination":
+              "${endPoint!.latLng!.latitude},${endPoint.latLng!.longitude}",
           "mode": "driving",
           "key": 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU',
           "language": "pt_BR"
@@ -386,14 +388,15 @@ class _MapaRotaTesteState extends State<MapaRotaTeste> {
 class CoordenadaComTimestamp {
   final gmap.LatLng ponto;
   final DateTime timestamp;
+  final bool? online;
 
-  CoordenadaComTimestamp(this.ponto, this.timestamp);
+  CoordenadaComTimestamp(this.ponto, this.timestamp, this.online);
 
   //fromMap
   factory CoordenadaComTimestamp.fromMap(Map<String, dynamic> data) {
     return CoordenadaComTimestamp(
-      gmap.LatLng(data['ponto']['latitude'], data['ponto']['longitude']),
-      data['timestamp'].toDate(),
-    );
+        gmap.LatLng(data['ponto']['latitude'], data['ponto']['longitude']),
+        data['timestamp'].toDate(),
+        data['online'] != null ? data['online'] == 'true' ? true : false : true);
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../rotas/rotas.dart';
 
@@ -14,6 +16,7 @@ class NotificationService {
   late FlutterLocalNotificationsPlugin localNotificationsPlugin;
   late AndroidNotificationDetails androidDetails;
   late DarwinNotificationDetails iosDetails;
+  final firestore = FirebaseFirestore.instance;
 
   NotificationService() {
     localNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -76,6 +79,31 @@ class NotificationService {
         await localNotificationsPlugin.getNotificationAppLaunchDetails();
     if (details != null && details.didNotificationLaunchApp) {
       _onSelectNotification(details.notificationResponse);
+    }
+  }
+
+  Stream<bool> notificacoesCentral() {
+    debugPrint('chegou em: notificacoesCentral');
+    try {
+      return FirebaseFirestore.instance
+          .collection('notificacoesCentral')
+          .snapshots()
+          .skip(1) // Ignora o primeiro snapshot
+          .map((snapshot) {
+        debugPrint('snapshot realizado');
+        // Filtra as mudanças que indicam adição de documentos
+        final addedDocs = snapshot.docChanges
+            .where((change) => change.type == DocumentChangeType.added);
+
+        // Se houver documentos adicionados, retorna true
+        return addedDocs.isNotEmpty;
+      }).handleError((error) {
+        debugPrint("Erro ao buscar notificações: $error");
+        return false; // Retorna false em caso de erro
+      });
+    } catch (e) {
+      debugPrint("Erro ao buscar notificações: $e");
+      return Stream.value(false); // Retorna false se houver uma exceção
     }
   }
 }

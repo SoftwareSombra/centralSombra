@@ -70,7 +70,7 @@ class _EmpresaUsersListDialogState extends State<EmpresaUsersListDialog> {
                   },
                   child: const Text(
                     'Adicionar usuário',
-                    style: TextStyle(color: Colors.white),
+                    //style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
@@ -279,7 +279,7 @@ class _EmpresaUsersListDialogState extends State<EmpresaUsersListDialog> {
           },
           child: const Text(
             'Fechar',
-            style: TextStyle(color: Colors.white),
+            //style: TextStyle(color: Colors.white),
           ),
         ),
       ],

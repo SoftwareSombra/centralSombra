@@ -189,6 +189,11 @@ class AgenteServices {
         'Nome': nome,
       });
 
+      const url =
+          'https://southamerica-east1-sombratestes.cloudfunctions.net/updateUserName2';
+
+      await Dio().post(url, data: {'uid': uid, 'nome': nome});
+
       return true;
     } catch (e) {
       return false;

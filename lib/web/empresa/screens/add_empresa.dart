@@ -111,7 +111,7 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
         title: const Text('Adicionar empresa'),
       ),
@@ -308,7 +308,7 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                           //width: width * 0.3,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
+                                //backgroundColor: Colors.black,
                                 shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.zero)),
                             child: const Row(
@@ -338,7 +338,7 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                           //width: width * 0.3,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
+                                //backgroundColor: Colors.black,
                                 shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.zero)),
                             child: const Row(
@@ -365,7 +365,7 @@ class _AddEmpresaScreenState extends State<AddEmpresaScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      //backgroundColor: Colors.blue,
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {

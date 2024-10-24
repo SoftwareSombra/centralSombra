@@ -302,7 +302,7 @@ class ChatController {
     });
   }
 
-Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
+  Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
       {newChatCollection}) async {
     debugPrint(message.paraJson().toString());
     debugPrint('======= chegou aqui ==========');
@@ -364,6 +364,10 @@ Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
       // Chama addMessage para atualizar a lista local e o stream de mensagens
       //addMessage(message);
       messageStreamController.sink.add(initialMessageList);
+
+      await firestore.collection('notificacoesCliente').doc().set(
+        {'tipo': 'mensagemChatMissao'},
+      );
     } catch (e) {
       debugPrint("Erro ao enviar mensagem: $e");
     }
@@ -463,6 +467,10 @@ Future<void> sendMessageChatMissaoClienteToFirestore(Message message,
       // Chama addMessage para atualizar a lista local e o stream de mensagens
       //addMessage(message);
       messageStreamController.sink.add(initialMessageList);
+
+      await firestore.collection('notificacoesCliente').doc().set(
+        {'tipo': 'mensagemChatCliente'},
+      );
     } catch (e) {
       debugPrint("Erro ao enviar mensagem: $e");
     }

@@ -48,7 +48,7 @@ class AgentesSolicitacoes extends StatelessWidget {
               return const Center(
                   child: Text(
                 'Nenhuma solicitação encontrada',
-                style: TextStyle(color: Colors.white),
+                //style: TextStyle(color: Colors.white),
               ));
             } else if (state is AgenteSolicitacaoError) {
               return Center(child: Text('Erro: ${state.message}'));

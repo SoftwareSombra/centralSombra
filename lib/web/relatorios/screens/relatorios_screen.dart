@@ -76,9 +76,9 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
     debugPrint('chegou aqui');
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       ),
       body: BlocBuilder<RelatoriosListBloc, RelatoriosListState>(
         builder: (context, state) {
@@ -237,21 +237,21 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                             child: SizedBox(
                               width: width * 0.99,
                               child: relatoriosFiltrados.isNotEmpty
-                                  ? PaginatedDataTable2(
-                                      colors: [
-                                        canvasColor.withOpacity(0.3),
-                                        canvasColor.withOpacity(0.33),
-                                        canvasColor.withOpacity(0.35),
-                                        canvasColor.withOpacity(0.38),
-                                        canvasColor.withOpacity(0.4),
-                                        canvasColor.withOpacity(0.43),
-                                        canvasColor.withOpacity(0.45),
-                                        canvasColor.withOpacity(0.48),
-                                        canvasColor.withOpacity(0.5),
-                                        canvasColor.withOpacity(0.53),
-                                        canvasColor.withOpacity(0.55),
-                                        canvasColor.withOpacity(0.58),
-                                      ],
+                                  ? PaginatedDataTable(
+                                      // colors: [
+                                      //   canvasColor.withOpacity(0.3),
+                                      //   canvasColor.withOpacity(0.33),
+                                      //   canvasColor.withOpacity(0.35),
+                                      //   canvasColor.withOpacity(0.38),
+                                      //   canvasColor.withOpacity(0.4),
+                                      //   canvasColor.withOpacity(0.43),
+                                      //   canvasColor.withOpacity(0.45),
+                                      //   canvasColor.withOpacity(0.48),
+                                      //   canvasColor.withOpacity(0.5),
+                                      //   canvasColor.withOpacity(0.53),
+                                      //   canvasColor.withOpacity(0.55),
+                                      //   canvasColor.withOpacity(0.58),
+                                      // ],
                                       columns: columns,
                                       source: EmpresaDataSource(
                                         missoes: relatoriosFiltrados,
@@ -307,6 +307,7 @@ class EmpresaDataSource extends DataTableSource {
   List<MissaoRelatorio?> missoes;
   BuildContext context;
   EmpresaDataSource({required this.missoes, required this.context});
+  Color canvasColor = const Color.fromARGB(255, 3, 9, 18);
 
   @override
   DataRow? getRow(int index) {
@@ -317,8 +318,8 @@ class EmpresaDataSource extends DataTableSource {
     final missao = missoes[index];
 
     return DataRow.byIndex(
-      color: const MaterialStatePropertyAll(
-        Color.fromARGB(255, 3, 9, 18),
+      color: WidgetStatePropertyAll(
+        canvasColor.withAlpha(15),
       ),
       index: index,
       cells: [

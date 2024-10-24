@@ -54,10 +54,10 @@ class _UsersListState extends State<UsersList> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-      ),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          ),
       body: BlocBuilder<UsersListBloc, UsersListState>(
         builder: (context, state) {
           if (state is UsersListInitial) {
@@ -125,25 +125,10 @@ class _UsersListState extends State<UsersList> {
                     ),
                   ],
                 ),
-                Container(
-                  color: const Color.fromARGB(255, 3, 9, 18),
+                SizedBox(
                   width: width * 0.99,
                   child: usuariosFiltrados.isNotEmpty
-                      ? PaginatedDataTable2(
-                          colors: [
-                            canvasColor.withOpacity(0.3),
-                            canvasColor.withOpacity(0.33),
-                            canvasColor.withOpacity(0.35),
-                            canvasColor.withOpacity(0.38),
-                            canvasColor.withOpacity(0.4),
-                            canvasColor.withOpacity(0.43),
-                            canvasColor.withOpacity(0.45),
-                            canvasColor.withOpacity(0.48),
-                            canvasColor.withOpacity(0.5),
-                            canvasColor.withOpacity(0.53),
-                            canvasColor.withOpacity(0.55),
-                            canvasColor.withOpacity(0.58),
-                          ],
+                      ? PaginatedDataTable(
                           columns: columns,
                           source: EmpresaDataSource(
                               users: usuariosFiltrados, context: context),
@@ -181,7 +166,7 @@ class _UsersListState extends State<UsersList> {
             ),
           );
         },
-        backgroundColor: Colors.blue.withOpacity(0.11),
+        backgroundColor: canvasColor,
         child: const Icon(
           Icons.add,
           color: Colors.white,
@@ -200,12 +185,14 @@ class EmpresaDataSource extends DataTableSource {
   final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
   final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
 
+  Color canvasColor = const Color.fromARGB(255, 3, 9, 18);
+
   void _showDialog(Usuario usuario) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
           title: const Text('Confirmação'),
           content: const Text('Deseja realmente excluir este usuário?'),
           actions: <Widget>[
@@ -267,8 +254,8 @@ class EmpresaDataSource extends DataTableSource {
 
     return DataRow.byIndex(
       index: index,
-      color: const MaterialStatePropertyAll(
-        Color.fromARGB(255, 3, 9, 18),
+      color: WidgetStatePropertyAll(
+        canvasColor.withAlpha(15),
       ),
       cells: [
         DataCell(

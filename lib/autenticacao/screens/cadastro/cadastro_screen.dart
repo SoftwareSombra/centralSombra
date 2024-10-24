@@ -26,7 +26,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
       appBar: AppBar(
         title: const Text(
           'Cadastro',
-          style: TextStyle(color: Colors.white),
+          //style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
         backgroundColor: Colors.black,

@@ -22,7 +22,6 @@
 import 'package:flutter/material.dart';
 import 'package:sombra/chat_view/src/extensions/extensions.dart';
 import '../../chatview.dart';
-import '../models/message.dart';
 import '../utils/constants/constants.dart';
 import 'chat_view_inherited_widget.dart';
 import 'image_message_view.dart';
@@ -48,7 +47,16 @@ class MessageView extends StatefulWidget {
     this.messageConfig,
     this.onMaxDuration,
     this.controller,
+    this.compartilhavel,
+    this.infoAdicional,
+    this.infoAdicional2
   });
+
+  final String? infoAdicional;
+
+  final String? infoAdicional2;
+
+  final bool? compartilhavel;
 
   /// Provides message instance of chat.
   final Message message;
@@ -229,6 +237,9 @@ class _MessageViewState extends State<MessageView>
                     messageReactionConfig: messageConfig?.messageReactionConfig,
                     inComingChatBubbleConfig: widget.inComingChatBubbleConfig,
                     outgoingChatBubbleConfig: widget.outgoingChatBubbleConfig,
+                    compartilhavel: widget.compartilhavel,
+                    infoAdicional: widget.infoAdicional,
+                    infoAdicional2: widget.infoAdicional2,
                   );
                 } else if (widget.message.messageType.isCustom &&
                     messageConfig?.customMessageBuilder != null) {

@@ -17,15 +17,8 @@ class AddUser extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-        appBar: AppBar(
-          title: const Text(
-            '',
-            style: TextStyle(color: Colors.white),
-          ),
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-        ),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        appBar: AppBar(),
         body: BlocConsumer<AddUserBloc, AddUserState>(
           listener: (context, state) {
             if (state is RegisterUserSuccess) {
@@ -45,7 +38,7 @@ class AddUser extends StatelessWidget {
                       children: [
                         Text(
                           'Preencha os campos abaixo para criar um novo usuário.',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(fontSize: 16),
                         ),
                       ],
                     ),

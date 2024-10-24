@@ -6,10 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:sombra/notificacoes/notificacoess.dart';
 import '../../../autenticacao/screens/tratamento/error_snackbar.dart';
 import '../../../autenticacao/screens/tratamento/success_snackbar.dart';
 import '../../../autenticacao/services/user_services.dart';
 import '../../../missao/services/missao_services.dart';
+import '../../../notificacoes/fcm.dart';
 import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
 import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
 import '../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
@@ -280,14 +282,191 @@ class _RealTimeMapScreenState extends State<RealTimeMapScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
-                onPressed: () {
-                  encerrarMissaoDialog();
-                },
-                child: const Text(
-                  'Encerrar missão',
-                  style: TextStyle(color: Colors.red),
-                ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => PopScope(
+                          canPop: true,
+                          onPopInvokedWithResult: (didPop, result) {
+                            context.read<ElevatedButtonBloc>().add(
+                                  ElevatedButtonReset(),
+                                );
+                          },
+                          child: AlertDialog(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'CONEXÃO AGENTE',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  icon: const Icon(Icons.close),
+                                ),
+                              ],
+                            ),
+                            content: SizedBox(
+                              height: 60,
+                              width: 300,
+                              child: BlocBuilder<ElevatedButtonBloc,
+                                  ElevatedButtonBlocState>(
+                                builder: (context, buttonState) {
+                                  if (buttonState
+                                      is ElevatedButtonBlocLoading) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else {
+                                    return StreamBuilder<
+                                        DocumentSnapshot<Map<String, dynamic>>>(
+                                      stream: missaoServices.getSinalResponse(
+                                        widget.missionData['agenteUid'],
+                                        widget.missionData['missaoID'],
+                                      ), // Consome o Stream gerado pela função
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<
+                                                  DocumentSnapshot<
+                                                      Map<String, dynamic>>>
+                                              snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const CircularProgressIndicator(); // Mostra um loading enquanto os dados estão sendo carregados
+                                        }
+
+                                        if (snapshot.hasError) {
+                                          return Text(
+                                              'Erro: ${snapshot.error}'); // Mostra o erro, caso ocorra
+                                        }
+
+                                        if (snapshot.hasData) {
+                                          var data = snapshot.data!
+                                              .data(); // Obtém os dados do snapshot
+
+                                          if (data == null) {
+                                            return const Text(
+                                                'Nenhum dado encontrado');
+                                          } else if (data['missaoId'] ==
+                                              widget.missaoId) {
+                                            DateTime now = DateTime.now();
+                                            String status;
+                                            Timestamp? timestamp =
+                                                data['timestamp'];
+
+                                            if (!data['recebido']) {
+                                              status = 'Offline';
+                                            } else {
+                                              DateTime dateTime =
+                                                  timestamp!.toDate();
+                                              Duration difference =
+                                                  now.difference(dateTime);
+                                              if (difference.inMinutes < 10) {
+                                                status = 'Online';
+                                              } else {
+                                                status = 'Desatualizado';
+                                              }
+                                            }
+                                            // Acessa os campos do documento e os renderiza na interface
+                                            return Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                          'Status: $status'),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  height: 3,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                          'Sinal enviado em: ${DateFormat('dd/MM/yyyy').format(data['sinalEnviadoEm'].toDate())}'
+                                                          ' às ${DateFormat('kk:mm').format(data['sinalEnviadoEm'].toDate())}h'),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            );
+                                          } else {
+                                            return const Text(
+                                                'Nenhum dado disponível');
+                                          }
+                                        } else {
+                                          return const Text(
+                                              'Nenhum dado disponível');
+                                        }
+                                      },
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            actions: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      context.read<ElevatedButtonBloc>().add(
+                                            ElevatedButtonPressed(),
+                                          );
+                                      try {
+                                        await missaoServices.enviarSinal(
+                                          widget.missionData['agenteUid'],
+                                          widget.missionData['missaoID'],
+                                        );
+                                        context.read<ElevatedButtonBloc>().add(
+                                              ElevatedButtonReset(),
+                                            );
+                                      } catch (e) {
+                                        debugPrint(
+                                            'erro ao enviar notificacao: $e');
+                                        context.read<ElevatedButtonBloc>().add(
+                                              ElevatedButtonReset(),
+                                            );
+                                      }
+                                    },
+                                    child: const Text('Enviar novo sinal'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Verificar',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      encerrarMissaoDialog();
+                    },
+                    child: const Text(
+                      'Encerrar missão',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

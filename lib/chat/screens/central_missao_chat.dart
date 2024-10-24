@@ -16,16 +16,23 @@ import 'chat_screen.dart';
 
 class CentralMissaoChatScreen extends StatefulWidget {
   final String missaoId;
+  final String cnpj;
   final String? agenteUid;
   final String? agenteNome;
 
   const CentralMissaoChatScreen(
-      {super.key, required this.missaoId, this.agenteUid, this.agenteNome});
+      {super.key,
+      required this.missaoId,
+      this.agenteUid,
+      this.agenteNome,
+      required this.cnpj});
 
   @override
   State<CentralMissaoChatScreen> createState() =>
       _CentralMissaoChatScreenState();
 }
+
+const canvasColor = Color.fromARGB(255, 0, 15, 42);
 
 class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
   final TextEditingController msgController = TextEditingController();
@@ -141,21 +148,17 @@ class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
   Widget build(BuildContext context) {
     resetUnreadCount();
     return Scaffold(
-      //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-      // appBar: AppBar(
-      //   title: const Text('Chat'),
-      //   centerTitle: true,
-      // ),
+      //backgroundColor: canvasColor.withAlpha(15),
       body: Center(
         child: Container(
-          color: const Color.fromARGB(255, 0, 20, 50),
           constraints: BoxConstraints(
             maxWidth: 800,
             maxHeight: MediaQuery.of(context).size.height,
           ),
           child: ChatView(
-            //loadMoreData:
+            audioCompartilhavel: true,
+            infoAdicional: widget.missaoId,
+            infoAdicional2: widget.cnpj,
             currentUser: currentUser,
             chatController: _chatController,
             onSendTap: _onSendTap,
@@ -178,13 +181,11 @@ class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
             appBar: ChatViewAppBar(
               padding: const EdgeInsets.only(top: 15, bottom: 10),
               elevation: theme.elevation,
-              //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
-              backGroundColor: const Color.fromARGB(255, 0, 6, 15),
               profilePicture: fotoUrl,
-              backArrowColor: theme.backArrowColor,
+              backArrowColor: canvasColor,
               chatTitle: widget.agenteNome ?? 'Agente',
-              chatTitleTextStyle: TextStyle(
-                color: theme.appBarTitleTextStyle,
+              chatTitleTextStyle: const TextStyle(
+                color: canvasColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 letterSpacing: 0.25,
@@ -200,8 +201,6 @@ class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
                   fontSize: 17,
                 ),
               ),
-              //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
-              backgroundColor: const Color.fromARGB(255, 0, 6, 15),
             ),
             sendMessageConfig: SendMessageConfiguration(
               imagePickerIconsConfig: ImagePickerIconsConfiguration(
@@ -209,10 +208,10 @@ class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
                 galleryIconColor: theme.galleryIconColor,
               ),
               replyMessageColor: theme.replyMessageColor,
-              defaultSendButtonColor: theme.sendButtonColor,
+              defaultSendButtonColor: Colors.blue,
               replyDialogColor: theme.replyDialogColor,
               replyTitleColor: theme.replyTitleColor,
-              textFieldBackgroundColor: theme.textFieldBackgroundColor,
+              textFieldBackgroundColor: canvasColor.withAlpha(15),
               closeIconColor: theme.closeIconColor,
               textFieldConfig: TextFieldConfiguration(
                 onMessageTyping: (status) {
@@ -220,7 +219,7 @@ class _CentralMissaoChatScreenState extends State<CentralMissaoChatScreen> {
                   debugPrint(status.toString());
                 },
                 compositionThresholdTime: const Duration(seconds: 1),
-                textStyle: TextStyle(color: theme.textFieldTextColor),
+                textStyle: const TextStyle(color: Colors.black),
               ),
               micIconColor: theme.replyMicIconColor,
               voiceRecordingConfiguration: VoiceRecordingConfiguration(

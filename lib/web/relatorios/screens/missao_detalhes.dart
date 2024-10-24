@@ -94,6 +94,8 @@ class _MissionDetailsState extends State<MissionDetails> {
   GlobalKey<FormState> odometroFinalFormKey = GlobalKey<FormState>();
   double? distanciaOdometro;
   bool distanciaOdometroChecked = true;
+  List<Foto>? fotosPosMissaoCheckList = [];
+  List<Foto>? fotosMissaoCheckList = [];
 
   @override
   void initState() {
@@ -246,16 +248,13 @@ class _MissionDetailsState extends State<MissionDetails> {
       onPopInvokedWithResult: (didPop, result) {
         odometroInicialController.clear();
         odometroFinalController.clear();
-        context
-        .read<MissionDetailsBloc>()
-        .add(ResetMissionDetails());
-
+        context.read<MissionDetailsBloc>().add(ResetMissionDetails());
       },
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         appBar: AppBar(
           title: const Text('Detalhes da missão'),
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         ),
         body: BlocBuilder<MissionDetailsBloc, MissionDetailsState>(
           builder: (context, state) {
@@ -286,14 +285,22 @@ class _MissionDetailsState extends State<MissionDetails> {
               }
 
               debugPrint('!!! MISSAO DECLARADA !!!');
-              Set<gmap.Marker> markers = _createMarkersFromLocations(
-                  state.locations!,
-                  state.missao.missaoLatitude,
-                  state.missao.missaoLongitude);
+              Set<gmap.Marker>? markers;
+              if (state.locations != null) {
+                markers = _createMarkersFromLocations(state.locations!,
+                    state.missao.missaoLatitude, state.missao.missaoLongitude);
+              }
               int limiteDeFotos = 4;
 
               state.messages
                   ?.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+              if (state.missao.fotosPosMissao != null) {
+                fotosPosMissaoCheckList = state.missao.fotosPosMissao;
+              }
+              if (state.missao.fotos != null) {
+                fotosMissaoCheckList = state.missao.fotos;
+              }
 
               state.messages != null
                   ? _chatController = ChatController(
@@ -335,1576 +342,1699 @@ class _MissionDetailsState extends State<MissionDetails> {
               // final ImageProvider image = staticMapController.image;
 
               return SingleChildScrollView(
-                  child: Row(children: [
-                Expanded(
-                  child: RepaintBoundary(
-                    key: _repaintBoundaryKey,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: width * 0.1,
-                              top: 10,
-                              bottom: 20,
-                              right: width * 0.1),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: RepaintBoundary(
+                        key: _repaintBoundaryKey,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: width * 0.1,
+                                  top: 10,
+                                  bottom: 20,
+                                  right: width * 0.1),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  SizedBox(
-                                    height: 100,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Image.asset(
-                                          'assets/images/escudo.png'),
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Row(
                                     children: [
-                                      const Text(
-                                        'Relatório de missão',
-                                        style: TextStyle(
-                                            fontFamily: AutofillHints.jobTitle,
-                                            fontSize: 26,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
+                                      SizedBox(
+                                        height: 100,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Image.asset(
+                                              'assets/images/escudo.png'),
+                                        ),
                                       ),
-                                      SelectableText(
-                                        'Id: ${widget.missaoId}',
-                                        style: const TextStyle(
-                                            fontFamily: AutofillHints.jobTitle,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Relatório de missão',
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  AutofillHints.jobTitle,
+                                              fontSize: 26,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SelectableText(
+                                            'Id: ${widget.missaoId}',
+                                            style: const TextStyle(
+                                              fontFamily:
+                                                  AutofillHints.jobTitle,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  // if (ResponsiveBreakpoints.of(context)
+                                  //     .largerThan(MOBILE))
+                                  //   Spacer(),
+
+                                  // Botão no final
+                                  Row(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                EditRelatorioDialog(
+                                              relatorio: state.missao,
+                                            ),
+                                          );
+                                        },
+                                        child: const Text(
+                                          'EDITAR',
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => PdfScreen(
+                                              missao: missao,
+                                              distanciaValue: state.distancia,
+                                              locations: state.locations,
+                                              messages: state.messages,
+                                              odometroInicial:
+                                                  state.odometroInicial,
+                                              odometroFinal:
+                                                  state.odometroFinal,
+                                              missaoId: widget.missaoId,
+                                              agenteId: widget.agenteId,
+                                              tipo: tipoChecked,
+                                              cnpj: cnpjChecked,
+                                              nomeDaEmpresa: nomeEmpresaChecked,
+                                              local: localChecked,
+                                              placaCavalo: placaCavaloChecked,
+                                              placaCarreta: placaCarretaChecked,
+                                              nomeMotorista: motoristaChecked,
+                                              cor: corVeiculoChecked,
+                                              obs: observacaoChecked,
+                                              inicio: inicioChecked,
+                                              fim: fimChecked,
+                                              infos: infosChecked,
+                                              distancia: distanciaChecked,
+                                              fotos: fotosChecked,
+                                              fotosPos: fotosPosMissaoChecked,
+                                              mapa: rotaChecked,
+                                              showMessages: messagesChecked,
+                                              infosComplementares:
+                                                  infosComplementaresChecked,
+                                              showOdometroInicial:
+                                                  odometroInicialChecked,
+                                              showOdometroFinal:
+                                                  odometroFinalChecked,
+                                            ),
+                                          );
+                                        },
+                                        child: const Text(
+                                          'PDF',
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                              // if (ResponsiveBreakpoints.of(context)
-                              //     .largerThan(MOBILE))
-                              //   Spacer(),
-
-                              // Botão no final
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            EditRelatorioDialog(
-                                          relatorio: state.missao,
-                                        ),
-                                      );
-                                    },
-                                    child: const Text(
-                                      'EDITAR',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => PdfScreen(
-                                          missao: missao,
-                                          distanciaValue: state.distancia,
-                                          locations: state.locations,
-                                          messages: state.messages,
-                                          odometroInicial:
-                                              state.odometroInicial,
-                                          odometroFinal: state.odometroFinal,
-                                          missaoId: widget.missaoId,
-                                          agenteId: widget.agenteId,
-                                          tipo: tipoChecked,
-                                          cnpj: cnpjChecked,
-                                          nomeDaEmpresa: nomeEmpresaChecked,
-                                          local: localChecked,
-                                          placaCavalo: placaCavaloChecked,
-                                          placaCarreta: placaCarretaChecked,
-                                          nomeMotorista: motoristaChecked,
-                                          cor: corVeiculoChecked,
-                                          obs: observacaoChecked,
-                                          inicio: inicioChecked,
-                                          fim: fimChecked,
-                                          infos: infosChecked,
-                                          distancia: distanciaChecked,
-                                          fotos: fotosChecked,
-                                          fotosPos: fotosPosMissaoChecked,
-                                          mapa: rotaChecked,
-                                          showMessages: messagesChecked,
-                                          infosComplementares:
-                                              infosComplementaresChecked,
-                                          showOdometroInicial:
-                                              odometroInicialChecked,
-                                          showOdometroFinal:
-                                              odometroFinalChecked,
-                                        ),
-                                      );
-                                    },
-                                    child: const Text(
-                                      'PDF',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: width * 0.15, right: width * 0.15),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Dados:',
-                                    style: TextStyle(
-                                        fontFamily: AutofillHints.jobTitle,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  buildDataItem(
-                                      'Tipo: ',
-                                      missao.tipo,
-                                      tipoChecked,
-                                      (val) =>
-                                          setState(() => tipoChecked = val!)),
-                                  buildDataItem(
-                                      'CNPJ: ',
-                                      missao.cnpj,
-                                      cnpjChecked,
-                                      (val) =>
-                                          setState(() => cnpjChecked = val!)),
-                                  buildDataItem(
-                                      'Nome da empresa: ',
-                                      missao.nomeDaEmpresa,
-                                      nomeEmpresaChecked,
-                                      (val) => setState(
-                                          () => nomeEmpresaChecked = val!)),
-                                  buildDataItem(
-                                      'Local: ',
-                                      missao.local ?? '',
-                                      localChecked,
-                                      (val) =>
-                                          setState(() => localChecked = val!)),
-                                  buildDataItem(
-                                      'Placa do cavalo: ',
-                                      missao.placaCavalo ?? '',
-                                      placaCavaloChecked,
-                                      (val) => setState(
-                                          () => placaCavaloChecked = val!)),
-                                  buildDataItem(
-                                      'Placa da carreta: ',
-                                      missao.placaCarreta ?? '',
-                                      placaCarretaChecked,
-                                      (val) => setState(
-                                          () => placaCarretaChecked = val!)),
-                                  buildDataItem(
-                                      'Motorista: ',
-                                      missao.motorista ?? '',
-                                      motoristaChecked,
-                                      (val) => setState(
-                                          () => motoristaChecked = val!)),
-                                  buildDataItem(
-                                      'Cor do veículo: ',
-                                      missao.corVeiculo ?? '',
-                                      corVeiculoChecked,
-                                      (val) => setState(
-                                          () => corVeiculoChecked = val!)),
-                                  buildDataItem(
-                                      'Observação: ',
-                                      missao.observacao ?? '',
-                                      observacaoChecked,
-                                      (val) => setState(
-                                          () => observacaoChecked = val!)),
-                                  buildDataItem(
-                                      'Início: ',
-                                      '${DateFormat('dd/MM/yyyy').format(missao.inicio!.toDate())} - ${DateFormat('HH:mm').format(missao.inicio!.toDate())}h',
-                                      inicioChecked,
-                                      (val) =>
-                                          setState(() => inicioChecked = val!)),
-                                  buildDataItem(
-                                      'Fim: ',
-                                      '${DateFormat('dd/MM/yyyy').format(missao.fim!.toDate())} - ${DateFormat('HH:mm').format(missao.fim!.toDate())}h',
-                                      fimChecked,
-                                      (val) =>
-                                          setState(() => fimChecked = val!)),
-                                  buildDataItem(
-                                      'Fim no servidor: ',
-                                      '${DateFormat('dd/MM/yyyy').format(missao.serverFim!.toDate())} - ${DateFormat('HH:mm').format(missao.serverFim!.toDate())}h',
-                                      serverFimChecked,
-                                      (val) => setState(
-                                          () => serverFimChecked = val!)),
-                                  buildDataItem(
-                                      'Informações da missão: ',
-                                      missao.infos ?? '',
-                                      infosChecked,
-                                      (val) =>
-                                          setState(() => infosChecked = val!)),
-                                  buildDataItem(
-                                      'Informações complementares: ',
-                                      missao.infosComplementares ?? '',
-                                      infosChecked,
-                                      (val) =>
-                                          setState(() => infosChecked = val!)),
-                                  // buildDataItem(
-                                  //     'Distância estimada (início): ',
-                                  //     state.distanciaIda != null
-                                  //         ? '${state.distanciaIda!.toStringAsFixed(2)} km'
-                                  //         : '',
-                                  //     distanciaIdaChecked,
-                                  //     (val) => setState(
-                                  //         () => distanciaIdaChecked = val!)),
-                                  // buildDataItem(
-                                  //     'Distância estimada (fim): ',
-                                  //     state.distanciaVolta != null
-                                  //         ? '${state.distanciaVolta!.toStringAsFixed(2)} km'
-                                  //         : '',
-                                  //     distanciaVoltaChecked,
-                                  //     (val) => setState(
-                                  //         () => distanciaVoltaChecked = val!)),
-                                  buildDataItem(
-                                      'Distância percorrida estimada: ',
-                                      state.distancia != null
-                                          ? '${state.distancia!.toStringAsFixed(2)} km'
-                                          : '',
-                                      distanciaChecked,
-                                      (val) => setState(
-                                          () => distanciaChecked = val!)),
-                                  buildDataItem(
-                                      'Distância percorrida (odometro): ',
-                                      distanciaOdometro != null
-                                          ? '${distanciaOdometro!.toStringAsFixed(2)} km'
-                                          : '',
-                                      distanciaOdometroChecked,
-                                      (val) => setState(() =>
-                                          distanciaOdometroChecked = val!)),
-                                ],
-                              ),
                             ),
-                            //Image(image: image),
-
                             Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                state.locations!.isEmpty
-                                    ? const Center(
-                                        child: Text('Nenhum percurso feito'),
-                                      )
-                                    : Padding(
-                                        padding: EdgeInsets.only(
-                                            right: width * 0.15,
-                                            top: 20,
-                                            bottom: 20,
-                                            left: width * 0.15),
-                                        child: SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.7, // 70% da altura da tela, por exemplo
-                                          child: Row(
-                                            children: [
-                                              Checkbox(
-                                                checkColor: Colors.green,
-                                                activeColor: Colors.white,
-                                                side: const BorderSide(
-                                                    color: Colors.white),
-                                                value: rotaChecked,
-                                                onChanged: (val) => setState(
-                                                    () => rotaChecked = val!),
-                                              ),
-                                              Expanded(
-                                                child: gmap.GoogleMap(
-                                                  myLocationEnabled: true,
-                                                  myLocationButtonEnabled: true,
-                                                  initialCameraPosition:
-                                                      state.initialPosition!,
-                                                  markers: markers,
-                                                  polylines: state.polylines!,
-                                                  onMapCreated:
-                                                      (gmap.GoogleMapController
-                                                          controller) {
-                                                    _controller
-                                                        .complete(controller);
-                                                  },
-                                                ),
-                                              ),
-                                              // gmap.GoogleMap(
-                                              //   myLocationEnabled: true,
-                                              //   myLocationButtonEnabled: true,
-                                              //   initialCameraPosition:
-                                              //       state.initialPosition!,
-                                              //   //markers: state.userMarkers,
-                                              //   polylines: state.polylines!,
-                                              //   onMapCreated:
-                                              //       (gmap.GoogleMapController
-                                              //           controller) {
-                                              //     _controller
-                                              //         .complete(controller);
-                                              //   },
-                                              // ),
-                                            ],
-                                          ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: width * 0.15, right: width * 0.15),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Dados:',
+                                        style: TextStyle(
+                                          fontFamily: AutofillHints.jobTitle,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Odometro inicial',
-                                    style: TextStyle(
-                                        fontFamily: AutofillHints.jobTitle,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      buildDataItem(
+                                          'Tipo: ',
+                                          missao.tipo,
+                                          tipoChecked,
+                                          (val) => setState(
+                                              () => tipoChecked = val!)),
+                                      buildDataItem(
+                                          'CNPJ: ',
+                                          missao.cnpj,
+                                          cnpjChecked,
+                                          (val) => setState(
+                                              () => cnpjChecked = val!)),
+                                      buildDataItem(
+                                          'Nome da empresa: ',
+                                          missao.nomeDaEmpresa,
+                                          nomeEmpresaChecked,
+                                          (val) => setState(
+                                              () => nomeEmpresaChecked = val!)),
+                                      buildDataItem(
+                                          'Local: ',
+                                          missao.local ?? '',
+                                          localChecked,
+                                          (val) => setState(
+                                              () => localChecked = val!)),
+                                      buildDataItem(
+                                          'Placa do cavalo: ',
+                                          missao.placaCavalo ?? '',
+                                          placaCavaloChecked,
+                                          (val) => setState(
+                                              () => placaCavaloChecked = val!)),
+                                      buildDataItem(
+                                          'Placa da carreta: ',
+                                          missao.placaCarreta ?? '',
+                                          placaCarretaChecked,
+                                          (val) => setState(() =>
+                                              placaCarretaChecked = val!)),
+                                      buildDataItem(
+                                          'Motorista: ',
+                                          missao.motorista ?? '',
+                                          motoristaChecked,
+                                          (val) => setState(
+                                              () => motoristaChecked = val!)),
+                                      buildDataItem(
+                                          'Cor do veículo: ',
+                                          missao.corVeiculo ?? '',
+                                          corVeiculoChecked,
+                                          (val) => setState(
+                                              () => corVeiculoChecked = val!)),
+                                      buildDataItem(
+                                          'Observação: ',
+                                          missao.observacao ?? '',
+                                          observacaoChecked,
+                                          (val) => setState(
+                                              () => observacaoChecked = val!)),
+                                      buildDataItem(
+                                          'Início: ',
+                                          '${DateFormat('dd/MM/yyyy').format(missao.inicio!.toDate())} - ${DateFormat('HH:mm').format(missao.inicio!.toDate())}h',
+                                          inicioChecked,
+                                          (val) => setState(
+                                              () => inicioChecked = val!)),
+                                      buildDataItem(
+                                          'Fim: ',
+                                          '${DateFormat('dd/MM/yyyy').format(missao.fim!.toDate())} - ${DateFormat('HH:mm').format(missao.fim!.toDate())}h',
+                                          fimChecked,
+                                          (val) => setState(
+                                              () => fimChecked = val!)),
+                                      buildDataItem(
+                                          'Fim no servidor: ',
+                                          '${DateFormat('dd/MM/yyyy').format(missao.serverFim!.toDate())} - ${DateFormat('HH:mm').format(missao.serverFim!.toDate())}h',
+                                          serverFimChecked,
+                                          (val) => setState(
+                                              () => serverFimChecked = val!)),
+                                      buildDataItem(
+                                          'Informações da missão: ',
+                                          missao.infos ?? '',
+                                          infosChecked,
+                                          (val) => setState(
+                                              () => infosChecked = val!)),
+                                      buildDataItem(
+                                          'Informações complementares: ',
+                                          missao.infosComplementares ?? '',
+                                          infosChecked,
+                                          (val) => setState(
+                                              () => infosChecked = val!)),
+                                      // buildDataItem(
+                                      //     'Distância estimada (início): ',
+                                      //     state.distanciaIda != null
+                                      //         ? '${state.distanciaIda!.toStringAsFixed(2)} km'
+                                      //         : '',
+                                      //     distanciaIdaChecked,
+                                      //     (val) => setState(
+                                      //         () => distanciaIdaChecked = val!)),
+                                      // buildDataItem(
+                                      //     'Distância estimada (fim): ',
+                                      //     state.distanciaVolta != null
+                                      //         ? '${state.distanciaVolta!.toStringAsFixed(2)} km'
+                                      //         : '',
+                                      //     distanciaVoltaChecked,
+                                      //     (val) => setState(
+                                      //         () => distanciaVoltaChecked = val!)),
+                                      buildDataItem(
+                                          'Distância percorrida estimada: ',
+                                          state.distancia != null
+                                              ? '${state.distancia!.toStringAsFixed(2)} km'
+                                              : '',
+                                          distanciaChecked,
+                                          (val) => setState(
+                                              () => distanciaChecked = val!)),
+                                      buildDataItem(
+                                          'Distância percorrida (odometro): ',
+                                          distanciaOdometro != null
+                                              ? '${distanciaOdometro!.toStringAsFixed(2)} km'
+                                              : '',
+                                          distanciaOdometroChecked,
+                                          (val) => setState(() =>
+                                              distanciaOdometroChecked = val!)),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                state.odometroInicial == null
-                                    ? const Center(
-                                        child: Text('Nenhuma foto enviada'),
-                                      )
-                                    : Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Checkbox(
-                                                checkColor: Colors.green,
-                                                activeColor: Colors.white,
-                                                side: const BorderSide(
-                                                    color: Colors.white),
-                                                value: odometroInicialChecked,
-                                                onChanged: (val) => setState(
-                                                    () =>
-                                                        odometroInicialChecked =
-                                                            val!),
-                                              ),
-                                              SizedBox(
-                                                height: 150,
-                                                child: ListView.builder(
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  itemCount: 1,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: GestureDetector(
-                                                        onTap: () => showImageDialog(
-                                                            context,
-                                                            state
-                                                                .odometroInicial!
-                                                                .url,
-                                                            state
-                                                                .odometroInicial!
-                                                                .caption),
-                                                        child: Container(
-                                                          width: 150,
-                                                          height: 150,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            image:
-                                                                DecorationImage(
-                                                              image: NetworkImage(
-                                                                  state
-                                                                      .odometroInicial!
-                                                                      .url),
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 3,
-                                          ),
-                                          Row(
+                                //Image(image: image),
+
+                                Column(
+                                  children: [
+                                    state.locations == null
+                                        ? const Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              !enableOdometroInicial
-                                                  ? IconButton(
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          enableOdometroInicial =
-                                                              !enableOdometroInicial;
-                                                        });
+                                              SizedBox(
+                                                height: 50,
+                                              ),
+                                              Text('Nenhum percurso feito'),
+                                            ],
+                                          )
+                                        : Padding(
+                                            padding: EdgeInsets.only(
+                                                right: width * 0.15,
+                                                top: 20,
+                                                bottom: 20,
+                                                left: width * 0.15),
+                                            child: SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.7, // 70% da altura da tela, por exemplo
+                                              child: Row(
+                                                children: [
+                                                  Checkbox(
+                                                    checkColor: Colors.green,
+                                                    activeColor: canvasColor,
+                                                    side: const BorderSide(
+                                                        color: canvasColor),
+                                                    value: rotaChecked,
+                                                    onChanged: (val) =>
+                                                        setState(() =>
+                                                            rotaChecked = val!),
+                                                  ),
+                                                  Expanded(
+                                                    child: gmap.GoogleMap(
+                                                      myLocationEnabled: true,
+                                                      myLocationButtonEnabled:
+                                                          true,
+                                                      initialCameraPosition:
+                                                          state
+                                                              .initialPosition!,
+                                                      markers: markers!,
+                                                      polylines:
+                                                          state.polylines!,
+                                                      onMapCreated: (gmap
+                                                          .GoogleMapController
+                                                          controller) {
+                                                        _controller.complete(
+                                                            controller);
                                                       },
-                                                      icon: const Icon(
-                                                        Icons.edit,
-                                                        size: 18,
-                                                        color: Colors.blue,
-                                                      ),
-                                                    )
-                                                  : BlocBuilder<
-                                                      ElevatedButtonBloc2,
-                                                      ElevatedButtonBloc2State>(
-                                                      builder: (context,
-                                                          buttonState) {
-                                                        if (buttonState
-                                                            is ElevatedButtonBloc2Loading) {
-                                                          return const Center(
-                                                            child:
-                                                                CircularProgressIndicator(),
-                                                          );
-                                                        } else {
-                                                          return IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              BlocProvider.of<
-                                                                          ElevatedButtonBloc2>(
-                                                                      context)
-                                                                  .add(
-                                                                ElevatedButton2Pressed(),
+                                                    ),
+                                                  ),
+                                                  // gmap.GoogleMap(
+                                                  //   myLocationEnabled: true,
+                                                  //   myLocationButtonEnabled: true,
+                                                  //   initialCameraPosition:
+                                                  //       state.initialPosition!,
+                                                  //   //markers: state.userMarkers,
+                                                  //   polylines: state.polylines!,
+                                                  //   onMapCreated:
+                                                  //       (gmap.GoogleMapController
+                                                  //           controller) {
+                                                  //     _controller
+                                                  //         .complete(controller);
+                                                  //   },
+                                                  // ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                    const SizedBox(
+                                      height: 25,
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Odometro inicial',
+                                        style: TextStyle(
+                                          fontFamily: AutofillHints.jobTitle,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    state.odometroInicial == null
+                                        ? const Center(
+                                            child: Text('Nenhuma foto enviada'),
+                                          )
+                                        : Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Checkbox(
+                                                    checkColor: Colors.green,
+                                                    activeColor: canvasColor,
+                                                    side: const BorderSide(
+                                                        color: canvasColor),
+                                                    value:
+                                                        odometroInicialChecked,
+                                                    onChanged: (val) =>
+                                                        setState(() =>
+                                                            odometroInicialChecked =
+                                                                val!),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 150,
+                                                    child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      itemCount: 1,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () => showImageDialog(
+                                                                context,
+                                                                state
+                                                                    .odometroInicial!
+                                                                    .url,
+                                                                state
+                                                                    .odometroInicial!
+                                                                    .caption),
+                                                            child: Container(
+                                                              width: 150,
+                                                              height: 150,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                image:
+                                                                    DecorationImage(
+                                                                  image: NetworkImage(
+                                                                      state
+                                                                          .odometroInicial!
+                                                                          .url),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 3,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  !enableOdometroInicial
+                                                      ? IconButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              enableOdometroInicial =
+                                                                  !enableOdometroInicial;
+                                                            });
+                                                          },
+                                                          icon: const Icon(
+                                                            Icons.edit,
+                                                            size: 18,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        )
+                                                      : BlocBuilder<
+                                                          ElevatedButtonBloc2,
+                                                          ElevatedButtonBloc2State>(
+                                                          builder: (context,
+                                                              buttonState) {
+                                                            if (buttonState
+                                                                is ElevatedButtonBloc2Loading) {
+                                                              return const Center(
+                                                                child:
+                                                                    CircularProgressIndicator(),
                                                               );
-                                                              if (odometroInicialFormKey
-                                                                  .currentState!
-                                                                  .validate()) {
-                                                                try {
-                                                                  await relatorioServices.editarKmOdometro(
-                                                                      state
-                                                                          .missao
-                                                                          .missaoId,
-                                                                      state
-                                                                          .missao
-                                                                          .uid,
-                                                                      odometroInicialController
-                                                                          .text
-                                                                          .trim(),
-                                                                      'odometroInicial');
-
+                                                            } else {
+                                                              return IconButton(
+                                                                onPressed:
+                                                                    () async {
                                                                   BlocProvider.of<
                                                                               ElevatedButtonBloc2>(
                                                                           context)
                                                                       .add(
-                                                                    ElevatedButton2Reset(),
+                                                                    ElevatedButton2Pressed(),
                                                                   );
-                                                                  setState(() {
-                                                                    enableOdometroInicial =
-                                                                        false;
-                                                                  });
-                                                                  if (odometroFinalController
-                                                                          .text
-                                                                          .isNotEmpty &&
-                                                                      odometroInicialController
-                                                                          .text
-                                                                          .isNotEmpty) {
-                                                                    setState(
-                                                                        () {
-                                                                      distanciaOdometro = double.parse(odometroFinalController
-                                                                              .text) -
-                                                                          double.parse(
-                                                                              odometroInicialController.text);
-                                                                    });
-                                                                  }
-                                                                  mensagemDeSucesso
-                                                                      .showSuccessSnackbar(
+                                                                  if (odometroInicialFormKey
+                                                                      .currentState!
+                                                                      .validate()) {
+                                                                    try {
+                                                                      await relatorioServices.editarKmOdometro(
+                                                                          state
+                                                                              .missao
+                                                                              .missaoId,
+                                                                          state
+                                                                              .missao
+                                                                              .uid,
+                                                                          odometroInicialController
+                                                                              .text
+                                                                              .trim(),
+                                                                          'odometroInicial');
+
+                                                                      BlocProvider.of<ElevatedButtonBloc2>(
+                                                                              context)
+                                                                          .add(
+                                                                        ElevatedButton2Reset(),
+                                                                      );
+                                                                      setState(
+                                                                          () {
+                                                                        enableOdometroInicial =
+                                                                            false;
+                                                                      });
+                                                                      if (odometroFinalController
+                                                                              .text
+                                                                              .isNotEmpty &&
+                                                                          odometroInicialController
+                                                                              .text
+                                                                              .isNotEmpty) {
+                                                                        setState(
+                                                                            () {
+                                                                          distanciaOdometro =
+                                                                              double.parse(odometroFinalController.text) - double.parse(odometroInicialController.text);
+                                                                        });
+                                                                      }
+                                                                      mensagemDeSucesso.showSuccessSnackbar(
                                                                           context,
                                                                           'Enviado com sucesso!');
-                                                                } catch (e) {
-                                                                  debugPrint(e
-                                                                      .toString());
-                                                                }
-                                                              }
-                                                            },
-                                                            icon: const Icon(
-                                                              Icons.save,
-                                                              size: 18,
-                                                              color:
-                                                                  Colors.green,
-                                                            ),
-                                                          );
-                                                        }
-                                                      },
-                                                    ),
+                                                                    } catch (e) {
+                                                                      debugPrint(
+                                                                          e.toString());
+                                                                    }
+                                                                  }
+                                                                },
+                                                                icon:
+                                                                    const Icon(
+                                                                  Icons.save,
+                                                                  size: 18,
+                                                                  color: Colors
+                                                                      .green,
+                                                                ),
+                                                              );
+                                                            }
+                                                          },
+                                                        ),
 
-                                              // const SizedBox(
-                                              //   width: 10,
-                                              // ),
-                                              SizedBox(
-                                                width: 150,
-                                                //height: 55,
-                                                child: Form(
-                                                  key: odometroInicialFormKey,
-                                                  child: TextFormField(
-                                                    enabled:
-                                                        enableOdometroInicial,
-                                                    controller:
-                                                        odometroInicialController,
-                                                    inputFormatters: [
-                                                      FilteringTextInputFormatter
-                                                          .digitsOnly,
-                                                      LengthLimitingTextInputFormatter(
-                                                          50),
-                                                    ],
-                                                    validator: (value) {
-                                                      if (value == '' ||
-                                                          value == null ||
-                                                          value.isEmpty) {
-                                                        return 'Preencha o campo corretamente';
-                                                      } else if (int.tryParse(
-                                                              value) ==
-                                                          null) {
-                                                        return 'Insira apenas números';
-                                                      } else {
-                                                        return null;
-                                                      }
-                                                    },
-                                                    decoration:
-                                                        const InputDecoration(
-                                                      labelText: 'Km inicial',
-                                                      labelStyle: TextStyle(
-                                                          color: Colors.grey),
-                                                      // prefixIcon: Icon(
-                                                      //   Icons.person,
-                                                      //   color: Colors.grey,
-                                                      // ),
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey),
-                                                      ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey),
-                                                      ),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Odometro final',
-                                    style: TextStyle(
-                                        fontFamily: AutofillHints.jobTitle,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Column(
-                                  children: [
-                                    state.odometroFinal == null
-                                        ? const Center(
-                                            child: Text('Nenhuma foto enviada'),
-                                          )
-                                        : Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Checkbox(
-                                                checkColor: Colors.green,
-                                                activeColor: Colors.white,
-                                                side: const BorderSide(
-                                                    color: Colors.white),
-                                                value: odometroFinalChecked,
-                                                onChanged: (val) => setState(
-                                                    () => odometroFinalChecked =
-                                                        val!),
-                                              ),
-                                              SizedBox(
-                                                height: 150,
-                                                child: ListView.builder(
-                                                  shrinkWrap: true,
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  itemCount: 1,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: GestureDetector(
-                                                        onTap: () => showImageDialog(
-                                                            context,
-                                                            state.odometroFinal!
-                                                                .url,
-                                                            state.odometroFinal!
-                                                                .caption),
-                                                        child: Container(
-                                                          width: 150,
-                                                          height: 150,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            image:
-                                                                DecorationImage(
-                                                              image: NetworkImage(
-                                                                  state
-                                                                      .odometroFinal!
-                                                                      .url),
-                                                              fit: BoxFit.cover,
-                                                            ),
+                                                  // const SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  SizedBox(
+                                                    width: 150,
+                                                    //height: 55,
+                                                    child: Form(
+                                                      key:
+                                                          odometroInicialFormKey,
+                                                      child: TextFormField(
+                                                        enabled:
+                                                            enableOdometroInicial,
+                                                        controller:
+                                                            odometroInicialController,
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .digitsOnly,
+                                                          LengthLimitingTextInputFormatter(
+                                                              50),
+                                                        ],
+                                                        validator: (value) {
+                                                          if (value == '' ||
+                                                              value == null ||
+                                                              value.isEmpty) {
+                                                            return 'Preencha o campo corretamente';
+                                                          } else if (int
+                                                                  .tryParse(
+                                                                      value) ==
+                                                              null) {
+                                                            return 'Insira apenas números';
+                                                          } else {
+                                                            return null;
+                                                          }
+                                                        },
+                                                        decoration:
+                                                            const InputDecoration(
+                                                          labelText:
+                                                              'Km inicial',
+                                                          labelStyle: TextStyle(
+                                                              color:
+                                                                  Colors.grey),
+                                                          // prefixIcon: Icon(
+                                                          //   Icons.person,
+                                                          //   color: Colors.grey,
+                                                          // ),
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .grey),
+                                                          ),
+                                                          enabledBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .grey),
+                                                          ),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .grey),
                                                           ),
                                                         ),
                                                       ),
-                                                    );
-                                                  },
-                                                ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
                                     const SizedBox(
-                                      height: 3,
+                                      height: 25,
                                     ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Odometro final',
+                                        style: TextStyle(
+                                          fontFamily: AutofillHints.jobTitle,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Column(
                                       children: [
-                                        !enableOdometroFinal
-                                            ? IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    enableOdometroFinal =
-                                                        !enableOdometroFinal;
-                                                  });
-                                                },
-                                                icon: const Icon(
-                                                  Icons.edit,
-                                                  size: 18,
-                                                  color: Colors.blue,
-                                                ),
+                                        state.odometroFinal == null
+                                            ? const Center(
+                                                child: Text(
+                                                    'Nenhuma foto enviada'),
                                               )
-                                            : BlocBuilder<ElevatedButtonBloc3,
-                                                ElevatedButtonBloc3State>(
-                                                builder:
-                                                    (context, buttonState) {
-                                                  if (buttonState
-                                                      is ElevatedButtonBloc3Loading) {
-                                                    return const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    );
-                                                  } else {
-                                                    return IconButton(
-                                                      onPressed: () async {
-                                                        BlocProvider.of<
-                                                                    ElevatedButtonBloc3>(
-                                                                context)
-                                                            .add(
-                                                          ElevatedButton3Pressed(),
-                                                        );
-                                                        if (odometroFinalFormKey
-                                                            .currentState!
-                                                            .validate()) {
-                                                          try {
-                                                            await relatorioServices
-                                                                .editarKmOdometro(
-                                                                    state.missao
-                                                                        .missaoId,
-                                                                    state.missao
-                                                                        .uid,
-                                                                    odometroFinalController
-                                                                        .text
-                                                                        .trim(),
-                                                                    'odometroFinal');
-                                                            BlocProvider.of<
-                                                                        ElevatedButtonBloc3>(
-                                                                    context)
-                                                                .add(
-                                                              ElevatedButton3Reset(),
+                                            : Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Checkbox(
+                                                        checkColor:
+                                                            Colors.green,
+                                                        activeColor:
+                                                            canvasColor,
+                                                        side: const BorderSide(
+                                                            color: canvasColor),
+                                                        value:
+                                                            odometroFinalChecked,
+                                                        onChanged: (val) =>
+                                                            setState(() =>
+                                                                odometroFinalChecked =
+                                                                    val!),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 150,
+                                                        child: ListView.builder(
+                                                          shrinkWrap: true,
+                                                          scrollDirection:
+                                                              Axis.horizontal,
+                                                          itemCount: 1,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            return Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8.0),
+                                                              child:
+                                                                  GestureDetector(
+                                                                onTap: () => showImageDialog(
+                                                                    context,
+                                                                    state
+                                                                        .odometroFinal!
+                                                                        .url,
+                                                                    state
+                                                                        .odometroFinal!
+                                                                        .caption),
+                                                                child:
+                                                                    Container(
+                                                                  width: 150,
+                                                                  height: 150,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    image:
+                                                                        DecorationImage(
+                                                                      image: NetworkImage(state
+                                                                          .odometroFinal!
+                                                                          .url),
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             );
-                                                            setState(() {
-                                                              enableOdometroFinal =
-                                                                  false;
-                                                            });
-                                                            if (odometroFinalController
-                                                                    .text
-                                                                    .isNotEmpty &&
-                                                                odometroInicialController
-                                                                    .text
-                                                                    .isNotEmpty) {
-                                                              setState(() {
-                                                                distanciaOdometro = double.parse(
-                                                                        odometroFinalController
-                                                                            .text) -
-                                                                    double.parse(
-                                                                        odometroInicialController
-                                                                            .text);
-                                                              });
-                                                            }
-                                                            mensagemDeSucesso
-                                                                .showSuccessSnackbar(
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 3,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      !enableOdometroFinal
+                                                          ? IconButton(
+                                                              onPressed: () {
+                                                                setState(() {
+                                                                  enableOdometroFinal =
+                                                                      !enableOdometroFinal;
+                                                                });
+                                                              },
+                                                              icon: const Icon(
+                                                                Icons.edit,
+                                                                size: 18,
+                                                                color:
+                                                                    Colors.blue,
+                                                              ),
+                                                            )
+                                                          : BlocBuilder<
+                                                              ElevatedButtonBloc3,
+                                                              ElevatedButtonBloc3State>(
+                                                              builder: (context,
+                                                                  buttonState) {
+                                                                if (buttonState
+                                                                    is ElevatedButtonBloc3Loading) {
+                                                                  return const Center(
+                                                                    child:
+                                                                        CircularProgressIndicator(),
+                                                                  );
+                                                                } else {
+                                                                  return IconButton(
+                                                                    onPressed:
+                                                                        () async {
+                                                                      BlocProvider.of<ElevatedButtonBloc3>(
+                                                                              context)
+                                                                          .add(
+                                                                        ElevatedButton3Pressed(),
+                                                                      );
+                                                                      if (odometroFinalFormKey
+                                                                          .currentState!
+                                                                          .validate()) {
+                                                                        try {
+                                                                          await relatorioServices.editarKmOdometro(
+                                                                              state.missao.missaoId,
+                                                                              state.missao.uid,
+                                                                              odometroFinalController.text.trim(),
+                                                                              'odometroFinal');
+                                                                          BlocProvider.of<ElevatedButtonBloc3>(context)
+                                                                              .add(
+                                                                            ElevatedButton3Reset(),
+                                                                          );
+                                                                          setState(
+                                                                              () {
+                                                                            enableOdometroFinal =
+                                                                                false;
+                                                                          });
+                                                                          if (odometroFinalController.text.isNotEmpty &&
+                                                                              odometroInicialController.text.isNotEmpty) {
+                                                                            setState(() {
+                                                                              distanciaOdometro = double.parse(odometroFinalController.text) - double.parse(odometroInicialController.text);
+                                                                            });
+                                                                          }
+                                                                          mensagemDeSucesso.showSuccessSnackbar(
+                                                                              context,
+                                                                              'Enviado com sucesso!');
+                                                                        } catch (e) {
+                                                                          debugPrint(
+                                                                              e.toString());
+                                                                          tratamentoDeErros.showErrorSnackbar(
+                                                                              context,
+                                                                              'Erro, tente novamente!');
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    icon:
+                                                                        const Icon(
+                                                                      Icons
+                                                                          .save,
+                                                                      size: 18,
+                                                                      color: Colors
+                                                                          .green,
+                                                                    ),
+                                                                  );
+                                                                }
+                                                              },
+                                                            ),
+                                                      // const SizedBox(
+                                                      //   width: 10,
+                                                      // ),
+                                                      SizedBox(
+                                                        width: 150,
+                                                        //height: 55,
+                                                        child: Form(
+                                                          key:
+                                                              odometroFinalFormKey,
+                                                          child: TextFormField(
+                                                            enabled:
+                                                                enableOdometroFinal,
+                                                            controller:
+                                                                odometroFinalController,
+                                                            inputFormatters: [
+                                                              FilteringTextInputFormatter
+                                                                  .digitsOnly,
+                                                              LengthLimitingTextInputFormatter(
+                                                                  50),
+                                                            ],
+                                                            validator: (value) {
+                                                              if (value == '' ||
+                                                                  value ==
+                                                                      null ||
+                                                                  value
+                                                                      .isEmpty) {
+                                                                return 'Preencha o campo corretamente';
+                                                              } else if (int
+                                                                      .tryParse(
+                                                                          value) ==
+                                                                  null) {
+                                                                return 'Insira apenas números';
+                                                              } else {
+                                                                return null;
+                                                              }
+                                                            },
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              labelText:
+                                                                  'Km final',
+                                                              labelStyle: TextStyle(
+                                                                  color: Colors
+                                                                      .grey),
+                                                              border:
+                                                                  OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey),
+                                                              ),
+                                                              enabledBorder:
+                                                                  OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey),
+                                                              ),
+                                                              focusedBorder:
+                                                                  OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Fotos da missão',
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  AutofillHints.jobTitle,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        missao.fotos == null
+                                            ? const Center(
+                                                child: Text(
+                                                    'Nenhuma foto enviada'),
+                                              )
+                                            : SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.7,
+                                                child: Wrap(
+                                                  alignment:
+                                                      WrapAlignment.center,
+                                                  runAlignment:
+                                                      WrapAlignment.center,
+                                                  crossAxisAlignment:
+                                                      WrapCrossAlignment.center,
+                                                  spacing:
+                                                      8.0, // Espaçamento entre os itens horizontalmente
+                                                  runSpacing:
+                                                      8.0, // Espaçamento entre as linhas
+                                                  children: List.generate(
+                                                      missao.fotos!.length,
+                                                      (index) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Column(
+                                                        children: [
+                                                          Checkbox(
+                                                            checkColor:
+                                                                Colors.green,
+                                                            activeColor:
+                                                                canvasColor,
+                                                            side: const BorderSide(
+                                                                color:
+                                                                    canvasColor),
+                                                            value:
+                                                                fotosMissaoCheckList![
+                                                                        index]
+                                                                    .check,
+                                                            onChanged: (val) =>
+                                                                setState(() =>
+                                                                    fotosMissaoCheckList![
+                                                                            index]
+                                                                        .check = val!),
+                                                          ),
+                                                          GestureDetector(
+                                                            onTap: () =>
+                                                                showImageDialog(
                                                                     context,
-                                                                    'Enviado com sucesso!');
-                                                          } catch (e) {
-                                                            debugPrint(
-                                                                e.toString());
-                                                            tratamentoDeErros
-                                                                .showErrorSnackbar(
-                                                                    context,
-                                                                    'Erro, tente novamente!');
-                                                          }
-                                                        }
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.save,
-                                                        size: 18,
-                                                        color: Colors.green,
+                                                                    missao
+                                                                        .fotos![
+                                                                            index]
+                                                                        .url,
+                                                                    missao
+                                                                        .fotos![
+                                                                            index]
+                                                                        .caption),
+                                                            child: Container(
+                                                              width: 150,
+                                                              height: 150,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                image:
+                                                                    DecorationImage(
+                                                                  image: NetworkImage(missao
+                                                                      .fotos![
+                                                                          index]
+                                                                      .url),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     );
-                                                  }
-                                                },
-                                              ),
-                                        // const SizedBox(
-                                        //   width: 10,
-                                        // ),
-                                        SizedBox(
-                                          width: 150,
-                                          //height: 55,
-                                          child: Form(
-                                            key: odometroFinalFormKey,
-                                            child: TextFormField(
-                                              enabled: enableOdometroFinal,
-                                              controller:
-                                                  odometroFinalController,
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly,
-                                                LengthLimitingTextInputFormatter(
-                                                    50),
-                                              ],
-                                              validator: (value) {
-                                                if (value == '' ||
-                                                    value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Preencha o campo corretamente';
-                                                } else if (int.tryParse(
-                                                        value) ==
-                                                    null) {
-                                                  return 'Insira apenas números';
-                                                } else {
-                                                  return null;
-                                                }
-                                              },
-                                              decoration: const InputDecoration(
-                                                labelText: 'Km final',
-                                                labelStyle: TextStyle(
-                                                    color: Colors.grey),
-                                                border: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey),
-                                                ),
-                                                enabledBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey),
+                                                  }),
                                                 ),
                                               ),
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Fotos após a missão',
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  AutofillHints.jobTitle,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
                                             ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        missao.fotosPosMissao == null
+                                            ? const Center(
+                                                child: Text(
+                                                    'Nenhuma foto enviada'),
+                                              )
+                                            : SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.7,
+                                                child: Wrap(
+                                                  alignment:
+                                                      WrapAlignment.center,
+                                                  runAlignment:
+                                                      WrapAlignment.center,
+                                                  crossAxisAlignment:
+                                                      WrapCrossAlignment.center,
+                                                  spacing:
+                                                      8.0, // Espaçamento entre os itens horizontalmente
+                                                  runSpacing:
+                                                      8.0, // Espaçamento entre as linhas
+                                                  children: List.generate(
+                                                      missao.fotosPosMissao!
+                                                          .length, (index) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Column(
+                                                        children: [
+                                                          Checkbox(
+                                                            checkColor:
+                                                                Colors.green,
+                                                            activeColor:
+                                                                canvasColor,
+                                                            side: const BorderSide(
+                                                                color:
+                                                                    canvasColor),
+                                                            value:
+                                                                fotosPosMissaoCheckList![
+                                                                        index]
+                                                                    .check,
+                                                            onChanged: (val) =>
+                                                                setState(() =>
+                                                                    fotosPosMissaoCheckList![
+                                                                            index]
+                                                                        .check = val!),
+                                                          ),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              showImageDialog(
+                                                                  context,
+                                                                  missao
+                                                                      .fotosPosMissao![
+                                                                          index]
+                                                                      .url,
+                                                                  missao
+                                                                      .fotosPosMissao![
+                                                                          index]
+                                                                      .caption);
+                                                            },
+                                                            child: Container(
+                                                              width: 150,
+                                                              height: 150,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                image:
+                                                                    DecorationImage(
+                                                                  image: NetworkImage(missao
+                                                                      .fotosPosMissao![
+                                                                          index]
+                                                                      .url),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }),
+                                                ),
+                                              ),
+
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                        state.messages != null
+                                            ? const Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'Chat',
+                                                    style: TextStyle(
+                                                      fontFamily: AutofillHints
+                                                          .jobTitle,
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : const SizedBox.shrink(),
+                                        state.messages != null
+                                            ? const SizedBox(
+                                                height: 20,
+                                              )
+                                            : const SizedBox.shrink(),
+                                        state.messages != null
+                                            ? Card(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  child: LayoutBuilder(
+                                                    builder:
+                                                        (BuildContext context,
+                                                            BoxConstraints
+                                                                constraints) {
+                                                      return ConstrainedBox(
+                                                        constraints:
+                                                            const BoxConstraints(
+                                                          maxWidth:
+                                                              800, // Use maxWidth como a largura máxima
+                                                        ),
+                                                        child: GroupedListView<
+                                                            Message, String>(
+                                                          shrinkWrap: true,
+                                                          elements:
+                                                              state.messages!,
+                                                          groupBy: (element) =>
+                                                              element.createdAt
+                                                                  .getDateFromDateTime,
+                                                          itemComparator: (message1,
+                                                                  message2) =>
+                                                              message1.createdAt
+                                                                  .compareTo(
+                                                                      message2
+                                                                          .createdAt),
+                                                          physics:
+                                                              const NeverScrollableScrollPhysics(),
+                                                          sort: true,
+                                                          groupSeparatorBuilder: (separator) =>
+                                                              featureActiveConfig
+                                                                          ?.enableChatSeparator ??
+                                                                      false
+                                                                  ? _GroupSeparatorBuilder(
+                                                                      separator:
+                                                                          separator,
+                                                                      defaultGroupSeparatorConfig:
+                                                                          DefaultGroupSeparatorConfiguration(
+                                                                        textStyle:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              theme.chatHeaderColor,
+                                                                          fontSize:
+                                                                              17,
+                                                                        ),
+                                                                      ),
+                                                                      groupSeparatorBuilder:
+                                                                          const ChatBackgroundConfiguration()
+                                                                              .groupSeparatorBuilder,
+                                                                    )
+                                                                  : const SizedBox
+                                                                      .shrink(),
+                                                          indexedItemBuilder:
+                                                              (context, message,
+                                                                  index) {
+                                                            debugPrint(message
+                                                                .message);
+                                                            return ValueListenableBuilder<
+                                                                String?>(
+                                                              valueListenable:
+                                                                  _replyId,
+                                                              builder: (context,
+                                                                  state,
+                                                                  child) {
+                                                                debugPrint(
+                                                                    'replyId: ${_replyId.toString()}');
+                                                                return RelatorioChatBubbleWidget(
+                                                                  chatBubbleConfig:
+                                                                      ChatBubbleConfiguration(
+                                                                    outgoingChatBubbleConfig:
+                                                                        ChatBubble(
+                                                                      linkPreviewConfig:
+                                                                          LinkPreviewConfiguration(
+                                                                        backgroundColor:
+                                                                            theme.linkPreviewOutgoingChatColor,
+                                                                        bodyStyle:
+                                                                            theme.outgoingChatLinkBodyStyle,
+                                                                        titleStyle:
+                                                                            theme.outgoingChatLinkTitleStyle,
+                                                                      ),
+                                                                      receiptsWidgetConfig:
+                                                                          const ReceiptsWidgetConfig(
+                                                                              showReceiptsIn: ShowReceiptsIn.all),
+                                                                      color: theme
+                                                                          .outgoingChatBubbleColor,
+                                                                    ),
+                                                                    inComingChatBubbleConfig:
+                                                                        ChatBubble(
+                                                                      linkPreviewConfig:
+                                                                          LinkPreviewConfiguration(
+                                                                        linkStyle:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              theme.inComingChatBubbleTextColor,
+                                                                          decoration:
+                                                                              TextDecoration.underline,
+                                                                        ),
+                                                                        backgroundColor:
+                                                                            theme.linkPreviewIncomingChatColor,
+                                                                        bodyStyle:
+                                                                            theme.incomingChatLinkBodyStyle,
+                                                                        titleStyle:
+                                                                            theme.incomingChatLinkTitleStyle,
+                                                                      ),
+                                                                      textStyle:
+                                                                          TextStyle(
+                                                                              color: theme.inComingChatBubbleTextColor),
+                                                                      onMessageRead:
+                                                                          (message) {
+                                                                        /// send your message reciepts to the other client
+                                                                        debugPrint(
+                                                                            'Message Read');
+                                                                      },
+                                                                      senderNameTextStyle:
+                                                                          TextStyle(
+                                                                              color: theme.inComingChatBubbleTextColor),
+                                                                      color: theme
+                                                                          .inComingChatBubbleColor,
+                                                                    ),
+                                                                  ),
+                                                                  chatControllerParam:
+                                                                      _chatController,
+                                                                  messageTimeTextStyle:
+                                                                      const ChatBackgroundConfiguration()
+                                                                          .messageTimeTextStyle,
+                                                                  messageTimeIconColor:
+                                                                      const ChatBackgroundConfiguration()
+                                                                          .messageTimeIconColor,
+                                                                  message:
+                                                                      message,
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+
+                                        //     RelatorioChatView(
+                                        //               currentUser: currentUser,
+                                        //               chatController: _chatController,
+                                        //               //onSendTap: _onSendTap,
+                                        //               featureActiveConfig:
+                                        //                   const FeatureActiveConfig(
+                                        //                 lastSeenAgoBuilderVisibility:
+                                        //                     false,
+                                        //                 receiptsBuilderVisibility:
+                                        //                     true,
+                                        //                 enableDoubleTapToLike: false,
+                                        //               ),
+                                        //               chatViewState:
+                                        //                   ChatViewState.hasMessages,
+                                        //               chatViewStateConfig:
+                                        //                   ChatViewStateConfiguration(
+                                        //                 loadingWidgetConfig:
+                                        //                     ChatViewStateWidgetConfiguration(
+                                        //                   loadingIndicatorColor: theme
+                                        //                       .outgoingChatBubbleColor,
+                                        //                 ),
+                                        //                 onReloadButtonTap: () {},
+                                        //               ),
+                                        //               typeIndicatorConfig:
+                                        //                   TypeIndicatorConfiguration(
+                                        //                 flashingCircleBrightColor: theme
+                                        //                     .flashingCircleBrightColor,
+                                        //                 flashingCircleDarkColor: theme
+                                        //                     .flashingCircleDarkColor,
+                                        //               ),
+                                        //               // appBar:
+                                        //               // ChatViewAppBar(
+                                        //               //   padding: const EdgeInsets.only(
+                                        //               //       top: 15, bottom: 10),
+                                        //               //   elevation: theme.elevation,
+                                        //               //   //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
+                                        //               //   backGroundColor:
+                                        //               //       Color.fromARGB(255, 0, 6, 15),
+                                        //               //   profilePicture: fotoUrl,
+                                        //               //   backArrowColor:
+                                        //               //       theme.backArrowColor,
+                                        //               //   chatTitle: 'Agente',
+                                        //               //   chatTitleTextStyle: TextStyle(
+                                        //               //     color: theme.appBarTitleTextStyle,
+                                        //               //     fontWeight: FontWeight.bold,
+                                        //               //     fontSize: 18,
+                                        //               //     letterSpacing: 0.25,
+                                        //               //   ),
+                                        //               // ),
+                                        //               chatBackgroundConfig:
+                                        //                   ChatBackgroundConfiguration(
+                                        //                       messageTimeIconColor: theme
+                                        //                           .messageTimeIconColor,
+                                        //                       messageTimeTextStyle:
+                                        //                           TextStyle(
+                                        //                               color: theme
+                                        //                                   .messageTimeTextColor),
+                                        //                       defaultGroupSeparatorConfig:
+                                        //                           DefaultGroupSeparatorConfiguration(
+                                        //                         textStyle: TextStyle(
+                                        //                           color: theme
+                                        //                               .chatHeaderColor,
+                                        //                           fontSize: 17,
+                                        //                         ),
+                                        //                       ),
+                                        //                       //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
+                                        //                       backgroundColor:
+                                        //                           Colors.transparent),
+                                        //               sendMessageConfig:
+                                        //                   SendMessageConfiguration(
+                                        //                 imagePickerIconsConfig:
+                                        //                     ImagePickerIconsConfiguration(
+                                        //                   cameraIconColor: null,
+                                        //                   galleryIconColor: null,
+                                        //                 ),
+                                        //                 replyMessageColor:
+                                        //                     theme.replyMessageColor,
+                                        //                 defaultSendButtonColor:
+                                        //                     theme.sendButtonColor,
+                                        //                 replyDialogColor:
+                                        //                     theme.replyDialogColor,
+                                        //                 replyTitleColor:
+                                        //                     theme.replyTitleColor,
+                                        //                 textFieldBackgroundColor: theme
+                                        //                     .textFieldBackgroundColor,
+                                        //                 closeIconColor:
+                                        //                     theme.closeIconColor,
+                                        //                 textFieldConfig:
+                                        //                     TextFieldConfiguration(
+                                        //                   onMessageTyping: (status) {
+                                        //                     /// Do with status
+                                        //                     debugPrint(
+                                        //                         status.toString());
+                                        //                   },
+                                        //                   compositionThresholdTime:
+                                        //                       const Duration(
+                                        //                           seconds: 1),
+                                        //                   textStyle: TextStyle(
+                                        //                       color: theme
+                                        //                           .textFieldTextColor),
+                                        //                 ),
+                                        //                 micIconColor:
+                                        //                     theme.replyMicIconColor,
+                                        //                 voiceRecordingConfiguration:
+                                        //                     VoiceRecordingConfiguration(
+                                        //                   backgroundColor: theme
+                                        //                       .waveformBackgroundColor,
+                                        //                   recorderIconColor:
+                                        //                       theme.recordIconColor,
+                                        //                   waveStyle: WaveStyle(
+                                        //                     showMiddleLine: false,
+                                        //                     waveColor:
+                                        //                         theme.waveColor ??
+                                        //                             Colors.white,
+                                        //                     extendWaveform: true,
+                                        //                   ),
+                                        //                 ),
+                                        //               ),
+                                        //               chatBubbleConfig:
+                                        //                   ChatBubbleConfiguration(
+                                        //                 outgoingChatBubbleConfig:
+                                        //                     ChatBubble(
+                                        //                   linkPreviewConfig:
+                                        //                       LinkPreviewConfiguration(
+                                        //                     backgroundColor: theme
+                                        //                         .linkPreviewOutgoingChatColor,
+                                        //                     bodyStyle: theme
+                                        //                         .outgoingChatLinkBodyStyle,
+                                        //                     titleStyle: theme
+                                        //                         .outgoingChatLinkTitleStyle,
+                                        //                   ),
+                                        //                   receiptsWidgetConfig:
+                                        //                       const ReceiptsWidgetConfig(
+                                        //                           showReceiptsIn:
+                                        //                               ShowReceiptsIn
+                                        //                                   .all),
+                                        //                   color: theme
+                                        //                       .outgoingChatBubbleColor,
+                                        //                 ),
+                                        //                 inComingChatBubbleConfig:
+                                        //                     ChatBubble(
+                                        //                   linkPreviewConfig:
+                                        //                       LinkPreviewConfiguration(
+                                        //                     linkStyle: TextStyle(
+                                        //                       color: theme
+                                        //                           .inComingChatBubbleTextColor,
+                                        //                       decoration:
+                                        //                           TextDecoration
+                                        //                               .underline,
+                                        //                     ),
+                                        //                     backgroundColor: theme
+                                        //                         .linkPreviewIncomingChatColor,
+                                        //                     bodyStyle: theme
+                                        //                         .incomingChatLinkBodyStyle,
+                                        //                     titleStyle: theme
+                                        //                         .incomingChatLinkTitleStyle,
+                                        //                   ),
+                                        //                   textStyle: TextStyle(
+                                        //                       color: theme
+                                        //                           .inComingChatBubbleTextColor),
+                                        //                   onMessageRead: (message) {
+                                        //                     /// send your message reciepts to the other client
+                                        //                     debugPrint(
+                                        //                         'Message Read');
+                                        //                   },
+                                        //                   senderNameTextStyle: TextStyle(
+                                        //                       color: theme
+                                        //                           .inComingChatBubbleTextColor),
+                                        //                   color: theme
+                                        //                       .inComingChatBubbleColor,
+                                        //                 ),
+                                        //               ),
+                                        //               replyPopupConfig:
+                                        //                   ReplyPopupConfiguration(
+                                        //                 backgroundColor:
+                                        //                     theme.replyPopupColor,
+                                        //                 buttonTextStyle: TextStyle(
+                                        //                     color: theme
+                                        //                         .replyPopupButtonColor),
+                                        //                 topBorderColor: theme
+                                        //                     .replyPopupTopBorderColor,
+                                        //               ),
+                                        //               reactionPopupConfig:
+                                        //                   ReactionPopupConfiguration(
+                                        //                 shadow: BoxShadow(
+                                        //                   color: isDarkTheme
+                                        //                       ? Colors.black54
+                                        //                       : Colors.grey.shade400,
+                                        //                   blurRadius: 20,
+                                        //                 ),
+                                        //                 backgroundColor:
+                                        //                     theme.reactionPopupColor,
+                                        //               ),
+                                        //               messageConfig:
+                                        //                   MessageConfiguration(
+                                        //                 messageReactionConfig:
+                                        //                     MessageReactionConfiguration(
+                                        //                   backgroundColor: theme
+                                        //                       .messageReactionBackGroundColor,
+                                        //                   borderColor: theme
+                                        //                       .messageReactionBackGroundColor,
+                                        //                   reactedUserCountTextStyle:
+                                        //                       TextStyle(
+                                        //                           color: theme
+                                        //                               .inComingChatBubbleTextColor),
+                                        //                   reactionCountTextStyle:
+                                        //                       TextStyle(
+                                        //                           color: theme
+                                        //                               .inComingChatBubbleTextColor),
+                                        //                   reactionsBottomSheetConfig:
+                                        //                       ReactionsBottomSheetConfiguration(
+                                        //                     backgroundColor:
+                                        //                         theme.backgroundColor,
+                                        //                     reactedUserTextStyle:
+                                        //                         TextStyle(
+                                        //                       color: theme
+                                        //                           .inComingChatBubbleTextColor,
+                                        //                     ),
+                                        //                     reactionWidgetDecoration:
+                                        //                         BoxDecoration(
+                                        //                       color: theme
+                                        //                           .inComingChatBubbleColor,
+                                        //                       boxShadow: [
+                                        //                         BoxShadow(
+                                        //                           color: isDarkTheme
+                                        //                               ? Colors.black12
+                                        //                               : Colors.grey
+                                        //                                   .shade200,
+                                        //                           offset:
+                                        //                               const Offset(
+                                        //                                   0, 20),
+                                        //                           blurRadius: 40,
+                                        //                         )
+                                        //                       ],
+                                        //                       borderRadius:
+                                        //                           BorderRadius
+                                        //                               .circular(10),
+                                        //                     ),
+                                        //                   ),
+                                        //                 ),
+                                        //                 imageMessageConfig:
+                                        //                     ImageMessageConfiguration(
+                                        //                   margin: const EdgeInsets
+                                        //                       .symmetric(
+                                        //                       horizontal: 12,
+                                        //                       vertical: 15),
+                                        //                   shareIconConfig:
+                                        //                       ShareIconConfiguration(
+                                        //                     defaultIconBackgroundColor:
+                                        //                         theme
+                                        //                             .shareIconBackgroundColor,
+                                        //                     defaultIconColor:
+                                        //                         theme.shareIconColor,
+                                        //                     onPressed: (p0) {},
+                                        //                   ),
+                                        //                 ),
+                                        //               ),
+                                        //               // profileCircleConfig: ProfileCircleConfiguration(
+                                        //               //   profileImageUrl: fotoUrl,
+                                        //               // ),
+                                        //               repliedMessageConfig:
+                                        //                   RepliedMessageConfiguration(
+                                        //                 backgroundColor:
+                                        //                     theme.repliedMessageColor,
+                                        //                 verticalBarColor:
+                                        //                     theme.verticalBarColor,
+                                        //                 repliedMsgAutoScrollConfig:
+                                        //                     RepliedMsgAutoScrollConfig(
+                                        //                   enableHighlightRepliedMsg:
+                                        //                       true,
+                                        //                   highlightColor: Colors
+                                        //                       .pinkAccent.shade100,
+                                        //                   highlightScale: 1.1,
+                                        //                 ),
+                                        //                 textStyle: const TextStyle(
+                                        //                   color: Colors.white,
+                                        //                   fontWeight: FontWeight.bold,
+                                        //                   letterSpacing: 0.25,
+                                        //                 ),
+                                        //                 replyTitleTextStyle: TextStyle(
+                                        //                     color: theme
+                                        //                         .repliedTitleTextColor),
+                                        //               ),
+                                        //               swipeToReplyConfig:
+                                        //                   SwipeToReplyConfiguration(
+                                        //                 replyIconColor: theme
+                                        //                     .swipeToReplyIconColor,
+                                        //               ),
+                                        //             //),
+                                        //           //),
+                                        //         //],
+                                        //       //),
+                                        //     //);
+                                        //  // },
+                                        // ),
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            List<Foto> fotosPosMissaoFinalList =
+                                                [];
+                                            if (fotosPosMissaoCheckList!
+                                                .isNotEmpty) {
+                                              for (var foto
+                                                  in fotosPosMissaoCheckList!) {
+                                                if (foto.check!) {
+                                                  fotosPosMissaoFinalList
+                                                      .add(foto);
+                                                }
+                                              }
+                                            }
+
+                                            List<Foto> fotosMissaoFinalList =
+                                                [];
+                                            if (fotosMissaoCheckList!
+                                                .isNotEmpty) {
+                                              for (var foto
+                                                  in fotosMissaoCheckList!) {
+                                                if (foto.check!) {
+                                                  fotosMissaoFinalList
+                                                      .add(foto);
+                                                }
+                                              }
+                                            }
+
+                                            final sucesso =
+                                                await relatorioServices
+                                                    .enviarRelatorioCliente(
+                                              RelatorioCliente(
+                                                cnpj: missao.cnpj,
+                                                missaoId: widget.missaoId,
+                                                tipo: tipoChecked
+                                                    ? missao.tipo
+                                                    : null,
+                                                nomeDaEmpresa:
+                                                    nomeEmpresaChecked
+                                                        ? missao.nomeDaEmpresa
+                                                        : null,
+                                                local: localChecked
+                                                    ? missao.local
+                                                    : null,
+                                                placaCavalo: placaCavaloChecked
+                                                    ? missao.placaCavalo
+                                                    : null,
+                                                placaCarreta:
+                                                    placaCarretaChecked
+                                                        ? missao.placaCarreta
+                                                        : null,
+                                                motorista: motoristaChecked
+                                                    ? missao.motorista
+                                                    : null,
+                                                corVeiculo: corVeiculoChecked
+                                                    ? missao.corVeiculo
+                                                    : null,
+                                                observacao: observacaoChecked
+                                                    ? missao.observacao
+                                                    : null,
+                                                uidOperadorSombra: uid,
+                                                uid: missao.uid,
+                                                inicio: inicioChecked
+                                                    ? missao.inicio
+                                                    : null,
+                                                fim: fimChecked
+                                                    ? missao.fim
+                                                    : null,
+                                                serverFim: serverFimChecked
+                                                    ? missao.serverFim
+                                                    : null,
+                                                // fotos: fotosChecked
+                                                //     ? missao.fotos
+                                                //     : null,
+                                                fotos: fotosMissaoFinalList
+                                                        .isNotEmpty
+                                                    ? fotosMissaoFinalList
+                                                    : null,
+                                                // fotosPosMissao:
+                                                //     fotosPosMissaoChecked
+                                                //         ? missao.fotosPosMissao
+                                                //         : null,
+                                                fotosPosMissao:
+                                                    fotosPosMissaoFinalList
+                                                            .isNotEmpty
+                                                        ? fotosPosMissaoFinalList
+                                                        : null,
+                                                odometroInicial:
+                                                    odometroInicialChecked &&
+                                                            state.odometroInicial !=
+                                                                null
+                                                        ? state.odometroInicial
+                                                        : null,
+                                                odometroFinal:
+                                                    odometroFinalChecked &&
+                                                            state.odometroFinal !=
+                                                                null
+                                                        ? state.odometroFinal
+                                                        : null,
+                                                messages: messagesChecked &&
+                                                        state.messages != null
+                                                    ? state.messages
+                                                    : null,
+                                                infos: infosChecked
+                                                    ? missao.infos
+                                                    : null,
+                                                infosComplementares:
+                                                    infosComplementaresChecked
+                                                        ? missao
+                                                            .infosComplementares
+                                                        : null,
+                                                distancia: distanciaChecked
+                                                    ? state.distancia
+                                                    : null,
+                                                distanciaOdometro:
+                                                    distanciaOdometroChecked
+                                                        ? distanciaOdometro
+                                                        : null,
+                                                rota: rotaChecked
+                                                    ? state.locations
+                                                    : null,
+                                              ),
+                                            );
+                                            if (sucesso.success) {
+                                              if (context.mounted) {
+                                                mensagemDeSucesso
+                                                    .showSuccessSnackbar(
+                                                        context,
+                                                        'Relatório enviado com sucesso');
+                                              }
+                                            } else {
+                                              if (context.mounted) {
+                                                tratamentoDeErros.showErrorSnackbar(
+                                                    context,
+                                                    sucesso.message ??
+                                                        'Erro ao enviar relatório');
+                                              }
+                                            }
+                                          },
+                                          child: const Text(
+                                            'Enviar para cliente',
                                           ),
                                         ),
                                       ],
                                     ),
+                                    const SizedBox(
+                                      height: 25,
+                                    ),
                                   ],
-                                ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Fotos da missão',
-                                    style: TextStyle(
-                                        fontFamily: AutofillHints.jobTitle,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                missao.fotos == null
-                                    ? const Center(
-                                        child: Text('Nenhuma foto enviada'),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Checkbox(
-                                            checkColor: Colors.green,
-                                            activeColor: Colors.white,
-                                            side: const BorderSide(
-                                                color: Colors.white),
-                                            value: fotosChecked,
-                                            onChanged: (val) => setState(
-                                                () => fotosChecked = val!),
-                                          ),
-                                          SizedBox(
-                                            height: 150,
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: min(
-                                                  missao.fotos!.length,
-                                                  limiteDeFotos),
-                                              itemBuilder: (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: GestureDetector(
-                                                    onTap: () =>
-                                                        showImageDialog(
-                                                            context,
-                                                            missao.fotos![index]
-                                                                .url,
-                                                            missao.fotos![index]
-                                                                .caption),
-                                                    child: Container(
-                                                      width: 150,
-                                                      height: 150,
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: NetworkImage(
-                                                              missao
-                                                                  .fotos![index]
-                                                                  .url),
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          if (missao.fotos!.length >
-                                              limiteDeFotos)
-                                            TextButton(
-                                              onPressed: () {
-                                                showAllPhotosDialog(
-                                                    context, missao.fotos!);
-                                              },
-                                              child: const Text(
-                                                'Ver todas as fotos',
-                                                style: TextStyle(
-                                                    //color: Colors.black,
-                                                    ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Fotos após a missão',
-                                    style: TextStyle(
-                                        fontFamily: AutofillHints.jobTitle,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                missao.fotosPosMissao == null
-                                    ? const Center(
-                                        child: Text('Nenhuma foto enviada'),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Checkbox(
-                                            checkColor: Colors.green,
-                                            activeColor: Colors.white,
-                                            side: const BorderSide(
-                                                color: Colors.white),
-                                            value: fotosPosMissaoChecked,
-                                            onChanged: (val) => setState(() =>
-                                                fotosPosMissaoChecked = val!),
-                                          ),
-                                          SizedBox(
-                                            height: 150,
-                                            child: ListView.builder(
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: min(
-                                                  missao.fotosPosMissao!.length,
-                                                  limiteDeFotos),
-                                              itemBuilder: (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      showImageDialog(
-                                                          context,
-                                                          missao
-                                                              .fotosPosMissao![
-                                                                  index]
-                                                              .url,
-                                                          missao
-                                                              .fotosPosMissao![
-                                                                  index]
-                                                              .caption);
-                                                    },
-                                                    child: Container(
-                                                      width: 150,
-                                                      height: 150,
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: NetworkImage(
-                                                              missao
-                                                                  .fotosPosMissao![
-                                                                      index]
-                                                                  .url),
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          if (missao.fotosPosMissao!.length >
-                                              limiteDeFotos)
-                                            TextButton(
-                                              onPressed: () {
-                                                showAllPhotosDialog(context,
-                                                    missao.fotosPosMissao!);
-                                              },
-                                              child: const Text(
-                                                'Ver todas as fotos',
-                                                style: TextStyle(
-                                                    //color: Colors.black,
-                                                    ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                state.messages != null
-                                    ? const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Chat',
-                                            style: TextStyle(
-                                                fontFamily:
-                                                    AutofillHints.jobTitle,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white),
-                                          ),
-                                        ],
-                                      )
-                                    : const SizedBox.shrink(),
-                                state.messages != null
-                                    ? const SizedBox(
-                                        height: 20,
-                                      )
-                                    : const SizedBox.shrink(),
-                                state.messages != null
-                                    ? Card(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: LayoutBuilder(
-                                            builder: (BuildContext context,
-                                                BoxConstraints constraints) {
-                                              return ConstrainedBox(
-                                                constraints:
-                                                    const BoxConstraints(
-                                                  maxWidth:
-                                                      800, // Use maxWidth como a largura máxima
-                                                ),
-                                                child: GroupedListView<Message,
-                                                    String>(
-                                                  shrinkWrap: true,
-                                                  elements: state.messages!,
-                                                  groupBy: (element) => element
-                                                      .createdAt
-                                                      .getDateFromDateTime,
-                                                  itemComparator: (message1,
-                                                          message2) =>
-                                                      message1.createdAt
-                                                          .compareTo(message2
-                                                              .createdAt),
-                                                  physics:
-                                                      const NeverScrollableScrollPhysics(),
-                                                  sort: true,
-                                                  groupSeparatorBuilder: (separator) =>
-                                                      featureActiveConfig
-                                                                  ?.enableChatSeparator ??
-                                                              false
-                                                          ? _GroupSeparatorBuilder(
-                                                              separator:
-                                                                  separator,
-                                                              defaultGroupSeparatorConfig:
-                                                                  DefaultGroupSeparatorConfiguration(
-                                                                textStyle:
-                                                                    TextStyle(
-                                                                  color: theme
-                                                                      .chatHeaderColor,
-                                                                  fontSize: 17,
-                                                                ),
-                                                              ),
-                                                              groupSeparatorBuilder:
-                                                                  const ChatBackgroundConfiguration()
-                                                                      .groupSeparatorBuilder,
-                                                            )
-                                                          : const SizedBox
-                                                              .shrink(),
-                                                  indexedItemBuilder: (context,
-                                                      message, index) {
-                                                    debugPrint(message.message);
-                                                    return ValueListenableBuilder<
-                                                        String?>(
-                                                      valueListenable: _replyId,
-                                                      builder: (context, state,
-                                                          child) {
-                                                        debugPrint(
-                                                            'replyId: ${_replyId.toString()}');
-                                                        return RelatorioChatBubbleWidget(
-                                                          chatBubbleConfig:
-                                                              ChatBubbleConfiguration(
-                                                            outgoingChatBubbleConfig:
-                                                                ChatBubble(
-                                                              linkPreviewConfig:
-                                                                  LinkPreviewConfiguration(
-                                                                backgroundColor:
-                                                                    theme
-                                                                        .linkPreviewOutgoingChatColor,
-                                                                bodyStyle: theme
-                                                                    .outgoingChatLinkBodyStyle,
-                                                                titleStyle: theme
-                                                                    .outgoingChatLinkTitleStyle,
-                                                              ),
-                                                              receiptsWidgetConfig:
-                                                                  const ReceiptsWidgetConfig(
-                                                                      showReceiptsIn:
-                                                                          ShowReceiptsIn
-                                                                              .all),
-                                                              color: theme
-                                                                  .outgoingChatBubbleColor,
-                                                            ),
-                                                            inComingChatBubbleConfig:
-                                                                ChatBubble(
-                                                              linkPreviewConfig:
-                                                                  LinkPreviewConfiguration(
-                                                                linkStyle:
-                                                                    TextStyle(
-                                                                  color: theme
-                                                                      .inComingChatBubbleTextColor,
-                                                                  decoration:
-                                                                      TextDecoration
-                                                                          .underline,
-                                                                ),
-                                                                backgroundColor:
-                                                                    theme
-                                                                        .linkPreviewIncomingChatColor,
-                                                                bodyStyle: theme
-                                                                    .incomingChatLinkBodyStyle,
-                                                                titleStyle: theme
-                                                                    .incomingChatLinkTitleStyle,
-                                                              ),
-                                                              textStyle: TextStyle(
-                                                                  color: theme
-                                                                      .inComingChatBubbleTextColor),
-                                                              onMessageRead:
-                                                                  (message) {
-                                                                /// send your message reciepts to the other client
-                                                                debugPrint(
-                                                                    'Message Read');
-                                                              },
-                                                              senderNameTextStyle:
-                                                                  TextStyle(
-                                                                      color: theme
-                                                                          .inComingChatBubbleTextColor),
-                                                              color: theme
-                                                                  .inComingChatBubbleColor,
-                                                            ),
-                                                          ),
-                                                          chatControllerParam:
-                                                              _chatController,
-                                                          messageTimeTextStyle:
-                                                              const ChatBackgroundConfiguration()
-                                                                  .messageTimeTextStyle,
-                                                          messageTimeIconColor:
-                                                              const ChatBackgroundConfiguration()
-                                                                  .messageTimeIconColor,
-                                                          message: message,
-                                                        );
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
-
-                                //     RelatorioChatView(
-                                //               currentUser: currentUser,
-                                //               chatController: _chatController,
-                                //               //onSendTap: _onSendTap,
-                                //               featureActiveConfig:
-                                //                   const FeatureActiveConfig(
-                                //                 lastSeenAgoBuilderVisibility:
-                                //                     false,
-                                //                 receiptsBuilderVisibility:
-                                //                     true,
-                                //                 enableDoubleTapToLike: false,
-                                //               ),
-                                //               chatViewState:
-                                //                   ChatViewState.hasMessages,
-                                //               chatViewStateConfig:
-                                //                   ChatViewStateConfiguration(
-                                //                 loadingWidgetConfig:
-                                //                     ChatViewStateWidgetConfiguration(
-                                //                   loadingIndicatorColor: theme
-                                //                       .outgoingChatBubbleColor,
-                                //                 ),
-                                //                 onReloadButtonTap: () {},
-                                //               ),
-                                //               typeIndicatorConfig:
-                                //                   TypeIndicatorConfiguration(
-                                //                 flashingCircleBrightColor: theme
-                                //                     .flashingCircleBrightColor,
-                                //                 flashingCircleDarkColor: theme
-                                //                     .flashingCircleDarkColor,
-                                //               ),
-                                //               // appBar:
-                                //               // ChatViewAppBar(
-                                //               //   padding: const EdgeInsets.only(
-                                //               //       top: 15, bottom: 10),
-                                //               //   elevation: theme.elevation,
-                                //               //   //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
-                                //               //   backGroundColor:
-                                //               //       Color.fromARGB(255, 0, 6, 15),
-                                //               //   profilePicture: fotoUrl,
-                                //               //   backArrowColor:
-                                //               //       theme.backArrowColor,
-                                //               //   chatTitle: 'Agente',
-                                //               //   chatTitleTextStyle: TextStyle(
-                                //               //     color: theme.appBarTitleTextStyle,
-                                //               //     fontWeight: FontWeight.bold,
-                                //               //     fontSize: 18,
-                                //               //     letterSpacing: 0.25,
-                                //               //   ),
-                                //               // ),
-                                //               chatBackgroundConfig:
-                                //                   ChatBackgroundConfiguration(
-                                //                       messageTimeIconColor: theme
-                                //                           .messageTimeIconColor,
-                                //                       messageTimeTextStyle:
-                                //                           TextStyle(
-                                //                               color: theme
-                                //                                   .messageTimeTextColor),
-                                //                       defaultGroupSeparatorConfig:
-                                //                           DefaultGroupSeparatorConfiguration(
-                                //                         textStyle: TextStyle(
-                                //                           color: theme
-                                //                               .chatHeaderColor,
-                                //                           fontSize: 17,
-                                //                         ),
-                                //                       ),
-                                //                       //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
-                                //                       backgroundColor:
-                                //                           Colors.transparent),
-                                //               sendMessageConfig:
-                                //                   SendMessageConfiguration(
-                                //                 imagePickerIconsConfig:
-                                //                     ImagePickerIconsConfiguration(
-                                //                   cameraIconColor: null,
-                                //                   galleryIconColor: null,
-                                //                 ),
-                                //                 replyMessageColor:
-                                //                     theme.replyMessageColor,
-                                //                 defaultSendButtonColor:
-                                //                     theme.sendButtonColor,
-                                //                 replyDialogColor:
-                                //                     theme.replyDialogColor,
-                                //                 replyTitleColor:
-                                //                     theme.replyTitleColor,
-                                //                 textFieldBackgroundColor: theme
-                                //                     .textFieldBackgroundColor,
-                                //                 closeIconColor:
-                                //                     theme.closeIconColor,
-                                //                 textFieldConfig:
-                                //                     TextFieldConfiguration(
-                                //                   onMessageTyping: (status) {
-                                //                     /// Do with status
-                                //                     debugPrint(
-                                //                         status.toString());
-                                //                   },
-                                //                   compositionThresholdTime:
-                                //                       const Duration(
-                                //                           seconds: 1),
-                                //                   textStyle: TextStyle(
-                                //                       color: theme
-                                //                           .textFieldTextColor),
-                                //                 ),
-                                //                 micIconColor:
-                                //                     theme.replyMicIconColor,
-                                //                 voiceRecordingConfiguration:
-                                //                     VoiceRecordingConfiguration(
-                                //                   backgroundColor: theme
-                                //                       .waveformBackgroundColor,
-                                //                   recorderIconColor:
-                                //                       theme.recordIconColor,
-                                //                   waveStyle: WaveStyle(
-                                //                     showMiddleLine: false,
-                                //                     waveColor:
-                                //                         theme.waveColor ??
-                                //                             Colors.white,
-                                //                     extendWaveform: true,
-                                //                   ),
-                                //                 ),
-                                //               ),
-                                //               chatBubbleConfig:
-                                //                   ChatBubbleConfiguration(
-                                //                 outgoingChatBubbleConfig:
-                                //                     ChatBubble(
-                                //                   linkPreviewConfig:
-                                //                       LinkPreviewConfiguration(
-                                //                     backgroundColor: theme
-                                //                         .linkPreviewOutgoingChatColor,
-                                //                     bodyStyle: theme
-                                //                         .outgoingChatLinkBodyStyle,
-                                //                     titleStyle: theme
-                                //                         .outgoingChatLinkTitleStyle,
-                                //                   ),
-                                //                   receiptsWidgetConfig:
-                                //                       const ReceiptsWidgetConfig(
-                                //                           showReceiptsIn:
-                                //                               ShowReceiptsIn
-                                //                                   .all),
-                                //                   color: theme
-                                //                       .outgoingChatBubbleColor,
-                                //                 ),
-                                //                 inComingChatBubbleConfig:
-                                //                     ChatBubble(
-                                //                   linkPreviewConfig:
-                                //                       LinkPreviewConfiguration(
-                                //                     linkStyle: TextStyle(
-                                //                       color: theme
-                                //                           .inComingChatBubbleTextColor,
-                                //                       decoration:
-                                //                           TextDecoration
-                                //                               .underline,
-                                //                     ),
-                                //                     backgroundColor: theme
-                                //                         .linkPreviewIncomingChatColor,
-                                //                     bodyStyle: theme
-                                //                         .incomingChatLinkBodyStyle,
-                                //                     titleStyle: theme
-                                //                         .incomingChatLinkTitleStyle,
-                                //                   ),
-                                //                   textStyle: TextStyle(
-                                //                       color: theme
-                                //                           .inComingChatBubbleTextColor),
-                                //                   onMessageRead: (message) {
-                                //                     /// send your message reciepts to the other client
-                                //                     debugPrint(
-                                //                         'Message Read');
-                                //                   },
-                                //                   senderNameTextStyle: TextStyle(
-                                //                       color: theme
-                                //                           .inComingChatBubbleTextColor),
-                                //                   color: theme
-                                //                       .inComingChatBubbleColor,
-                                //                 ),
-                                //               ),
-                                //               replyPopupConfig:
-                                //                   ReplyPopupConfiguration(
-                                //                 backgroundColor:
-                                //                     theme.replyPopupColor,
-                                //                 buttonTextStyle: TextStyle(
-                                //                     color: theme
-                                //                         .replyPopupButtonColor),
-                                //                 topBorderColor: theme
-                                //                     .replyPopupTopBorderColor,
-                                //               ),
-                                //               reactionPopupConfig:
-                                //                   ReactionPopupConfiguration(
-                                //                 shadow: BoxShadow(
-                                //                   color: isDarkTheme
-                                //                       ? Colors.black54
-                                //                       : Colors.grey.shade400,
-                                //                   blurRadius: 20,
-                                //                 ),
-                                //                 backgroundColor:
-                                //                     theme.reactionPopupColor,
-                                //               ),
-                                //               messageConfig:
-                                //                   MessageConfiguration(
-                                //                 messageReactionConfig:
-                                //                     MessageReactionConfiguration(
-                                //                   backgroundColor: theme
-                                //                       .messageReactionBackGroundColor,
-                                //                   borderColor: theme
-                                //                       .messageReactionBackGroundColor,
-                                //                   reactedUserCountTextStyle:
-                                //                       TextStyle(
-                                //                           color: theme
-                                //                               .inComingChatBubbleTextColor),
-                                //                   reactionCountTextStyle:
-                                //                       TextStyle(
-                                //                           color: theme
-                                //                               .inComingChatBubbleTextColor),
-                                //                   reactionsBottomSheetConfig:
-                                //                       ReactionsBottomSheetConfiguration(
-                                //                     backgroundColor:
-                                //                         theme.backgroundColor,
-                                //                     reactedUserTextStyle:
-                                //                         TextStyle(
-                                //                       color: theme
-                                //                           .inComingChatBubbleTextColor,
-                                //                     ),
-                                //                     reactionWidgetDecoration:
-                                //                         BoxDecoration(
-                                //                       color: theme
-                                //                           .inComingChatBubbleColor,
-                                //                       boxShadow: [
-                                //                         BoxShadow(
-                                //                           color: isDarkTheme
-                                //                               ? Colors.black12
-                                //                               : Colors.grey
-                                //                                   .shade200,
-                                //                           offset:
-                                //                               const Offset(
-                                //                                   0, 20),
-                                //                           blurRadius: 40,
-                                //                         )
-                                //                       ],
-                                //                       borderRadius:
-                                //                           BorderRadius
-                                //                               .circular(10),
-                                //                     ),
-                                //                   ),
-                                //                 ),
-                                //                 imageMessageConfig:
-                                //                     ImageMessageConfiguration(
-                                //                   margin: const EdgeInsets
-                                //                       .symmetric(
-                                //                       horizontal: 12,
-                                //                       vertical: 15),
-                                //                   shareIconConfig:
-                                //                       ShareIconConfiguration(
-                                //                     defaultIconBackgroundColor:
-                                //                         theme
-                                //                             .shareIconBackgroundColor,
-                                //                     defaultIconColor:
-                                //                         theme.shareIconColor,
-                                //                     onPressed: (p0) {},
-                                //                   ),
-                                //                 ),
-                                //               ),
-                                //               // profileCircleConfig: ProfileCircleConfiguration(
-                                //               //   profileImageUrl: fotoUrl,
-                                //               // ),
-                                //               repliedMessageConfig:
-                                //                   RepliedMessageConfiguration(
-                                //                 backgroundColor:
-                                //                     theme.repliedMessageColor,
-                                //                 verticalBarColor:
-                                //                     theme.verticalBarColor,
-                                //                 repliedMsgAutoScrollConfig:
-                                //                     RepliedMsgAutoScrollConfig(
-                                //                   enableHighlightRepliedMsg:
-                                //                       true,
-                                //                   highlightColor: Colors
-                                //                       .pinkAccent.shade100,
-                                //                   highlightScale: 1.1,
-                                //                 ),
-                                //                 textStyle: const TextStyle(
-                                //                   color: Colors.white,
-                                //                   fontWeight: FontWeight.bold,
-                                //                   letterSpacing: 0.25,
-                                //                 ),
-                                //                 replyTitleTextStyle: TextStyle(
-                                //                     color: theme
-                                //                         .repliedTitleTextColor),
-                                //               ),
-                                //               swipeToReplyConfig:
-                                //                   SwipeToReplyConfiguration(
-                                //                 replyIconColor: theme
-                                //                     .swipeToReplyIconColor,
-                                //               ),
-                                //             //),
-                                //           //),
-                                //         //],
-                                //       //),
-                                //     //);
-                                //  // },
-                                // ),
-                                const SizedBox(
-                                  height: 25,
-                                ),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    final sucesso = await relatorioServices
-                                        .enviarRelatorioCliente(
-                                      RelatorioCliente(
-                                        cnpj: missao.cnpj,
-                                        missaoId: widget.missaoId,
-                                        tipo: tipoChecked ? missao.tipo : null,
-                                        nomeDaEmpresa: nomeEmpresaChecked
-                                            ? missao.nomeDaEmpresa
-                                            : null,
-                                        local:
-                                            localChecked ? missao.local : null,
-                                        placaCavalo: placaCavaloChecked
-                                            ? missao.placaCavalo
-                                            : null,
-                                        placaCarreta: placaCarretaChecked
-                                            ? missao.placaCarreta
-                                            : null,
-                                        motorista: motoristaChecked
-                                            ? missao.motorista
-                                            : null,
-                                        corVeiculo: corVeiculoChecked
-                                            ? missao.corVeiculo
-                                            : null,
-                                        observacao: observacaoChecked
-                                            ? missao.observacao
-                                            : null,
-                                        uidOperadorSombra: uid,
-                                        uid: missao.uid,
-                                        inicio: inicioChecked
-                                            ? missao.inicio
-                                            : null,
-                                        fim: fimChecked ? missao.fim : null,
-                                        serverFim: serverFimChecked
-                                            ? missao.serverFim
-                                            : null,
-                                        fotos:
-                                            fotosChecked ? missao.fotos : null,
-                                        fotosPosMissao: fotosPosMissaoChecked
-                                            ? missao.fotosPosMissao
-                                            : null,
-                                        odometroInicial:
-                                            odometroInicialChecked &&
-                                                    state.odometroInicial !=
-                                                        null
-                                                ? state.odometroInicial
-                                                : null,
-                                        odometroFinal: odometroFinalChecked &&
-                                                state.odometroFinal != null
-                                            ? state.odometroFinal
-                                            : null,
-                                        messages: messagesChecked &&
-                                                state.messages != null
-                                            ? state.messages
-                                            : null,
-                                        infos:
-                                            infosChecked ? missao.infos : null,
-                                        infosComplementares:
-                                            infosComplementaresChecked
-                                                ? missao.infosComplementares
-                                                : null,
-                                        distancia: distanciaChecked
-                                            ? state.distancia
-                                            : null,
-                                        distanciaOdometro:
-                                            distanciaOdometroChecked
-                                                ? distanciaOdometro
-                                                : null,
-                                        rota: rotaChecked
-                                            ? state.locations
-                                            : null,
-                                      ),
-                                    );
-                                    if (sucesso.success) {
-                                      if (context.mounted) {
-                                        mensagemDeSucesso.showSuccessSnackbar(
-                                            context,
-                                            'Relatório enviado com sucesso');
-                                      }
-                                    } else {
-                                      if (context.mounted) {
-                                        tratamentoDeErros.showErrorSnackbar(
-                                            context,
-                                            sucesso.message ??
-                                                'Erro ao enviar relatório');
-                                      }
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Enviar para cliente',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 25,
-                            ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ]));
+              );
             }
             if (state is MissionDetailsError) {
               return Center(child: Text('Erro: ${state.message}'));
@@ -2029,12 +2159,12 @@ Widget buildDataItem(
     children: [
       Checkbox(
         //mudar cor da borda
-        activeColor: Colors.white,
+        activeColor: canvasColor,
         //overlayColor: MaterialStateProperty.all(Colors.white),
         //mudar cor da borda
         checkColor: Colors.green,
         //mudar cor de fora
-        side: const BorderSide(color: Colors.white),
+        side: const BorderSide(color: canvasColor),
         value: isChecked,
         onChanged: onChanged,
       ),
@@ -2047,7 +2177,6 @@ Widget buildDataItem(
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
                 ),
               ),
               TextSpan(
@@ -2055,7 +2184,6 @@ Widget buildDataItem(
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.normal,
-                  color: Colors.white,
                 ),
               ),
             ],

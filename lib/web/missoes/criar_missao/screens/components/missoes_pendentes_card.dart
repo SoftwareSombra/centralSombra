@@ -13,17 +13,23 @@ import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc.
 import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
 import '../../../../../widgets_comuns/elevated_button/bloc/elevated_button_bloc_state.dart';
 
-class MissaoPendenteCard extends StatelessWidget {
+class MissaoPendenteCard extends StatefulWidget {
   final MissaoSolicitada missaoSolicitada;
   final BuildContext initialContext;
-  MissaoPendenteCard(
+  const MissaoPendenteCard(
       {super.key,
       required this.missaoSolicitada,
       required this.initialContext});
 
+  @override
+  State<MissaoPendenteCard> createState() => _MissaoPendenteCardState();
+}
+
+class _MissaoPendenteCardState extends State<MissaoPendenteCard> {
   static const canvasColor = Color.fromARGB(255, 0, 15, 42);
   final ChatServices chatServices = ChatServices();
   final MissaoServices missaoServices = MissaoServices();
+  bool dismissible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -34,35 +40,8 @@ class MissaoPendenteCard extends StatelessWidget {
       child: Container(
         height: 310,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              canvasColor.withOpacity(0.3),
-              canvasColor.withOpacity(0.33),
-              canvasColor.withOpacity(0.35),
-              canvasColor.withOpacity(0.38),
-              canvasColor.withOpacity(0.4),
-              canvasColor.withOpacity(0.43),
-              canvasColor.withOpacity(0.45),
-              canvasColor.withOpacity(0.48),
-              canvasColor.withOpacity(0.5),
-              canvasColor.withOpacity(0.53),
-              canvasColor.withOpacity(0.55),
-              canvasColor.withOpacity(0.58),
-            ],
-          ),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.blue.withOpacity(0.1),
-            width: 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: canvasColor.withOpacity(0.1),
-              blurRadius: 10,
-            )
-          ],
           //color: Colors.blue,
         ),
         child: Padding(
@@ -79,7 +58,6 @@ class MissaoPendenteCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
                   //icone de expandir
@@ -97,14 +75,14 @@ class MissaoPendenteCard extends StatelessWidget {
               //   height: 3,
               // ),
               Text(
-                  'Em: ${DateFormat('dd/MM/yyyy').format(missaoSolicitada.timestamp)}'
-                  ' às ${DateFormat('kk:mm').format(missaoSolicitada.timestamp)}h',
+                  'Em: ${DateFormat('dd/MM/yyyy').format(widget.missaoSolicitada.timestamp)}'
+                  ' às ${DateFormat('kk:mm').format(widget.missaoSolicitada.timestamp)}h',
                   style: const TextStyle(
                     fontSize: 11,
                     color: Colors.grey,
                   )),
               Text(
-                'Tipo: ${missaoSolicitada.tipo}',
+                'Tipo: ${widget.missaoSolicitada.tipo}',
                 style: const TextStyle(
                   fontSize: 11,
                   color: Colors.grey,
@@ -114,7 +92,7 @@ class MissaoPendenteCard extends StatelessWidget {
                 height: 10,
               ),
               //texts
-              //Text('Empresa: ${missaoSolicitada.nomeDaEmpresa}'),
+              //Text('Empresa: ${widget.missaoSolicitada.nomeDaEmpresa}'),
               Row(
                 children: [
                   const Icon(
@@ -134,7 +112,7 @@ class MissaoPendenteCard extends StatelessWidget {
                             fontSize: 13, fontWeight: FontWeight.w300),
                       ),
                       Text(
-                        missaoSolicitada.nomeDaEmpresa,
+                        widget.missaoSolicitada.nomeDaEmpresa,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -147,7 +125,7 @@ class MissaoPendenteCard extends StatelessWidget {
               const SizedBox(
                 height: 3,
               ),
-              // Text('Placa cavalo: ${missaoSolicitada.placaCavalo}'),
+              // Text('Placa cavalo: ${widget.missaoSolicitada.placaCavalo}'),
               // const SizedBox(
               //   height: 3,
               // ),
@@ -172,7 +150,7 @@ class MissaoPendenteCard extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.2,
                         child: Text(
-                          missaoSolicitada.local,
+                          widget.missaoSolicitada.local,
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -191,7 +169,7 @@ class MissaoPendenteCard extends StatelessWidget {
                 children: [
                   StreamBuilder(
                     stream: MissaoServices().verificarSeAlgumAgenteAceitou(
-                        missaoSolicitada.missaoId),
+                        widget.missaoSolicitada.missaoId),
                     builder:
                         (BuildContext context, AsyncSnapshot<bool> snapshot) {
                       return Stack(
@@ -204,7 +182,10 @@ class MissaoPendenteCard extends StatelessWidget {
                             onPressed: () {
                               mostrarListaAgentes(context, width);
                             },
-                            icon: const Icon(Icons.person_outlined),
+                            icon: const Icon(
+                              Icons.person_outlined,
+                              color: Colors.white,
+                            ),
                           ),
                           snapshot.data != null
                               ? snapshot.data!
@@ -243,23 +224,26 @@ class MissaoPendenteCard extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => MapAddMissao(
-                            cnpj: missaoSolicitada.cnpj,
-                            nomeDaEmpresa: missaoSolicitada.nomeDaEmpresa,
-                            placaCavalo: missaoSolicitada.placaCavalo,
-                            placaCarreta: missaoSolicitada.placaCarreta,
-                            motorista: missaoSolicitada.motorista,
-                            corVeiculo: missaoSolicitada.corVeiculo,
-                            observacao: missaoSolicitada.observacao,
-                            latitude: missaoSolicitada.latitude,
-                            longitude: missaoSolicitada.longitude,
-                            local: missaoSolicitada.local,
-                            tipo: missaoSolicitada.tipo,
-                            missaoId: missaoSolicitada.missaoId,
+                            cnpj: widget.missaoSolicitada.cnpj,
+                            nomeDaEmpresa: widget.missaoSolicitada.nomeDaEmpresa,
+                            placaCavalo: widget.missaoSolicitada.placaCavalo,
+                            placaCarreta: widget.missaoSolicitada.placaCarreta,
+                            motorista: widget.missaoSolicitada.motorista,
+                            corVeiculo: widget.missaoSolicitada.corVeiculo,
+                            observacao: widget.missaoSolicitada.observacao,
+                            latitude: widget.missaoSolicitada.latitude,
+                            longitude: widget.missaoSolicitada.longitude,
+                            local: widget.missaoSolicitada.local,
+                            tipo: widget.missaoSolicitada.tipo,
+                            missaoId: widget.missaoSolicitada.missaoId,
                           ),
                         ),
                       );
                     },
-                    icon: const Icon(Icons.add_outlined),
+                    icon: const Icon(
+                      Icons.add_outlined,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(
                     width: 20,
@@ -299,15 +283,16 @@ class MissaoPendenteCard extends StatelessWidget {
                                           try {
                                             await missaoServices
                                                 .rejeitarSolicitacaoPendente(
-                                                    missaoSolicitada.missaoId,
-                                                    missaoSolicitada.cnpj,
-                                                    missaoSolicitada.local,
-                                                    missaoSolicitada.timestamp);
+                                                    widget.missaoSolicitada.missaoId,
+                                                    widget.missaoSolicitada.cnpj,
+                                                    widget.missaoSolicitada.local,
+                                                    widget.missaoSolicitada.timestamp);
                                             context
                                                 .read<ElevatedButtonBloc>()
                                                 .add(ElevatedButtonReset());
                                             BlocProvider.of<
-                                                    MissoesPendentesBloc>(context)
+                                                        MissoesPendentesBloc>(
+                                                    context)
                                                 .add(BuscarMissoesPendentes());
                                             Navigator.of(context).pop();
                                           } catch (e) {
@@ -340,7 +325,10 @@ class MissaoPendenteCard extends StatelessWidget {
                         },
                       );
                     },
-                    icon: const Icon(Icons.delete_outlined),
+                    icon: const Icon(
+                      Icons.delete_outlined,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(
                     width: 20,
@@ -349,29 +337,29 @@ class MissaoPendenteCard extends StatelessWidget {
                     children: [
                       IconButton(
                         style: const ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Colors.white),
+                          backgroundColor: WidgetStatePropertyAll(canvasColor),
                         ),
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => ClienteMissaoChatScreen(
-                                missaoId: missaoSolicitada.missaoId,
-                                agenteUid: missaoSolicitada.uid,
-                                agenteNome: missaoSolicitada.nomeDaEmpresa,
+                                missaoId: widget.missaoSolicitada.missaoId,
+                                agenteUid: widget.missaoSolicitada.uid,
+                                agenteNome: widget.missaoSolicitada.nomeDaEmpresa,
                               ),
                             ),
                           );
                         },
                         icon: const Icon(
                           Icons.message_outlined,
-                          color: Colors.blue,
+                          color: Colors.white,
                         ),
                       ),
                       StreamBuilder<int>(
                         stream: chatServices
                             .getCentralMissionClientConversationsUnreadCount(
-                                missaoSolicitada.missaoId),
+                                widget.missaoSolicitada.missaoId),
                         builder: (BuildContext context,
                             AsyncSnapshot<int> snapshot) {
                           if (snapshot.hasData && snapshot.data! > 0) {
@@ -441,23 +429,24 @@ class MissaoPendenteCard extends StatelessWidget {
 
   void mostrarListaAgentes(BuildContext context, double width) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox.shrink(),
-              const Text('AGENTES DISPONÍVEIS'),
-              IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close))
+              //const SizedBox.shrink(),
+              Text('AGENTES DISPONÍVEIS', style: TextStyle(fontSize: 16),),
+              // IconButton(
+              //     onPressed: () => Navigator.of(context).pop(),
+              //     icon: const Icon(Icons.close))
             ],
           ),
           content: SizedBox(
             width: width * 0.5,
             child: ListaAgentesModal(
-              missaoSolicitada: missaoSolicitada,
+              missaoSolicitada: widget.missaoSolicitada,
             ),
           ),
           actions: const [

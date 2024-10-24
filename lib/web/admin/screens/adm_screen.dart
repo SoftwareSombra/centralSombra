@@ -91,6 +91,8 @@ class AdmButtonCard extends StatelessWidget {
       required this.destination,
       this.descricao = ''});
 
+  final Color canvasColor = const Color.fromARGB(255, 3, 9, 18);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -107,7 +109,7 @@ class AdmButtonCard extends StatelessWidget {
             width: 300,
             height: 65,
             decoration: BoxDecoration(
-              color: Colors.blue.withAlpha(30),
+              color: canvasColor.withOpacity(0.4),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Padding(

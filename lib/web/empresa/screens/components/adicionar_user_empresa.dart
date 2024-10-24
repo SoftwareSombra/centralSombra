@@ -58,7 +58,7 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Checkbox(
-                  activeColor: Colors.transparent,
+                  //activeColor: Colors.transparent,
                   checkColor: Colors.green,
                   value: administradorIsChecked,
                   onChanged: (bool? value) {
@@ -70,10 +70,11 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                 ),
                 const Text(
                   'Administrador',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  //style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 const SizedBox(width: 10),
                 Checkbox(
+                  checkColor: Colors.green,
                   value: operadorIsChecked,
                   onChanged: (bool? value) {
                     setState(() {
@@ -84,7 +85,7 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                 ),
                 const Text(
                   'Operador',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  //style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ],
             ),
@@ -121,9 +122,9 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                     ),
                   ),
                   controller: nome,
-                  onChanged: (value) {
-                    // Update the button state
-                  },
+                  // onChanged: (value) {
+                  //   // Update the button state
+                  // },
                 ),
               ),
             ),
@@ -223,7 +224,7 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                   },
                   child: const Text(
                     'Adicionar',
-                    style: TextStyle(color: Colors.white),
+                    //style: TextStyle(color: Colors.white),
                   ),
                 );
               }

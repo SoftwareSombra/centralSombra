@@ -182,9 +182,9 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
     //     TextEditingController(text: widget.empresa.endereco);
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text(
           'DETALHES DA EMPRESA',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
@@ -531,7 +531,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                                 hoverColor: Colors.grey,
                                 labelText: 'Representante legal',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -543,7 +543,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -580,7 +580,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                                 hoverColor: Colors.grey,
                                 labelText: 'CPF do representante legal',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -592,7 +592,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -631,7 +631,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                                 hoverColor: Colors.grey,
                                 labelText: 'Telefone',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -643,7 +643,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -680,7 +680,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                                 hoverColor: Colors.grey,
                                 labelText: 'Email',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -692,7 +692,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -841,18 +841,18 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                           hoverColor: readOnly ? Colors.grey : Colors.white,
                           labelText: 'Endereço',
                           labelStyle: TextStyle(
-                            color: readOnly ? Colors.grey : Colors.white,
+                            color: readOnly ? Colors.grey : Colors.black,
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: readOnly ? Colors.grey : Colors.white,
+                              color: readOnly ? Colors.grey : Colors.black,
                             ),
                           ),
                         ),
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w300,
-                          color: readOnly ? Colors.grey : Colors.white,
+                          color: readOnly ? Colors.grey : Colors.black,
                         ),
                       ),
                     ),
@@ -866,7 +866,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                               children: [
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black,
+                                      //backgroundColor: Colors.black,
                                       shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.zero)),
                                   child: const Row(
@@ -892,7 +892,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black,
+                                      //backgroundColor: Colors.black,
                                       shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.zero)),
                                   child: const Row(
@@ -933,7 +933,7 @@ class _EmpresaDetailsState extends State<EmpresaDetails> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
           title: const Text('Confirmação'),
           content: const Text('Deseja realmente excluir esta empresa?'),
           actions: <Widget>[

@@ -30,26 +30,34 @@ import 'reaction_popup.dart';
 import 'reply_popup_widget.dart';
 
 class ChatListWidget extends StatefulWidget {
-  const ChatListWidget({
-    super.key,
-    required this.chatController,
-    required this.chatBackgroundConfig,
-    required this.showTypingIndicator,
-    required this.assignReplyMessage,
-    required this.replyMessage,
-    this.loadingWidget,
-    this.reactionPopupConfig,
-    this.messageConfig,
-    this.chatBubbleConfig,
-    this.profileCircleConfig,
-    this.swipeToReplyConfig,
-    this.repliedMessageConfig,
-    this.typeIndicatorConfig,
-    this.replyPopupConfig,
-    this.loadMoreData,
-    this.isLastPage,
-    this.onChatListTap,
-  });
+  const ChatListWidget(
+      {super.key,
+      required this.chatController,
+      required this.chatBackgroundConfig,
+      required this.showTypingIndicator,
+      required this.assignReplyMessage,
+      required this.replyMessage,
+      this.loadingWidget,
+      this.reactionPopupConfig,
+      this.messageConfig,
+      this.chatBubbleConfig,
+      this.profileCircleConfig,
+      this.swipeToReplyConfig,
+      this.repliedMessageConfig,
+      this.typeIndicatorConfig,
+      this.replyPopupConfig,
+      this.loadMoreData,
+      this.isLastPage,
+      this.onChatListTap,
+      this.compartilhavel,
+      this.infoAdicional,
+      this.infoAdicional2});
+
+  final String? infoAdicional;
+
+  final String? infoAdicional2;
+
+  final bool? compartilhavel;
 
   /// Provides controller for accessing few function for running chat.
   final ChatController chatController;
@@ -186,6 +194,9 @@ class _ChatListWidgetState extends State<ChatListWidget>
               return Stack(
                 children: [
                   ChatGroupedListWidget(
+                    compartilhavel: widget.compartilhavel,
+                    infoAdicional: widget.infoAdicional,
+                    infoAdicional2: widget.infoAdicional2,
                     showPopUp: showPopupValue,
                     showTypingIndicator: showTypingIndicator,
                     scrollController: scrollController,

@@ -36,7 +36,6 @@ class _MissionDetailsDialogState extends State<MissionDetailsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.black,
       title: const Text('DETALHES'),
       content: SingleChildScrollView(
         child: Column(

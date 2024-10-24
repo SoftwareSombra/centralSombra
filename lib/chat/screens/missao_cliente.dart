@@ -130,15 +130,9 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
   Widget build(BuildContext context) {
     resetUnreadCount();
     return Scaffold(
-      //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-      // appBar: AppBar(
-      //   title: const Text('Chat'),
-      //   centerTitle: true,
-      // ),
       body: Center(
         child: Container(
-          color: const Color.fromARGB(255, 0, 20, 50),
+          //color: const Color.fromARGB(255, 0, 20, 50),
           constraints: BoxConstraints(
             maxWidth: 800,
             maxHeight: MediaQuery.of(context).size.height,
@@ -167,13 +161,11 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
             appBar: ChatViewAppBar(
               padding: const EdgeInsets.only(top: 15, bottom: 10),
               elevation: theme.elevation,
-              //backGroundColor: const Color.fromARGB(255, 14, 14, 14),
-              backGroundColor: const Color.fromARGB(255, 0, 6, 15),
               profilePicture: fotoUrl,
-              backArrowColor: theme.backArrowColor,
-              chatTitle: 'Cliente',
-              chatTitleTextStyle: TextStyle(
-                color: theme.appBarTitleTextStyle,
+              backArrowColor: canvasColor,
+              chatTitle: widget.agenteNome ?? 'Cliente',
+              chatTitleTextStyle: const TextStyle(
+                color: canvasColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 letterSpacing: 0.25,
@@ -189,8 +181,6 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
                   fontSize: 17,
                 ),
               ),
-              //backgroundColor: const Color.fromARGB(255, 14, 14, 14),
-              backgroundColor: const Color.fromARGB(255, 0, 6, 15),
             ),
             sendMessageConfig: SendMessageConfiguration(
               imagePickerIconsConfig: ImagePickerIconsConfiguration(
@@ -198,10 +188,10 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
                 galleryIconColor: theme.galleryIconColor,
               ),
               replyMessageColor: theme.replyMessageColor,
-              defaultSendButtonColor: theme.sendButtonColor,
+              defaultSendButtonColor: Colors.blue,
               replyDialogColor: theme.replyDialogColor,
               replyTitleColor: theme.replyTitleColor,
-              textFieldBackgroundColor: theme.textFieldBackgroundColor,
+              textFieldBackgroundColor: canvasColor.withAlpha(15),
               closeIconColor: theme.closeIconColor,
               textFieldConfig: TextFieldConfiguration(
                 onMessageTyping: (status) {
@@ -209,7 +199,7 @@ class _ClienteMissaoChatScreenState extends State<ClienteMissaoChatScreen> {
                   debugPrint(status.toString());
                 },
                 compositionThresholdTime: const Duration(seconds: 1),
-                textStyle: TextStyle(color: theme.textFieldTextColor),
+                textStyle: const TextStyle(color: Colors.black),
               ),
               micIconColor: theme.replyMicIconColor,
               voiceRecordingConfiguration: VoiceRecordingConfiguration(

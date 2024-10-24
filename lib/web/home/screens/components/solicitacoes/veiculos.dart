@@ -20,7 +20,7 @@ class VeiculoListDialog extends StatelessWidget {
         }
         if (state is VeiculoSolicitacaoNotFound) {
           return AlertDialog(
-            backgroundColor: bgColor,
+            backgroundColor: Colors.grey[300],
             title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,7 +44,7 @@ class VeiculoListDialog extends StatelessWidget {
             itemCount: state.veiculo.length,
             itemBuilder: (context, index) {
               return AlertDialog(
-                backgroundColor: bgColor,
+                backgroundColor: Colors.grey[300],
                 title: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -123,7 +123,7 @@ class CadastroVeiculoList extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              backgroundColor: bgColor,
+              backgroundColor: Colors.grey[300],
               title: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -377,7 +377,7 @@ class _VeiculoCardState extends State<VeiculoCard> {
                   },
                   child: const Text(
                     'Aprovar',
-                    style: TextStyle(color: Colors.white),
+                    //style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],

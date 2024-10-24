@@ -37,9 +37,9 @@ class _AddCargosState extends State<AddCargos> {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text('Adicionar cargos'),
         centerTitle: true,
       ),
@@ -274,7 +274,7 @@ class _AddCargosState extends State<AddCargos> {
             ? Text(
                 campo,
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white),
+                    fontWeight: FontWeight.bold),
               )
             : const SizedBox.shrink(),
         TextFormField(
@@ -301,7 +301,6 @@ class _AddCargosState extends State<AddCargos> {
 
   Widget buildElevatedButton({required VoidCallback onPressed}) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
       onPressed: isLoading! ? null : onPressed,
       child: isLoading! ? const Text('...') : const Text('Adicionar'),
     );

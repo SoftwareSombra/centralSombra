@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 import '../../../../../chat/screens/cliente_chat_screen.dart';
 import '../../../../../chat/services/chat_services.dart';
-import '../../../../admin/agentes/model/agente_model.dart';
 import '../../../../empresa/model/empresa_model.dart';
 import '../../../../empresa/services/empresa_services.dart';
 
@@ -34,9 +33,9 @@ class _ClienteChatListState extends State<ClienteChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Colors.grey[400],
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.black.withOpacity(0.4),
+          backgroundColor: Colors.black.withOpacity(0.6),
           child: const Icon(
             Icons.add,
             color: Colors.white,
@@ -86,6 +85,7 @@ class _ClienteChatListState extends State<ClienteChatList> {
                     final nome = empresas[cnpj] ?? 'Carregando...';
 
                     return Card(
+                      color: Colors.grey[200],
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero,
                       ),

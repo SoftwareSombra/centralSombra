@@ -122,7 +122,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       email = widget.user.email;
     }
 
-    if (celularController != null) {
+    debugPrint('celularController: ${celularController!.text}');
+
+    if (celularController!.text != '') {
       String celularSemParenteses =
           celularController!.text.replaceAll(RegExp(r'[()-\s+]'), '').trim();
       //double celular = double.parse(celularSemParenteses);
@@ -136,6 +138,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     } else {
       celular = null;
     }
+
+    debugPrint('uid: ${widget.user.uid}');
+    debugPrint('nome: ${nome}');
+    debugPrint('email: ${email}');
+    debugPrint('celular: ${celular}');
 
     bool success = await adminServices.updateUserData(
       widget.user.uid,
@@ -198,7 +205,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
           title: const Text('Confirmação'),
           content: const Text('Deseja realmente excluir este usuário?'),
           actions: <Widget>[
@@ -233,8 +240,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       context: context,
                                       builder: (context) {
                                         return AlertDialog(
-                                          backgroundColor: const Color.fromARGB(
-                                              255, 3, 9, 18),
+                                          // backgroundColor: const Color.fromARGB(
+                                          //     255, 3, 9, 18),
                                           title: const Text('Erro'),
                                           content: const Text(
                                               'Erro ao excluir usuário, tente novamente.'),
@@ -274,7 +281,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -313,7 +320,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -377,7 +384,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+                        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
                         title: const Text('Confirmação'),
                         content: const Text('Deseja adicionar o cargo?'),
                         actions: [
@@ -408,8 +415,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      backgroundColor:
-                                          const Color.fromARGB(255, 3, 9, 18),
+                                      // backgroundColor:
+                                      //     const Color.fromARGB(255, 3, 9, 18),
                                       title: const Text('Sucesso'),
                                       content: const Text(
                                           'Cargo adicionado com sucesso'),
@@ -437,8 +444,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      backgroundColor:
-                                          const Color.fromARGB(255, 3, 9, 18),
+                                      // backgroundColor:
+                                      //     const Color.fromARGB(255, 3, 9, 18),
                                       title: const Text('Erro'),
                                       content: const Text(
                                           'Erro ao adicionar cargo, tente novamente'),
@@ -464,7 +471,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+                    //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
                     title: const Text('Erro'),
                     content: const Text('Selecione um cargo'),
                     actions: [
@@ -491,7 +498,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -501,7 +508,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.close),
-                color: Colors.white,
+                //color: Colors.white,
               ),
             ],
           ),
@@ -540,9 +547,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text(
           'DETALHES DO USUÁRIO',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
@@ -685,7 +692,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           children: [
                                             Icon(
                                               Icons.key,
-                                              color: Colors.white,
+                                              color: Colors.yellow,
                                               size: 15,
                                             ),
                                             SizedBox(
@@ -919,18 +926,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             hoverColor: readOnly ? Colors.grey : Colors.white,
                             labelText: 'Nome',
                             labelStyle: TextStyle(
-                              color: readOnly ? Colors.grey : Colors.white,
+                              color: readOnly ? Colors.grey : Colors.black,
                             ),
                             border: OutlineInputBorder(
                               borderSide: BorderSide(
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w300,
-                            color: readOnly ? Colors.grey : Colors.white,
+                            color: readOnly ? Colors.grey : Colors.black,
                           ),
                         )
                       : null),
@@ -971,7 +978,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     readOnly ? Colors.grey : Colors.white,
                                 labelText: 'Email',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -983,7 +990,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -1071,7 +1078,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     readOnly ? Colors.grey : Colors.white,
                                 labelText: 'Celular',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -1083,7 +1090,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),

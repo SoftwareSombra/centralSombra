@@ -47,11 +47,7 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-        //title: const Text('Solicitações de Missão'),
-      ),
+      appBar: AppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -180,7 +176,7 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                           height: 50,
                         ),
                         Card(
-                          color: Colors.black,
+                          //color: Colors.black,
                           elevation: 1,
                           margin: EdgeInsets.all(8.0),
                           child: Padding(
@@ -289,7 +285,6 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                     return Center(
                         child: Text(
                       'Erro: ${state.error}',
-                      style: const TextStyle(color: Colors.white),
                     ));
                   }
                   return const Center(
@@ -299,7 +294,6 @@ class _MissoesPendentesScreenState extends State<MissoesPendentesScreen> {
                         children: [
                           Text(
                             'Algum erro ocorrreu, reinicie a página.',
-                            style: TextStyle(color: Colors.white),
                           ),
                           SizedBox(
                             height: 20,

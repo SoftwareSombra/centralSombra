@@ -162,9 +162,9 @@ class _AppChatListState extends State<AppChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Colors.grey[500],
       floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.black.withOpacity(0.4),
+          backgroundColor: Colors.black.withOpacity(0.6),
           child: const Icon(
             Icons.add,
             color: Colors.white,
@@ -213,6 +213,7 @@ class _AppChatListState extends State<AppChatList> {
                         userNames[uid] ?? 'Carregando...'; // Use o nome do mapa
 
                     return Card(
+                      color: Colors.grey[200],
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero,
                       ),

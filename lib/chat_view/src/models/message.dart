@@ -38,6 +38,7 @@ class Message {
 
   /// Provides message created date time.
   final DateTime createdAt;
+  final FieldValue? optionalCreatedAt;
 
   /// Provides id of sender of message.
   final String sendBy;
@@ -65,6 +66,7 @@ class Message {
     this.id = '',
     required this.message,
     required this.createdAt,
+    this.optionalCreatedAt,
     required this.sendBy,
     this.replyMessage = const ReplyMessage(),
     Reaction? reaction,
@@ -132,7 +134,7 @@ class Message {
   Map<String, dynamic> paraJson() => {
         'id': id,
         'message': message,
-        'createdAt': createdAt,
+        'createdAt': optionalCreatedAt ?? createdAt,
         'sendBy': sendBy,
         'reply_message': replyMessage.toJson(),
         'reaction': reaction.toJson(),

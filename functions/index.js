@@ -25,18 +25,18 @@ const { ptBR } = require('date-fns/locale');
 // const CustomClaimsRepository = require('./autenticacao/administrador/custom_claims_repository');
 // const CustomClaimsServices = require('./autenticacao/administrador/custom_claims_services');
 // const CustomClaimsController = require('./autenticacao/administrador/custom_claims_controller');
-// const CadastroRepository = require('./autenticacao/cadastro/cadastro_repository');
-// const CadastroService = require('./autenticacao/cadastro/cadastro_services');
-// const CadastroController = require('./autenticacao/cadastro/cadastro_controller');
+const CadastroRepository = require('./autenticacao/cadastro/cadastro_repository');
+const CadastroService = require('./autenticacao/cadastro/cadastro_services');
+const CadastroController = require('./autenticacao/cadastro/cadastro_controller');
 // // const UserRepository = require('./user/user_repository');
 // // const UserService = require('./user/user_services');
 // // const UserController = require('./user/user_controller');
 
 
 
-// const cadastroRepository = new CadastroRepository(admin.auth(), admin.firestore(), admin.storage());
-// const cadastroService = new CadastroService(cadastroRepository);
-// const cadastroControllerInstance = new CadastroController(cadastroService);
+const cadastroRepository = new CadastroRepository(admin.auth(), admin.firestore(), admin.storage());
+const cadastroService = new CadastroService(cadastroRepository);
+const cadastroControllerInstance = new CadastroController(cadastroService);
 
 // //const userRepository = new UserRepository(admin.auth(), admin.firestore(), admin.storage());
 // //const userService = new UserService(userRepository);
@@ -46,7 +46,7 @@ const { ptBR } = require('date-fns/locale');
 // const customClaimsService = new CustomClaimsServices(customClaimsRepository);
 // const customClaimsControllerInstance = new CustomClaimsController(customClaimsService);
 
-// const exportedFunctions = {
+const exportedFunctions = {
 //   setDevClaim: customClaimsControllerInstance.setDev,
 //   setAdmin: customClaimsControllerInstance.setAdmin,
 //   setGestor: customClaimsControllerInstance.setGestor,
@@ -63,12 +63,13 @@ const { ptBR } = require('date-fns/locale');
 //   deleteAllUsers: customClaimsControllerInstance.deleteAllUsers,
 //   deleteAllUsers2: customClaimsControllerInstance.deleteAllUsers2,
 //   cadastro: cadastroControllerInstance.registerUser,
+updateUserName2: cadastroControllerInstance.updateUserName
 //   // getUserName: userControllerInstance.getName,
 //   // getUserPhoto: userControllerInstance.getPhoto,
 //   // addUserInfos: userControllerInstance.addUserInfos,
-// };
+ };
 
-// module.exports = exportedFunctions;
+module.exports = exportedFunctions;
 
 
 // exports.getDirections = functions.https.onRequest((request, response) => {
@@ -460,115 +461,115 @@ const { ptBR } = require('date-fns/locale');
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-exports.getDistance = functions.https.onRequest((request, response) => {
-    cors(request, response, async () => {
-        if (request.method !== 'POST') {
-            return response.status(500).json({ error: "Método não permitido" });
-        }
-        const { origins, destinations } = request.body;
+// exports.getDistance = functions.https.onRequest((request, response) => {
+//     cors(request, response, async () => {
+//         if (request.method !== 'POST') {
+//             return response.status(500).json({ error: "Método não permitido" });
+//         }
+//         const { origins, destinations } = request.body;
 
-        const googleMapsUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${encodeURIComponent(origins)}&destinations=${encodeURIComponent(destinations)}&key=AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU`;
+//         const googleMapsUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${encodeURIComponent(origins)}&destinations=${encodeURIComponent(destinations)}&key=AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU`;
 
-        try {
-            const apiResponse = await fetch(googleMapsUrl);
-            const data = await apiResponse.json();
-            console.log(data);
-            response.json(data);
-        } catch (err) {
-            console.log(err);
-            response.status(500).send(err);
-        }
+//         try {
+//             const apiResponse = await fetch(googleMapsUrl);
+//             const data = await apiResponse.json();
+//             console.log(data);
+//             response.json(data);
+//         } catch (err) {
+//             console.log(err);
+//             response.status(500).send(err);
+//         }
 
-    }
-    );
-});
+//     }
+//     );
+// });
 
 
-exports.getDistancesBetweenCoordinates = functions.runWith({
-    timeoutSeconds: 300,  // Define o tempo limite para 300 segundos (5 minutos)
-    memory: '1GB'         // Define a alocação de memória para 1GB
-}).https.onRequest((req, res) => {
-    cors(req, res, async () => {
-        const coordinates = req.body.coordinates;
+// exports.getDistancesBetweenCoordinates = functions.runWith({
+//     timeoutSeconds: 300,  // Define o tempo limite para 300 segundos (5 minutos)
+//     memory: '1GB'         // Define a alocação de memória para 1GB
+// }).https.onRequest((req, res) => {
+//     cors(req, res, async () => {
+//         const coordinates = req.body.coordinates;
 
-        if (!coordinates || coordinates.length < 2) {
-            return res.status(400).send('É necessário fornecer pelo menos dois pares de coordenadas.');
-        }
+//         if (!coordinates || coordinates.length < 2) {
+//             return res.status(400).send('É necessário fornecer pelo menos dois pares de coordenadas.');
+//         }
 
-        const apiKey = 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU';
-        const url = 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix';
+//         const apiKey = 'AIzaSyDMX3eGdpKR2-9owNLETbE490WcoSkURAU';
+//         const url = 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix';
 
-        let results = [];
+//         let results = [];
 
-        // Processa cada par de coordenadas consecutivas como um único par origin-destination
-        for (let i = 0; i < coordinates.length - 1; i++) {
-            const origins = [{
-                "waypoint": {
-                    "location": {
-                        "latLng": {
-                            "latitude": coordinates[i].latitude,
-                            "longitude": coordinates[i].longitude
-                        }
-                    }
-                }
-            }];
+//         // Processa cada par de coordenadas consecutivas como um único par origin-destination
+//         for (let i = 0; i < coordinates.length - 1; i++) {
+//             const origins = [{
+//                 "waypoint": {
+//                     "location": {
+//                         "latLng": {
+//                             "latitude": coordinates[i].latitude,
+//                             "longitude": coordinates[i].longitude
+//                         }
+//                     }
+//                 }
+//             }];
 
-            const destinations = [{
-                "waypoint": {
-                    "location": {
-                        "latLng": {
-                            "latitude": coordinates[i + 1].latitude,
-                            "longitude": coordinates[i + 1].longitude
-                        }
-                    }
-                }
-            }];
+//             const destinations = [{
+//                 "waypoint": {
+//                     "location": {
+//                         "latLng": {
+//                             "latitude": coordinates[i + 1].latitude,
+//                             "longitude": coordinates[i + 1].longitude
+//                         }
+//                     }
+//                 }
+//             }];
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        origins,
-                        destinations,
-                        travelMode: 'DRIVE',
-                        routingPreference: 'TRAFFIC_AWARE'
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Goog-Api-Key': apiKey,
-                        'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters'
-                    }
-                });
+//             try {
+//                 const response = await fetch(url, {
+//                     method: 'POST',
+//                     body: JSON.stringify({
+//                         origins,
+//                         destinations,
+//                         travelMode: 'DRIVE',
+//                         routingPreference: 'TRAFFIC_AWARE'
+//                     }),
+//                     headers: {
+//                         'Content-Type': 'application/json',
+//                         'X-Goog-Api-Key': apiKey,
+//                         'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters'
+//                     }
+//                 });
 
-                if (!response.ok) {
-                    console.error(`Erro ao chamar a API: ${response.status}, ${response.statusText}`);
-                    continue; // Skip to next iteration on error
-                }
+//                 if (!response.ok) {
+//                     console.error(`Erro ao chamar a API: ${response.status}, ${response.statusText}`);
+//                     continue; // Skip to next iteration on error
+//                 }
 
-                const data = await response.json();
-                console.log(data);
-                //console.log(data[0]);
+//                 const data = await response.json();
+//                 console.log(data);
+//                 //console.log(data[0]);
 
-                if (data) {
-                    //const element = data.rows[0].elements[0];
-                    results.push({
-                        from: coordinates[i],
-                        to: coordinates[i + 1],
-                        distanceMeters: data[0].distanceMeters,
-                        duration: data[0].duration
-                    });
-                } else {
-                    console.log('No valid elements found in the response:', data);
-                }
-            } catch (error) {
-                console.error('Error fetching distance matrix:', error);
-                return res.status(500).send('Erro ao obter dados da API');
-            }
-        }
+//                 if (data) {
+//                     //const element = data.rows[0].elements[0];
+//                     results.push({
+//                         from: coordinates[i],
+//                         to: coordinates[i + 1],
+//                         distanceMeters: data[0].distanceMeters,
+//                         duration: data[0].duration
+//                     });
+//                 } else {
+//                     console.log('No valid elements found in the response:', data);
+//                 }
+//             } catch (error) {
+//                 console.error('Error fetching distance matrix:', error);
+//                 return res.status(500).send('Erro ao obter dados da API');
+//             }
+//         }
 
-        res.status(200).send(results);
-    });
-});
+//         res.status(200).send(results);
+//     });
+// });
 
 
 
@@ -682,145 +683,145 @@ exports.getDistancesBetweenCoordinates = functions.runWith({
 // });
 
 
-exports.addFotoRelatorio3 = functions.https.onRequest(async (request, response) => {
-    try {
-        //log('request.body.missaoId', request.body.missaoId);
-        const buffer = Buffer.from(request.body.image, 'base64');
-        const now = new Date();
-        const token = `${request.body.missaoId}${now}`
+// exports.addFotoRelatorio3 = functions.https.onRequest(async (request, response) => {
+//     try {
+//         //log('request.body.missaoId', request.body.missaoId);
+//         const buffer = Buffer.from(request.body.image, 'base64');
+//         const now = new Date();
+//         const token = `${request.body.missaoId}${now}`
 
-        const file = storage.bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
+//         const file = storage.bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
 
-        await file.save(buffer, {
-            contentType: 'image/jpg',
-            metadata: {
-                firebaseStorageDownloadTokens: token
-            }
-        });
+//         await file.save(buffer, {
+//             contentType: 'image/jpg',
+//             metadata: {
+//                 firebaseStorageDownloadTokens: token
+//             }
+//         });
 
-        //log imprimindo fileSabe
-        //console.log(fileSave);
+//         //log imprimindo fileSabe
+//         //console.log(fileSave);
 
-        const fileRef = getStorage().bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
-        const downloadURL = await getDownloadURL(fileRef);
+//         const fileRef = getStorage().bucket().file(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`);
+//         const downloadURL = await getDownloadURL(fileRef);
 
-        console.log(` =================${downloadURL}`);
+//         console.log(` =================${downloadURL}`);
 
-        //const bucketName = storage.bucket().name;
-        //const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`)}?alt=media&token=${token}`;
-        let fotoComLegenda = [
-            {
-                url: downloadURL,
-                caption: request.body.caption,
-                timestamp: new Date(),
-            }
-        ];
+//         //const bucketName = storage.bucket().name;
+//         //const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(`FotosDeMissao/${request.body.missaoId}/${now}.jpg`)}?alt=media&token=${token}`;
+//         let fotoComLegenda = [
+//             {
+//                 url: downloadURL,
+//                 caption: request.body.caption,
+//                 timestamp: new Date(),
+//             }
+//         ];
 
-        const fotosRelatorioRef = db.collection('Fotos relatório').doc(request.body.uid);
-        await fotosRelatorioRef.set({ sinc: 'sinc' }, { merge: true });
+//         const fotosRelatorioRef = db.collection('Fotos relatório').doc(request.body.uid);
+//         await fotosRelatorioRef.set({ sinc: 'sinc' }, { merge: true });
 
-        const fotosRelatorioOdometroRef = db.collection('Fotos relatório')
-            .doc(request.body.uid)
-            .collection('Missões')
-            .doc(request.body.missaoId);
+//         const fotosRelatorioOdometroRef = db.collection('Fotos relatório')
+//             .doc(request.body.uid)
+//             .collection('Missões')
+//             .doc(request.body.missaoId);
 
-        await fotosRelatorioOdometroRef.set({ sinc: 'sinc' }, { merge: true });
+//         await fotosRelatorioOdometroRef.set({ sinc: 'sinc' }, { merge: true });
 
-        const missaoRef = request.body.odometroInicial == true
-            ? fotosRelatorioRef.collection('Missões').doc(request.body.missaoId).collection('Odometro').doc('odometroInicial')
-            : request.body.odometroFinal == true ? fotosRelatorioRef.collection('Missões').doc(request.body.missaoId).collection('Odometro').doc('odometroFinal')
-                : fotosRelatorioRef.collection('Missões').doc(request.body.missaoId);
+//         const missaoRef = request.body.odometroInicial == true
+//             ? fotosRelatorioRef.collection('Missões').doc(request.body.missaoId).collection('Odometro').doc('odometroInicial')
+//             : request.body.odometroFinal == true ? fotosRelatorioRef.collection('Missões').doc(request.body.missaoId).collection('Odometro').doc('odometroFinal')
+//                 : fotosRelatorioRef.collection('Missões').doc(request.body.missaoId);
 
 
-        await missaoRef.set({
-            fotos: admin.firestore.FieldValue.arrayUnion(...fotoComLegenda),
-            notificacaoCentral: true
-        }, { merge: true });
+//         await missaoRef.set({
+//             fotos: admin.firestore.FieldValue.arrayUnion(...fotoComLegenda),
+//             notificacaoCentral: true
+//         }, { merge: true });
 
-        response.status(200).send(`Documento adicionado com sucesso`);
-    } catch (error) {
-        // let errorCode = 'unknown-error';
-        // let errorMessage = 'Um erro desconhecido ocorreu.';
+//         response.status(200).send(`Documento adicionado com sucesso`);
+//     } catch (error) {
+//         // let errorCode = 'unknown-error';
+//         // let errorMessage = 'Um erro desconhecido ocorreu.';
 
-        switch (error.code) {
-            case 'unknown':
-                errorCode = 'unknown';
-                errorMessage = 'Ocorreu um erro desconhecido.';
-                break;
-            case 'object-not-found':
-                errorCode = 'not-found';
-                errorMessage = 'Nenhum objeto na referência desejada.';
-                break;
-            case 'bucket-not-found':
-                errorCode = 'bucket-not-found';
-                errorMessage = 'Nenhum bucket configurado para o Cloud Storage.';
-                break;
-            case 'project-not-found':
-                errorCode = 'project-not-found';
-                errorMessage = 'Nenhum projeto configurado para o Cloud Storage.';
-                break;
-            case 'quota-exceeded':
-                errorCode = 'quota-exceeded';
-                errorMessage = 'A cota do bucket do Cloud Storage foi excedida.';
-                break;
-            case 'unauthenticated':
-                errorCode = 'unauthenticated';
-                errorMessage = 'O usuário não está autenticado.';
-                break;
-            case 'unauthorized':
-                errorCode = 'unauthorized';
-                errorMessage = 'O usuário não está autorizado a executar a ação desejada.';
-                break;
-            case 'retry-limit-exceeded':
-                errorCode = 'retry-limit-exceeded';
-                errorMessage = 'O limite máximo de tempo em uma operação foi excedido.';
-                break;
-            case 'invalid-checksum':
-                errorCode = 'invalid-checksum';
-                errorMessage = 'O arquivo no cliente não corresponde à soma de verificação do arquivo recebido pelo servidor.';
-                break;
-            case 'canceled':
-                errorCode = 'canceled';
-                errorMessage = 'O usuário cancelou a operação.';
-                break;
-            case 'invalid-event-name':
-                errorCode = 'invalid-event-name';
-                errorMessage = 'Nome inválido do evento fornecido.';
-                break;
-            case 'invalid-url':
-                errorCode = 'invalid-url';
-                errorMessage = 'URL inválido fornecido.';
-                break;
-            case 'invalid-argument':
-                errorCode = 'invalid-argument';
-                errorMessage = 'Argumento inválido transmitido.';
-                break;
-            case 'no-default-bucket':
-                errorCode = 'no-default-bucket';
-                errorMessage = 'Nenhum bucket foi definido na propriedade storageBucket da configuração.';
-                break;
-            case 'cannot-slice-blob':
-                errorCode = 'cannot-slice-blob';
-                errorMessage = 'O arquivo local foi alterado. Tente fazer o upload novamente.';
-                break;
-            case 'server-file-wrong-size':
-                errorCode = 'server-file-wrong-size';
-                errorMessage = 'O arquivo no cliente não corresponde ao tamanho do arquivo recebido pelo servidor.';
-                break;
-            default:
-                errorCode = error.code;
-                errorMessage = error.message;
-        }
+//         switch (error.code) {
+//             case 'unknown':
+//                 errorCode = 'unknown';
+//                 errorMessage = 'Ocorreu um erro desconhecido.';
+//                 break;
+//             case 'object-not-found':
+//                 errorCode = 'not-found';
+//                 errorMessage = 'Nenhum objeto na referência desejada.';
+//                 break;
+//             case 'bucket-not-found':
+//                 errorCode = 'bucket-not-found';
+//                 errorMessage = 'Nenhum bucket configurado para o Cloud Storage.';
+//                 break;
+//             case 'project-not-found':
+//                 errorCode = 'project-not-found';
+//                 errorMessage = 'Nenhum projeto configurado para o Cloud Storage.';
+//                 break;
+//             case 'quota-exceeded':
+//                 errorCode = 'quota-exceeded';
+//                 errorMessage = 'A cota do bucket do Cloud Storage foi excedida.';
+//                 break;
+//             case 'unauthenticated':
+//                 errorCode = 'unauthenticated';
+//                 errorMessage = 'O usuário não está autenticado.';
+//                 break;
+//             case 'unauthorized':
+//                 errorCode = 'unauthorized';
+//                 errorMessage = 'O usuário não está autorizado a executar a ação desejada.';
+//                 break;
+//             case 'retry-limit-exceeded':
+//                 errorCode = 'retry-limit-exceeded';
+//                 errorMessage = 'O limite máximo de tempo em uma operação foi excedido.';
+//                 break;
+//             case 'invalid-checksum':
+//                 errorCode = 'invalid-checksum';
+//                 errorMessage = 'O arquivo no cliente não corresponde à soma de verificação do arquivo recebido pelo servidor.';
+//                 break;
+//             case 'canceled':
+//                 errorCode = 'canceled';
+//                 errorMessage = 'O usuário cancelou a operação.';
+//                 break;
+//             case 'invalid-event-name':
+//                 errorCode = 'invalid-event-name';
+//                 errorMessage = 'Nome inválido do evento fornecido.';
+//                 break;
+//             case 'invalid-url':
+//                 errorCode = 'invalid-url';
+//                 errorMessage = 'URL inválido fornecido.';
+//                 break;
+//             case 'invalid-argument':
+//                 errorCode = 'invalid-argument';
+//                 errorMessage = 'Argumento inválido transmitido.';
+//                 break;
+//             case 'no-default-bucket':
+//                 errorCode = 'no-default-bucket';
+//                 errorMessage = 'Nenhum bucket foi definido na propriedade storageBucket da configuração.';
+//                 break;
+//             case 'cannot-slice-blob':
+//                 errorCode = 'cannot-slice-blob';
+//                 errorMessage = 'O arquivo local foi alterado. Tente fazer o upload novamente.';
+//                 break;
+//             case 'server-file-wrong-size':
+//                 errorCode = 'server-file-wrong-size';
+//                 errorMessage = 'O arquivo no cliente não corresponde ao tamanho do arquivo recebido pelo servidor.';
+//                 break;
+//             default:
+//                 errorCode = error.code;
+//                 errorMessage = error.message;
+//         }
 
-        //log de erro
-        //console.error(error);
+//         //log de erro
+//         //console.error(error);
 
-        //retonar bucketName caso ele exista 
+//         //retonar bucketName caso ele exista 
 
-        // 
-        response.status(500).send(`Erro ao adicionar documento`);
-    }
-});
+//         // 
+//         response.status(500).send(`Erro ao adicionar documento`);
+//     }
+// });
 
 // exports.addFinalLocation = functions.https.onRequest(async (request, response) => {
 //     try {
@@ -845,182 +846,182 @@ exports.addFotoRelatorio3 = functions.https.onRequest(async (request, response) 
 //     }
 // });
 
-exports.finalizarMissao = functions.https.onRequest(async (request, response) => {
-    // const requiredFields = [
-    //     'userUid', 'cnpj', 'missaoID', 'nomeDaEmpresa', 'placaCavalo',
-    //     'placaCarreta', 'motorista', 'corVeiculo', 'observacao', 'tipo',
-    //     'userLatitude', 'userLongitude', 'userFinalLatitude', 'userFinalLongitude',
-    //     'missaoLatitude', 'missaoLongitude', 'finalizadaPor'
-    // ];
+// exports.finalizarMissao = functions.https.onRequest(async (request, response) => {
+//     // const requiredFields = [
+//     //     'userUid', 'cnpj', 'missaoID', 'nomeDaEmpresa', 'placaCavalo',
+//     //     'placaCarreta', 'motorista', 'corVeiculo', 'observacao', 'tipo',
+//     //     'userLatitude', 'userLongitude', 'userFinalLatitude', 'userFinalLongitude',
+//     //     'missaoLatitude', 'missaoLongitude', 'finalizadaPor'
+//     // ];
 
-    // for (const field of requiredFields) {
-    //     if (!request.body[field]) {
-    //         return response.status(400).send(`Parâmetro ausente: ${field}`);
-    //     }
-    // }
+//     // for (const field of requiredFields) {
+//     //     if (!request.body[field]) {
+//     //         return response.status(400).send(`Parâmetro ausente: ${field}`);
+//     //     }
+//     // }
 
-    try {
-        const MissoesAceitasRef = db.collection('Missões aceitas').doc(request.body.userUid);
-        const MissoesAceitas = await MissoesAceitasRef.get();
-        if (MissoesAceitas.exists) {
-            await MissoesAceitasRef.delete();
-        }
+//     try {
+//         const MissoesAceitasRef = db.collection('Missões aceitas').doc(request.body.userUid);
+//         const MissoesAceitas = await MissoesAceitasRef.get();
+//         if (MissoesAceitas.exists) {
+//             await MissoesAceitasRef.delete();
+//         }
 
-        const missaoEmpresaRef = db.collection('Empresa').doc(request.body.cnpj).collection('Missões ativas').doc(request.body.missaoID);
-        const missaoEmpresa = await missaoEmpresaRef.get();
-        if (missaoEmpresa.exists) {
-            await missaoEmpresaRef.delete();
-        }
+//         const missaoEmpresaRef = db.collection('Empresa').doc(request.body.cnpj).collection('Missões ativas').doc(request.body.missaoID);
+//         const missaoEmpresa = await missaoEmpresaRef.get();
+//         if (missaoEmpresa.exists) {
+//             await missaoEmpresaRef.delete();
+//         }
 
-        const missaoIniciadaRef = db.collection('Missão iniciada').doc(request.body.userUid);
-        const missaoIniciada = await missaoIniciadaRef.get();
-        if (missaoIniciada.exists) {
-            await missaoIniciadaRef.delete();
-        }
+//         const missaoIniciadaRef = db.collection('Missão iniciada').doc(request.body.userUid);
+//         const missaoIniciada = await missaoIniciadaRef.get();
+//         if (missaoIniciada.exists) {
+//             await missaoIniciadaRef.delete();
+//         }
 
-        const missaoRef = db.collection('Missões concluídas').doc(request.body.userUid).collection('Missão').doc(request.body.missaoID);
+//         const missaoRef = db.collection('Missões concluídas').doc(request.body.userUid).collection('Missão').doc(request.body.missaoID);
 
-        let fim;
-        if (request.body.fim) {
-            fim = new Date(request.body.fim);
-            if (isNaN(fim)) {
-                throw new Error('Data inválida');
-            }
-        } else {
-            fim = new Date();
-        }
+//         let fim;
+//         if (request.body.fim) {
+//             fim = new Date(request.body.fim);
+//             if (isNaN(fim)) {
+//                 throw new Error('Data inválida');
+//             }
+//         } else {
+//             fim = new Date();
+//         }
 
-        await missaoRef.set({
-            cnpj: request.body.cnpj,
-            'nome da empresa': request.body.nomeDaEmpresa,
-            placaCavalo: request.body.placaCavalo,
-            placaCarreta: request.body.placaCarreta,
-            motorista: request.body.motorista,
-            corVeiculo: request.body.corVeiculo,
-            observacao: request.body.observacao,
-            'tipo de missao': request.body.tipo,
-            missaoID: request.body.missaoID,
-            userUid: request.body.userUid,
-            userLatitude: Number(request.body.userLatitude),
-            userLongitude: Number(request.body.userLongitude),
-            userFinalLatitude: Number(request.body.userFinalLatitude),
-            userFinalLongitude: Number(request.body.userFinalLongitude),
-            missaoLatitude: Number(request.body.missaoLatitude),
-            missaoLongitude: Number(request.body.missaoLongitude),
-            'fim': fim,
-            relatorio: true,
-            finalizadaPor: request.body.finalizadaPor
-        });
+//         await missaoRef.set({
+//             cnpj: request.body.cnpj,
+//             'nome da empresa': request.body.nomeDaEmpresa,
+//             placaCavalo: request.body.placaCavalo,
+//             placaCarreta: request.body.placaCarreta,
+//             motorista: request.body.motorista,
+//             corVeiculo: request.body.corVeiculo,
+//             observacao: request.body.observacao,
+//             'tipo de missao': request.body.tipo,
+//             missaoID: request.body.missaoID,
+//             userUid: request.body.userUid,
+//             userLatitude: Number(request.body.userLatitude),
+//             userLongitude: Number(request.body.userLongitude),
+//             userFinalLatitude: Number(request.body.userFinalLatitude),
+//             userFinalLongitude: Number(request.body.userFinalLongitude),
+//             missaoLatitude: Number(request.body.missaoLatitude),
+//             missaoLongitude: Number(request.body.missaoLongitude),
+//             'fim': fim,
+//             relatorio: true,
+//             finalizadaPor: request.body.finalizadaPor
+//         });
 
-        response.status(200).send(`Documento adicionado com sucesso`);
-    } catch (error) {
-        console.log(`Erro ao adicionar documento: ${error}`);
-        response.status(500).send(`Erro ao adicionar documento: ${error}, --- ${request.body.userUid}, ${request.body.missaoID}, ${request.body.cnpj}, ${request.body.nomeDaEmpresa}, ${request.body.placaCavalo}, ${request.body.placaCarreta}, ${request.body.motorista}, ${request.body.corVeiculo}, ${request.body.observacao}, ${request.body.tipo}, ${request.body.userLatitude}, ${request.body.userLongitude}, ${request.body.userFinalLatitude}, ${request.body.userFinalLongitude}, ${request.body.missaoLatitude}, ${request.body.missaoLongitude}`);
-    }
-});
+//         response.status(200).send(`Documento adicionado com sucesso`);
+//     } catch (error) {
+//         console.log(`Erro ao adicionar documento: ${error}`);
+//         response.status(500).send(`Erro ao adicionar documento: ${error}, --- ${request.body.userUid}, ${request.body.missaoID}, ${request.body.cnpj}, ${request.body.nomeDaEmpresa}, ${request.body.placaCavalo}, ${request.body.placaCarreta}, ${request.body.motorista}, ${request.body.corVeiculo}, ${request.body.observacao}, ${request.body.tipo}, ${request.body.userLatitude}, ${request.body.userLongitude}, ${request.body.userFinalLatitude}, ${request.body.userFinalLongitude}, ${request.body.missaoLatitude}, ${request.body.missaoLongitude}`);
+//     }
+// });
 
 
-exports.addRelatorioMissao = functions.https.onRequest((request, response) => {
-    cors(request, response, async () => {
-        console.log('inciando funcao addRelatorioMissao');
-        console.log(request.body);
-        try {
-            let doc = await db.collection('Fotos relatório').doc(request.body.uid).collection('Missões').doc(request.body.missaoId).get();
-            let missaoIniciadaRef = db.collection('Missões').doc(request.body.missaoId);
-            let missaoIniciada = await missaoIniciadaRef.get();
-            let fim;
-            if (request.body.fim) {
-                dateString = request.body.fim;
-                const [datePart, timePart] = dateString.split(' ');
-                const [day, month, year] = datePart.split('/');
-                const [hour, minute, second] = timePart.split(':');
+// exports.addRelatorioMissao = functions.https.onRequest((request, response) => {
+//     cors(request, response, async () => {
+//         console.log('inciando funcao addRelatorioMissao');
+//         console.log(request.body);
+//         try {
+//             let doc = await db.collection('Fotos relatório').doc(request.body.uid).collection('Missões').doc(request.body.missaoId).get();
+//             let missaoIniciadaRef = db.collection('Missões').doc(request.body.missaoId);
+//             let missaoIniciada = await missaoIniciadaRef.get();
+//             let fim;
+//             if (request.body.fim) {
+//                 dateString = request.body.fim;
+//                 const [datePart, timePart] = dateString.split(' ');
+//                 const [day, month, year] = datePart.split('/');
+//                 const [hour, minute, second] = timePart.split(':');
 
-                // Criar um objeto Date com os valores extraídos
-                fim = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}.000-03:00`);
+//                 // Criar um objeto Date com os valores extraídos
+//                 fim = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}.000-03:00`);
 
-                if (isNaN(fim)) {
-                    console.log(`Erro ao adicionar documento, data inválida`);
-                    response.status(500).send(`Erro ao adicionar documento, data inválida`);
-                }
-            } else {
-                fim = new Date();
-            }
-            let inicio;
-            if (missaoIniciada.exists) {
-                inicio = missaoIniciada.data().timestamp;
-            }
-            let data = {
-                'cnpj': request.body.cnpj,
-                'nome da empresa': request.body.nomeDaEmpresa,
-                'placaCavalo': request.body.placaCavalo ?? null,
-                'placaCarreta': request.body.placaCarreta ?? null,
-                'motorista': request.body.motorista ?? null,
-                'corVeiculo': request.body.corVeiculo ?? null,
-                'observacao': request.body.observacao ?? null,
-                'uid': request.body.uid,
-                'missaoId': request.body.missaoId,
-                'nome': request.body.nome,
-                'tipo': request.body.tipo,
-                'infos': request.body.infos,
-                'userInitialLatitude': Number(request.body.userInitialLatitude),
-                'userInitialLongitude': Number(request.body.userInitialLongitude),
-                'userFinalLatitude': Number(request.body.userFinalLatitude),
-                'userFinalLongitude': Number(request.body.userFinalLongitude),
-                'missaoLatitude': Number(request.body.missaoLatitude),
-                'missaoLongitude': Number(request.body.missaoLongitude),
-                'local': request.body.local,
-                'inicio': inicio ?? null,
-                'fim': fim,
-                'serverFim': new Date(),
-                'finalizadaPor': request.body.finalizadaPor
-            }
+//                 if (isNaN(fim)) {
+//                     console.log(`Erro ao adicionar documento, data inválida`);
+//                     response.status(500).send(`Erro ao adicionar documento, data inválida`);
+//                 }
+//             } else {
+//                 fim = new Date();
+//             }
+//             let inicio;
+//             if (missaoIniciada.exists) {
+//                 inicio = missaoIniciada.data().timestamp;
+//             }
+//             let data = {
+//                 'cnpj': request.body.cnpj,
+//                 'nome da empresa': request.body.nomeDaEmpresa,
+//                 'placaCavalo': request.body.placaCavalo ?? null,
+//                 'placaCarreta': request.body.placaCarreta ?? null,
+//                 'motorista': request.body.motorista ?? null,
+//                 'corVeiculo': request.body.corVeiculo ?? null,
+//                 'observacao': request.body.observacao ?? null,
+//                 'uid': request.body.uid,
+//                 'missaoId': request.body.missaoId,
+//                 'nome': request.body.nome,
+//                 'tipo': request.body.tipo,
+//                 'infos': request.body.infos,
+//                 'userInitialLatitude': Number(request.body.userInitialLatitude),
+//                 'userInitialLongitude': Number(request.body.userInitialLongitude),
+//                 'userFinalLatitude': Number(request.body.userFinalLatitude),
+//                 'userFinalLongitude': Number(request.body.userFinalLongitude),
+//                 'missaoLatitude': Number(request.body.missaoLatitude),
+//                 'missaoLongitude': Number(request.body.missaoLongitude),
+//                 'local': request.body.local,
+//                 'inicio': inicio ?? null,
+//                 'fim': fim,
+//                 'serverFim': new Date(),
+//                 'finalizadaPor': request.body.finalizadaPor
+//             }
 
-            if (doc.exists && doc.data().fotos) {
-                let fotos = doc.data().fotos;
-                data = {
-                    'cnpj': request.body.cnpj,
-                    'nome da empresa': request.body.nomeDaEmpresa,
-                    'placaCavalo': request.body.placaCavalo ?? null,
-                    'placaCarreta': request.body.placaCarreta ?? null,
-                    'motorista': request.body.motorista ?? null,
-                    'corVeiculo': request.body.corVeiculo ?? null,
-                    'observacao': request.body.observacao ?? null,
-                    'uid': request.body.uid,
-                    'missaoId': request.body.missaoId,
-                    'nome': request.body.nome,
-                    'tipo': request.body.tipo,
-                    'infos': request.body.infos,
-                    'userInitialLatitude': Number(request.body.userInitialLatitude),
-                    'userInitialLongitude': Number(request.body.userInitialLongitude),
-                    'userFinalLatitude': Number(request.body.userFinalLatitude),
-                    'userFinalLongitude': Number(request.body.userFinalLongitude),
-                    'missaoLatitude': Number(request.body.missaoLatitude),
-                    'missaoLongitude': Number(request.body.missaoLongitude),
-                    'local': request.body.local,
-                    'inicio': inicio ?? null,
-                    'fim': fim,
-                    'serverFim': new Date(),
-                    'fotos': fotos,
-                    'finalizadaPor': request.body.finalizadaPor
-                }
-            }
-            await db.collection('Relatórios').doc(request.body.uid).set({
-                sinc: 'sinc'
-            });
-            await db.collection('Relatórios').doc(request.body.uid).collection('Missões').doc(request.body.missaoId).set(data);
-            const fotosRelatorioRef = db.collection('Fotos relatório').doc(request.body.uid);
-            const fotosRelatorio = await fotosRelatorioRef.get();
-            if (fotosRelatorio.exists) {
-                await fotosRelatorioRef.delete();
-            }
+//             if (doc.exists && doc.data().fotos) {
+//                 let fotos = doc.data().fotos;
+//                 data = {
+//                     'cnpj': request.body.cnpj,
+//                     'nome da empresa': request.body.nomeDaEmpresa,
+//                     'placaCavalo': request.body.placaCavalo ?? null,
+//                     'placaCarreta': request.body.placaCarreta ?? null,
+//                     'motorista': request.body.motorista ?? null,
+//                     'corVeiculo': request.body.corVeiculo ?? null,
+//                     'observacao': request.body.observacao ?? null,
+//                     'uid': request.body.uid,
+//                     'missaoId': request.body.missaoId,
+//                     'nome': request.body.nome,
+//                     'tipo': request.body.tipo,
+//                     'infos': request.body.infos,
+//                     'userInitialLatitude': Number(request.body.userInitialLatitude),
+//                     'userInitialLongitude': Number(request.body.userInitialLongitude),
+//                     'userFinalLatitude': Number(request.body.userFinalLatitude),
+//                     'userFinalLongitude': Number(request.body.userFinalLongitude),
+//                     'missaoLatitude': Number(request.body.missaoLatitude),
+//                     'missaoLongitude': Number(request.body.missaoLongitude),
+//                     'local': request.body.local,
+//                     'inicio': inicio ?? null,
+//                     'fim': fim,
+//                     'serverFim': new Date(),
+//                     'fotos': fotos,
+//                     'finalizadaPor': request.body.finalizadaPor
+//                 }
+//             }
+//             await db.collection('Relatórios').doc(request.body.uid).set({
+//                 sinc: 'sinc'
+//             });
+//             await db.collection('Relatórios').doc(request.body.uid).collection('Missões').doc(request.body.missaoId).set(data);
+//             const fotosRelatorioRef = db.collection('Fotos relatório').doc(request.body.uid);
+//             const fotosRelatorio = await fotosRelatorioRef.get();
+//             if (fotosRelatorio.exists) {
+//                 await fotosRelatorioRef.delete();
+//             }
 
-            response.status(200).send(`Documento adicionado com sucesso`);
-        } catch (error) {
-            console.log(`Erro ao adicionar documento ${error}`)
-            response.status(500).send(`Erro ao adicionar documento ${error}`);
-        }
-    });
-});
+//             response.status(200).send(`Documento adicionado com sucesso`);
+//         } catch (error) {
+//             console.log(`Erro ao adicionar documento ${error}`)
+//             response.status(500).send(`Erro ao adicionar documento ${error}`);
+//         }
+//     });
+// });
 // exports.incrementoRelatorioMissao2 = functions.https.onRequest(async (request, response) => {
 //     const { uid, missaoId, fotosPosMissao, infos } = request.body;
 
@@ -1157,7 +1158,7 @@ exports.addRelatorioMissao = functions.https.onRequest((request, response) => {
 //     cors(request, response, async () => {
 //         try {
 //             const uid = request.body.uid;
-//             const updates = {};
+//             let updates = {};
 
 //             if (request.body.email) {
 //                 updates.email = request.body.email;

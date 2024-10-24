@@ -51,9 +51,9 @@ class _AgentesListState extends State<AgentesList> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       ),
       body: SingleChildScrollView(
         child: BlocBuilder<AgentesListBloc, AgentesListState>(
@@ -126,25 +126,25 @@ class _AgentesListState extends State<AgentesList> {
                       ),
                     ],
                   ),
-                  Container(
-                    color: const Color.fromARGB(255, 3, 9, 18),
+                  SizedBox(
+                    //color: const Color.fromARGB(255, 3, 9, 18),
                     width: width * 0.99,
                     child: agentesFiltrados.isNotEmpty
-                        ? PaginatedDataTable2(
-                            colors: [
-                              canvasColor.withOpacity(0.3),
-                              canvasColor.withOpacity(0.33),
-                              canvasColor.withOpacity(0.35),
-                              canvasColor.withOpacity(0.38),
-                              canvasColor.withOpacity(0.4),
-                              canvasColor.withOpacity(0.43),
-                              canvasColor.withOpacity(0.45),
-                              canvasColor.withOpacity(0.48),
-                              canvasColor.withOpacity(0.5),
-                              canvasColor.withOpacity(0.53),
-                              canvasColor.withOpacity(0.55),
-                              canvasColor.withOpacity(0.58),
-                            ],
+                        ? PaginatedDataTable(
+                            // colors: [
+                            //   canvasColor.withOpacity(0.3),
+                            //   canvasColor.withOpacity(0.33),
+                            //   canvasColor.withOpacity(0.35),
+                            //   canvasColor.withOpacity(0.38),
+                            //   canvasColor.withOpacity(0.4),
+                            //   canvasColor.withOpacity(0.43),
+                            //   canvasColor.withOpacity(0.45),
+                            //   canvasColor.withOpacity(0.48),
+                            //   canvasColor.withOpacity(0.5),
+                            //   canvasColor.withOpacity(0.53),
+                            //   canvasColor.withOpacity(0.55),
+                            //   canvasColor.withOpacity(0.58),
+                            // ],
                             columns: columns,
                             source: EmpresaDataSource(
                               agentes: agentesFiltrados,
@@ -197,6 +197,8 @@ class EmpresaDataSource extends DataTableSource {
   BuildContext context;
   EmpresaDataSource({required this.agentes, required this.context});
 
+  Color canvasColor = const Color.fromARGB(255, 3, 9, 18);
+
   @override
   DataRow? getRow(int index) {
     assert(index >= 0);
@@ -207,8 +209,8 @@ class EmpresaDataSource extends DataTableSource {
 
     return DataRow.byIndex(
       index: index,
-      color: const MaterialStatePropertyAll(
-        Color.fromARGB(255, 3, 9, 18),
+      color: WidgetStatePropertyAll(
+        canvasColor.withAlpha(15),
       ),
       cells: [
         DataCell(

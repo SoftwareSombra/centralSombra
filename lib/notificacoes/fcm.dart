@@ -156,7 +156,8 @@ class FirebaseMessagingService {
   }
 
   Future<void> sendNotification(
-      String token, String title, String body, String? rota) async {
+      String token, String title, String body, String? rota,
+      {data}) async {
     const postUrl =
         "https://southamerica-east1-primeval-rune-309222.cloudfunctions.net/sendNotification";
 
@@ -169,6 +170,7 @@ class FirebaseMessagingService {
           'body': body,
           'title': title,
           'token': token,
+          if (data != null) 'data': data,
         },
       );
 

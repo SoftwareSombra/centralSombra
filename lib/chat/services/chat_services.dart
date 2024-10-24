@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -313,6 +314,14 @@ class ChatServices {
     });
   }
 
+    void playAudio() async {
+    await AudioPlayer().play(
+      volume: 1,
+      UrlSource(
+          'https://firebasestorage.googleapis.com/v0/b/sombratestes.appspot.com/o/notification-message-incoming.mp3?alt=media&token=f99b5f13-6f86-4c82-b397-58bd95dc3a1a'),
+    );
+  }
+
   //   void notificacaoChat(messageStreamController, uid) {
   //   FirebaseFirestore.instance.collection('Chat').doc(uid).snapshots().listen(
   //     (snapshot) {
@@ -551,5 +560,31 @@ class ChatServices {
         .collection('tokens')
         .doc(uid)
         .set({'FCM Token': token});
+  }
+
+  Future<void> compartilharAudio(
+      String missaoId, String cnpj, String audioUrl) async {
+    await firestore
+        .collection('Chat missão cliente')
+        .doc(missaoId)
+        .collection('Mensagens')
+        .doc()
+        .set(
+          Message(
+                  message: audioUrl,
+                  messageType: MessageType.voice,
+                  createdAt: DateTime.now(),
+                  optionalCreatedAt: FieldValue.serverTimestamp(),
+                  sendBy: 'Atendente',
+                  id: DateTime.timestamp().microsecondsSinceEpoch.toString(),
+                  autor: 'Atendente')
+              .paraJson(),
+        );
+    await firestore.collection('Chat missão cliente').doc(missaoId).set(
+      {
+        'userUnreadCount': FieldValue.increment(1),
+        'lastMessageTimestamp': FieldValue.serverTimestamp()
+      },
+    );
   }
 }

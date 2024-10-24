@@ -28,6 +28,7 @@ final NotificacoesAdmServices notificacoesAdmServices =
 TextEditingController? notTituloController;
 TextEditingController? notConteudoController;
 TextEditingController? avisoTituloController;
+const canvasColor = Color.fromARGB(255, 0, 15, 42);
 
 class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
   @override
@@ -244,9 +245,9 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text(
           '',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
@@ -260,18 +261,18 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
               padding: EdgeInsets.symmetric(horizontal: width * 0.08),
               child: ExpansionTile(
                 //collapsedBackgroundColor: canvasColor.withOpacity(0.3),
-                collapsedBackgroundColor: const Color.fromARGB(255, 6, 17, 34),
+                collapsedBackgroundColor: Colors.white,
                 initiallyExpanded: false,
                 //borda
                 // collapsedShape: RoundedRectangleBorder(
                 //   borderRadius: BorderRadius.circular(20),
                 // ),
                 //cor do icone
-                collapsedIconColor: Colors.grey[200],
+                collapsedIconColor: canvasColor,
                 //cor do texto
-                collapsedTextColor: Colors.grey[200],
+                collapsedTextColor: canvasColor,
                 //backgroundColor: canvasColor.withOpacity(0.4),
-                backgroundColor: const Color.fromARGB(255, 6, 17, 34),
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -486,19 +487,13 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.08),
               child: ExpansionTile(
-                //collapsedBackgroundColor: canvasColor.withOpacity(0.3),
-                collapsedBackgroundColor: const Color.fromARGB(255, 6, 17, 34),
+                collapsedBackgroundColor: Colors.white,
                 initiallyExpanded: false,
-                //borda
-                // collapsedShape: RoundedRectangleBorder(
-                //   borderRadius: BorderRadius.circular(20),
-                // ),
                 //cor do icone
-                collapsedIconColor: Colors.grey[200],
+                collapsedIconColor: canvasColor,
                 //cor do texto
-                collapsedTextColor: Colors.grey[200],
-                //backgroundColor: canvasColor.withOpacity(0.4),
-                backgroundColor: const Color.fromARGB(255, 6, 17, 34),
+                collapsedTextColor: canvasColor,
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -651,19 +646,17 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.08),
               child: ExpansionTile(
-                //collapsedBackgroundColor: canvasColor.withOpacity(0.3),
-                collapsedBackgroundColor: const Color.fromARGB(255, 6, 17, 34),
+                collapsedBackgroundColor: Colors.white,
                 initiallyExpanded: false,
                 //borda
                 // collapsedShape: RoundedRectangleBorder(
                 //   borderRadius: BorderRadius.circular(20),
                 // ),
                 //cor do icone
-                collapsedIconColor: Colors.grey[200],
+                collapsedIconColor: canvasColor,
                 //cor do texto
-                collapsedTextColor: Colors.grey[200],
-                //backgroundColor: canvasColor.withOpacity(0.4),
-                backgroundColor: const Color.fromARGB(255, 6, 17, 34),
+                collapsedTextColor: canvasColor,
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -729,8 +722,8 @@ class _NotificacoesAdmScreenState extends State<NotificacoesAdmScreen> {
                                           cursor: MaterialStateMouseCursor
                                               .clickable,
                                           child: Card(
-                                            color: const Color.fromARGB(
-                                                255, 3, 9, 18),
+                                            // color: const Color.fromARGB(
+                                            //     255, 3, 9, 18),
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.all(20.0),

@@ -141,9 +141,9 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text(
           'DETALHES DO AGENTE',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
@@ -448,19 +448,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                 hoverColor: Colors.grey,
                                 labelText: 'RG',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                               ),
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -500,19 +499,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                 hoverColor: Colors.grey,
                                 labelText: 'CPF',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                 color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                               ),
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -555,19 +553,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                 hoverColor: Colors.grey,
                                 labelText: 'Celular',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                   color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                               ),
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             ),
                           ),
@@ -634,19 +631,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                     readOnly ? Colors.grey : Colors.white,
                                 labelText: 'Endereço',
                                 labelStyle: TextStyle(
-                                  color: readOnly ? Colors.grey : Colors.white,
+                                  color: readOnly ? Colors.grey : Colors.black,
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                               ),
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w300,
-                                color: readOnly ? Colors.grey : Colors.white,
+                                color: readOnly ? Colors.grey : Colors.black,
                               ),
                             )
                           : Column(
@@ -668,22 +664,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'Logradouro',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+                                        color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(
@@ -706,22 +698,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'Número',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                   color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(
@@ -744,22 +732,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'Bairro',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+                                        color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(
@@ -782,22 +766,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'Complemento',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+                                        color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(
@@ -820,22 +800,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'Cidade',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+                                        color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(
@@ -858,22 +834,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'CEP',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+                                        color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                                 const SizedBox(
@@ -891,22 +863,18 @@ class _AgenteDetailsScreenState extends State<AgenteDetailsScreen> {
                                         readOnly ? Colors.grey : Colors.white,
                                     labelText: 'Estado',
                                     labelStyle: TextStyle(
-                                      color:
-                                          readOnly ? Colors.grey : Colors.white,
+                                      color: readOnly ? Colors.grey : Colors.black,
                                     ),
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                        color: readOnly
-                                            ? Colors.grey
-                                            : Colors.white,
+                                        color: readOnly ? Colors.grey : Colors.black,
                                       ),
                                     ),
                                   ),
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w300,
-                                    color:
-                                        readOnly ? Colors.grey : Colors.white,
+                                    color: readOnly ? Colors.grey : Colors.black,
                                   ),
                                 ),
                               ],

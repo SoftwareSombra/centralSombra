@@ -24,7 +24,7 @@ class CadastroListDialog extends StatelessWidget {
         }
         if (state is AgenteSolicitacaoNotFound) {
           return AlertDialog(
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.grey[300],
             title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,7 +46,7 @@ class CadastroListDialog extends StatelessWidget {
         if (state is AgenteSolicitacaoLoaded) {
           // Exibe um único AlertDialog com uma lista de todos os agentes
           return AlertDialog(
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.grey[300],
             title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -122,7 +122,6 @@ class CadastroAgenteList extends StatelessWidget {
           context: context,
           builder: (context) {
             return AlertDialog(
-              backgroundColor: Colors.black,
               title: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -314,7 +313,8 @@ class _AgenteCardState extends State<AgenteCard> {
         debugPrint('FCM Token: $token');
         try {
           await firebaseMessagingService.sendNotification(
-              token, 'Cadastro', 'Cadastro atualizado', 'cadastro');
+              token, 'Cadastro', 'Cadastro atualizado', null,
+              data: {'tipo': 'cadastro'});
           debugPrint('Notificação enviada');
         } catch (e) {
           debugPrint('Erro ao enviar notificação: $e');

@@ -50,6 +50,23 @@ class CadastroService {
       }
     }
   }
+
+  async updateUserName(request, response) {
+    try {
+      if (!request.body.uid || !request.body.nome) {
+        return response.status(400).send('Um ou mais campos são inválidos');
+      }
+      await this.cadastroRepository.updateName(request.body.uid, request.body.nome);
+      return response.status(200).send('Nome de usuário alterado com sucesso!');
+    } catch (error) {
+      console.log(error);
+      if (error instanceof HttpsError) {
+        return response.status(error.code).send(error.message);
+      } else {
+        return response.status(500).send('Erro desconhecido');
+      }
+    }
+  }
 }
 
 module.exports = CadastroService;

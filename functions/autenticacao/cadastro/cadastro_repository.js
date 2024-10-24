@@ -1,3 +1,4 @@
+const { HttpsError } = require('firebase-functions').https;
 
 class CadastroRepository {
   constructor(auth, firestore, storage) {
@@ -6,14 +7,25 @@ class CadastroRepository {
     this.storage = storage;
   }
 
-  async createUser({ name, email, password, photoURL }) {
+  async createUser({ displayName, email, password, photoURL }) {
     const userRecord = await this.auth.createUser({
       email,
       password,
-      displayName: name,
+      displayName,
       photoURL
     });
     return userRecord.uid;
+  }
+
+  async updateName(uid, nome) {
+    if (nome == null || uid == null) {
+      throw new HttpsError('invalid-argument', 'Nome e UID não podem ser nulos.');
+    }
+    await this.auth.updateUser(uid, { displayName: nome });
+    await this.firestore.collection('User Name').doc(uid).set({
+      'Nome': nome,
+      'UID': uid
+    });
   }
 
   async deleteUser(uid) {

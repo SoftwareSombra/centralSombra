@@ -87,7 +87,7 @@ class _FormAddUserState extends State<FormAddUser> {
                   _updateButtonState();
                 },
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
+                //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira seu nome.';
@@ -119,7 +119,7 @@ class _FormAddUserState extends State<FormAddUser> {
                   _updateButtonState();
                 },
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
+                //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira seu email.';

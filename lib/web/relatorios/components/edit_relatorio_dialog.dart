@@ -96,7 +96,10 @@ class _EditRelatorioDialogState extends State<EditRelatorioDialog> {
       title: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('EDITAR CAMPOS'),
+          Text(
+            'EDITAR CAMPOS',
+            style: TextStyle(color: Colors.white),
+          ),
         ],
       ),
       content: Container(

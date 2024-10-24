@@ -41,24 +41,32 @@ import 'chat_view_inherited_widget.dart';
 import 'type_indicator_widget.dart';
 
 class ChatGroupedListWidget extends StatefulWidget {
-  const ChatGroupedListWidget({
-    super.key,
-    required this.showPopUp,
-    required this.showTypingIndicator,
-    required this.scrollController,
-    required this.chatBackgroundConfig,
-    required this.replyMessage,
-    required this.assignReplyMessage,
-    required this.onChatListTap,
-    required this.onChatBubbleLongPress,
-    required this.isEnableSwipeToSeeTime,
-    this.messageConfig,
-    this.chatBubbleConfig,
-    this.profileCircleConfig,
-    this.swipeToReplyConfig,
-    this.repliedMessageConfig,
-    this.typeIndicatorConfig,
-  });
+  const ChatGroupedListWidget(
+      {super.key,
+      required this.showPopUp,
+      required this.showTypingIndicator,
+      required this.scrollController,
+      required this.chatBackgroundConfig,
+      required this.replyMessage,
+      required this.assignReplyMessage,
+      required this.onChatListTap,
+      required this.onChatBubbleLongPress,
+      required this.isEnableSwipeToSeeTime,
+      this.messageConfig,
+      this.chatBubbleConfig,
+      this.profileCircleConfig,
+      this.swipeToReplyConfig,
+      this.repliedMessageConfig,
+      this.typeIndicatorConfig,
+      this.compartilhavel,
+      this.infoAdicional,
+      this.infoAdicional2});
+
+  final String? infoAdicional;
+
+  final String? infoAdicional2;
+
+  final bool? compartilhavel;
 
   /// Allow user to swipe to see time while reaction pop is not open.
   final bool showPopUp;
@@ -313,6 +321,9 @@ class _ChatGroupedListWidgetState extends State<ChatGroupedListWidget>
                     valueListenable: _replyId,
                     builder: (context, state, child) {
                       return ChatBubbleWidget(
+                        compartilhavel: widget.compartilhavel,
+                        infoAdicional: widget.infoAdicional,
+                        infoAdicional2: widget.infoAdicional2,
                         key: message.key,
                         messageTimeTextStyle:
                             chatBackgroundConfig.messageTimeTextStyle,

@@ -128,7 +128,7 @@ class _FotosDaMissaoScreenState extends State<FotosDaMissaoScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
           title: const Text('Confirmação'),
           content: const Text('Deseja realmente enviar a foto?'),
           actions: <Widget>[

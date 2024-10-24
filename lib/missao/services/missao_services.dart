@@ -17,6 +17,9 @@ import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 import '../../agente/model/agente_model.dart';
 import '../../agente/services/agente_services.dart';
+import '../../chat/services/chat_services.dart';
+import '../../notificacoes/fcm.dart';
+import '../../notificacoes/notificacoess.dart';
 import '../../sqfLite/missao/model/missao_db_model.dart';
 import '../../sqfLite/missao/services/db_helper.dart';
 import '../../web/home/screens/mapa_teste.dart';
@@ -2313,6 +2316,11 @@ class MissaoServices {
           double? lat = data['latitude'] as double?;
           double? lng = data['longitude'] as double?;
           Timestamp? timestamp = data['timestamp'] as Timestamp?;
+          bool online = data['online'] != null
+              ? data['online'] == 'true'
+                  ? true
+                  : false
+              : true;
 
           if (lat != null && lng != null && timestamp != null) {
             String formattedTimestamp =
@@ -2321,9 +2329,7 @@ class MissaoServices {
             debugPrint(
                 'Latitude: $lat, Longitude: $lng, Timestamp: $formattedTimestamp');
             return CoordenadaComTimestamp(
-              gmap.LatLng(lat, lng),
-              timestamp.toDate(),
-            );
+                gmap.LatLng(lat, lng), timestamp.toDate(), online);
           } else {
             debugPrint('Dados inválidos encontrados no documento ${doc.id}.');
             return null;
@@ -2684,5 +2690,36 @@ class MissaoServices {
           'Erro ao contabilizar visalização de foto da missão: ${e.toString()}');
       rethrow;
     }
+  }
+
+  Future<void> enviarSinal(uid, missaoId) async {
+    final timestamp = FieldValue.serverTimestamp();
+    firestore.collection('sinal').doc(uid).set(
+      {
+        'sinalEnviadoEm': timestamp,
+        'recebido': false,
+        'missaoId': missaoId,
+      },
+    );
+    final tokens = await ChatServices().fetchUserTokens(uid);
+    if (tokens.isNotEmpty) {
+      for (var token in tokens) {
+        await FirebaseMessagingService(NotificationService()).sendNotification(
+          token,
+          'ATENÇÃO',
+          'Você está em missão, mantenha-nos atualizados',
+          null,
+          data: {
+            'tipo': 'sinal',
+            'infoAdicional': missaoId,
+          },
+        );
+      }
+    }
+  }
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> getSinalResponse(
+      uid, missaoId) {
+    return firestore.collection('sinal').doc(uid).snapshots();
   }
 }

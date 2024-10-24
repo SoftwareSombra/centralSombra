@@ -28,9 +28,9 @@ class DevScreen extends StatelessWidget {
     final UserServices userServices = UserServices();
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
         title: const Text('Adicionar cargos'),
         centerTitle: true,
       ),
@@ -54,7 +54,8 @@ class DevScreen extends StatelessWidget {
                   },
                 ),
                 buildElevatedButton(onPressed: () async {
-                  final devResult = await adminServices.addDev(devController.text.trim());
+                  final devResult =
+                      await adminServices.addDev(devController.text.trim());
                   if (context.mounted) {
                     if (devResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -81,8 +82,8 @@ class DevScreen extends StatelessWidget {
                 buildElevatedButton(onPressed: () async {
                   final userName = await adminServices
                       .getUserInfos(admController.text.trim());
-                  final admResult = await adminServices.addAdmin(admController.text.trim(),
-                      nome: userName);
+                  final admResult = await adminServices
+                      .addAdmin(admController.text.trim(), nome: userName);
                   if (context.mounted) {
                     if (admResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -137,8 +138,9 @@ class DevScreen extends StatelessWidget {
                 buildElevatedButton(onPressed: () async {
                   final userName = await userServices
                       .getUidUserName(operadorController.text.trim());
-                  final operadorResult = await adminServices
-                      .addOperador(operadorController.text.trim(), nome: userName);
+                  final operadorResult = await adminServices.addOperador(
+                      operadorController.text.trim(),
+                      nome: userName);
                   if (context.mounted) {
                     if (operadorResult) {
                       mensagemDeSucesso.showSuccessSnackbar(
@@ -267,8 +269,7 @@ class DevScreen extends StatelessWidget {
         campo != null
             ? Text(
                 campo,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               )
             : const SizedBox.shrink(),
         TextFormField(
@@ -295,7 +296,6 @@ class DevScreen extends StatelessWidget {
 
   Widget buildElevatedButton({required VoidCallback onPressed}) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
       onPressed: onPressed,
       child: const Text('Adicionar'),
     );

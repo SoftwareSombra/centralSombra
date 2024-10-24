@@ -58,11 +58,10 @@ class _EmpresasScreenState extends State<EmpresasScreen> {
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-        elevation: 0,
-      ),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          ),
       body: BlocBuilder<GetEmpresasBloc, GetEmpresasState>(
         builder: (context, state) {
           if (state is GetEmpresasInitial) {
@@ -126,28 +125,10 @@ class _EmpresasScreenState extends State<EmpresasScreen> {
                     ),
                   ],
                 ),
-                Container(
-                  color: const Color.fromARGB(255, 3, 9, 18),
+                SizedBox(
                   width: width * 0.99,
                   child: empresasFiltradas.isNotEmpty
-                      ? PaginatedDataTable2(
-                          colors: [
-                            canvasColor.withOpacity(0.3),
-                            canvasColor.withOpacity(0.33),
-                            canvasColor.withOpacity(0.35),
-                            canvasColor.withOpacity(0.38),
-                            canvasColor.withOpacity(0.4),
-                            canvasColor.withOpacity(0.43),
-                            canvasColor.withOpacity(0.45),
-                            canvasColor.withOpacity(0.48),
-                            canvasColor.withOpacity(0.5),
-                            canvasColor.withOpacity(0.53),
-                            canvasColor.withOpacity(0.55),
-                            canvasColor.withOpacity(0.58),
-                          ],
-                          // headingRowColor: const MaterialStatePropertyAll(
-                          //   Color.fromARGB(255, 8, 8, 11),
-                          // ),
+                      ? PaginatedDataTable(
                           columns: columns,
                           source: EmpresaDataSource(
                               empresas: empresasFiltradas, context: context),
@@ -191,10 +172,12 @@ class _EmpresasScreenState extends State<EmpresasScreen> {
           //         ),
           //       );
           //     });
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddEmpresaScreen()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AddEmpresaScreen()));
         },
-        backgroundColor: Colors.blue.withOpacity(0.11),
+        backgroundColor: canvasColor,
         child: const Icon(
           Icons.add,
           color: Colors.white,
@@ -212,6 +195,7 @@ class EmpresaDataSource extends DataTableSource {
   final AdminServices adminServices = AdminServices();
   final MensagemDeSucesso mensagemDeSucesso = MensagemDeSucesso();
   final TratamentoDeErros tratamentoDeErros = TratamentoDeErros();
+  Color canvasColor = const Color.fromARGB(255, 3, 9, 18);
 
   //dialogo de exclusão
   void _showDialog(Empresa empresa) {
@@ -219,7 +203,7 @@ class EmpresaDataSource extends DataTableSource {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
           title: const Text('Confirmação'),
           content: const Text('Deseja realmente excluir esta empresa?'),
           actions: <Widget>[
@@ -280,8 +264,8 @@ class EmpresaDataSource extends DataTableSource {
     final empresa = empresas[index];
 
     return DataRow.byIndex(
-      color: const MaterialStatePropertyAll(
-        Color.fromARGB(255, 3, 9, 18),
+      color: WidgetStatePropertyAll(
+        canvasColor.withAlpha(15),
       ),
       index: index,
       cells: [

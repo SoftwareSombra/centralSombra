@@ -15,12 +15,10 @@ class RedefinirSenha extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        backgroundColor:const Color.fromARGB(255, 0, 8, 42),
         appBar: AppBar(
-          backgroundColor: Colors.black,
           title: const Text(
             'Troca de senha',
-            style: TextStyle(color: Colors.white),
+            //style: TextStyle(color: Colors.white),
           ),
         ),
         body: Center(
@@ -32,7 +30,7 @@ class RedefinirSenha extends StatelessWidget {
                 children: [
                   const Text(
                     'Você receberá um email com o link para realizar a troca da senha.',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    //style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                   const SizedBox(
                     height: 20,
@@ -42,7 +40,7 @@ class RedefinirSenha extends StatelessWidget {
                     child: TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
+                      //style: const TextStyle(color: Colors.white),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Por favor, insira seu email.';
@@ -80,7 +78,7 @@ class RedefinirSenha extends StatelessWidget {
                     },
                     child: const Text(
                       'Enviar',
-                      style: TextStyle(color: Colors.white),
+                      //style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],

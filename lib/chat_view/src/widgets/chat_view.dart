@@ -55,10 +55,19 @@ class ChatView extends StatefulWidget {
     required this.chatViewState,
     ChatViewStateConfiguration? chatViewStateConfig,
     this.featureActiveConfig = const FeatureActiveConfig(),
+    this.audioCompartilhavel,
+    this.infoAdicional,
+    this.infoAdicional2,
   })  : chatBackgroundConfig =
             chatBackgroundConfig ?? const ChatBackgroundConfiguration(),
         chatViewStateConfig =
             chatViewStateConfig ?? const ChatViewStateConfiguration();
+
+  final String? infoAdicional;
+
+  final String? infoAdicional2;
+
+  final bool? audioCompartilhavel;
 
   /// Provides configuration related to user profile circle avatar.
   final ProfileCircleConfiguration? profileCircleConfig;
@@ -231,6 +240,9 @@ class _ChatViewState extends State<ChatView>
                         return ChatListWidget(
                           /// TODO: Remove this in future releases.
                           // ignore: deprecated_member_use_from_same_package
+                          compartilhavel: widget.audioCompartilhavel,
+                          infoAdicional: widget.infoAdicional,
+                          infoAdicional2: widget.infoAdicional2,
                           showTypingIndicator: widget.showTypingIndicator,
                           replyMessage: state,
                           chatController: widget.chatController,

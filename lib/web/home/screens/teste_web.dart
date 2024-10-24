@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,10 @@ import '../../../chat/screens/chat_screen.dart';
 import '../../../chat/screens/missao_cliente.dart';
 import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import '../../../missao/bloc/missoes_pendentes/qtd_missoes_pendentes_event.dart';
+import '../../../notificacoes/bloc/qtd_missoes_pendentes_bloc.dart';
+import '../../../notificacoes/bloc/qtd_missoes_pendentes_event.dart';
+import '../../../notificacoes/bloc/qtd_missoes_pendentes_state.dart';
+import '../../../notificacoes/notificacoess.dart';
 import '../../admin/services/admin_services.dart';
 import '../../missoes/agente/realtime_map.dart';
 import '../../perfil/screens/perfil_screen.dart';
@@ -31,6 +36,14 @@ class HomeLoginWeb extends StatefulWidget {
   State<HomeLoginWeb> createState() => _HomeLoginWebState();
 }
 
+const primaryColor = Colors.white;
+const canvasColor = Color.fromARGB(255, 0, 15, 42);
+final scaffoldBackgroundColor = Colors.white.withOpacity(0.6);
+const accentCanvasColor = Colors.blue;
+const white = Colors.white;
+final actionColor = Colors.white.withOpacity(0.6);
+const divider = Divider(color: white, height: 1);
+
 class _HomeLoginWebState extends State<HomeLoginWeb> {
   final NotTesteService notTesteService = NotTesteService();
   final ChatServices chatServices = ChatServices();
@@ -40,6 +53,10 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
   MissaoServices missaoServices = MissaoServices();
   AdminServices adminServices = AdminServices();
   late final StreamSubscription<bool> missaoSolicitadaPendenteListener;
+  bool showNotification = false;
+  late StreamSubscription<bool> notificationSubscription;
+  final StreamController<bool> notificationController =
+      StreamController<bool>();
   //String funcao = 'carregando...';
   //String nome = 'carregando...';
 
@@ -66,8 +83,36 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
         });
       }
     });
+    //BlocProvider.of<AttsHomeBloc>(context).add(BuscarAttsHome());
+    // notificationSubscription = NotificationService()
+    //     .notificacoesCentral()
+    //     .listen((hasNewNotification) {
+    //   if (hasNewNotification) {
+    //     notificationController.add(true);
+    //     playAudio();
+    //     // Adiciona um delay para depois esconder a notificação
+    //     Future.delayed(const Duration(seconds: 3), () {
+    //       notificationController.add(false); // Esconde a notificação
+    //     });
+    //   }
+    // });
     //buscarFuncao();
     userServices.addFcmToken();
+  }
+
+  @override
+  void dispose() {
+    notificationSubscription.cancel();
+    notificationController.close();
+    super.dispose();
+  }
+
+  void playAudio() async {
+    await AudioPlayer().play(
+      volume: 1,
+      UrlSource(
+          'https://firebasestorage.googleapis.com/v0/b/sombratestes.appspot.com/o/notification-message-incoming.mp3?alt=media&token=f99b5f13-6f86-4c82-b397-58bd95dc3a1a'),
+    );
   }
 
   // Future<void> buscarFuncao() async {
@@ -80,7 +125,8 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+      backgroundColor: canvasColor.withAlpha(15),
+      //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       // appBar: AppBar(
       //   backgroundColor: Colors.black,
       //   elevation: 0,
@@ -97,60 +143,105 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
       //   ),
       // ),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            Padding(
-              padding: EdgeInsets.only(
-                  top: 50,
-                  left: MediaQuery.of(context).size.width * 0.084,
-                  right: MediaQuery.of(context).size.width * 0.08,
-                  bottom: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  MouseRegion(
-                    cursor: WidgetStateMouseCursor.clickable,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const CentralPerfilScreen()));
-                      },
-                      child: const CircleAvatar(
-                        radius: 20,
-                        backgroundImage:
-                            AssetImage('assets/images/fotoDePerfilNull.jpg'),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            // StreamBuilder<bool>(
+            //   stream: notificationController.stream,
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.waiting) {
+            //       return const SizedBox
+            //           .shrink(); // Não exibe nada enquanto carrega
+            //     }
+
+            //     if (snapshot.hasData && snapshot.data == true) {
+            //       // Mostra o NotificacaoCard quando a stream retorna true
+            //       return const NotificacaoCard(
+            //         message: 'Nova notificação recebida!',
+            //         color: Colors.blueAccent,
+            //         duration: Duration(seconds: 5), // Exibe por 3 segundos
+            //       );
+            //     }
+
+            //     return const SizedBox
+            //         .shrink(); // Se não houver nova notificação, não exibe nada
+            //   },
+            // ),
+            // BlocBuilder<AttsHomeBloc, AttsHomeState>(
+            //   builder: (context, notState) {
+            //     debugPrint(notState.toString());
+            //     if (notState is AttsHomeLoaded) {
+            //       if (notState.att) {
+            //         notificationController.add(true);
+            //         playAudio();
+            //         return const NotificacaoCard(
+            //           message: 'Nova notificação recebida!',
+            //           color: Colors.blueAccent,
+            //           duration: Duration(seconds: 5),
+            //         );
+            //       } else {
+            //         return const SizedBox.shrink();
+            //       }
+            //     } else {
+            //       return const SizedBox.shrink();
+            //     }
+            //   },
+            // ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: 50,
+                      left: MediaQuery.of(context).size.width * 0.084,
+                      right: MediaQuery.of(context).size.width * 0.08,
+                      bottom: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.nome,
-                        style: const TextStyle(fontSize: 14),
+                      MouseRegion(
+                        cursor: WidgetStateMouseCursor.clickable,
+                        child: GestureDetector(
+                          onTap: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CentralPerfilScreen()));
+                          },
+                          child: const CircleAvatar(
+                            radius: 20,
+                            backgroundImage: AssetImage(
+                                'assets/images/fotoDePerfilNull.jpg'),
+                          ),
+                        ),
                       ),
-                      Text(
-                        widget.cargo,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 11),
+                      const SizedBox(
+                        width: 10,
                       ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.nome,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          Text(
+                            widget.cargo,
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 11),
+                          ),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
+                  ),
+                ),
+                const SolicitacoesComponent(),
+                const SecondRow(),
+                MissoesAtivasContainer()
+              ],
             ),
-            const SolicitacoesComponent(),
-            const SecondRow(),
-            MissoesAtivasContainer()
           ],
         ),
       ),
@@ -349,7 +440,6 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                       return const Center(
                           child: Text(
                         'Nenhuma missão ativa',
-                        style: TextStyle(color: Colors.white),
                       ));
                     }
 
@@ -398,8 +488,8 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 CentralMissaoChatScreen(
-                                              missaoId: data['missaoID'],
-                                            ),
+                                                    missaoId: data['missaoID'],
+                                                    cnpj: data['cnpj']),
                                           ),
                                         );
                                       },
@@ -447,7 +537,8 @@ class _HomeLoginWebState extends State<HomeLoginWeb> {
                                                 ClienteMissaoChatScreen(
                                               missaoId: data['missaoID'],
                                               agenteUid: data['agenteUid'],
-                                              agenteNome: data['nome'],
+                                              agenteNome:
+                                                  data['nome da empresa'],
                                             ),
                                           ),
                                         );

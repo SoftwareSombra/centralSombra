@@ -2,22 +2,31 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+import '../../../chat/services/chat_services.dart';
 import '../../chatview.dart';
 import '../models/voice_message_configuration.dart';
 import 'reaction_widget.dart';
 
 class VoiceMessageView extends StatefulWidget {
-  const VoiceMessageView({
-    super.key,
-    required this.screenWidth,
-    required this.message,
-    required this.isMessageBySender,
-    this.inComingChatBubbleConfig,
-    this.outgoingChatBubbleConfig,
-    this.onMaxDuration,
-    this.messageReactionConfig,
-    this.config,
-  });
+  const VoiceMessageView(
+      {super.key,
+      required this.screenWidth,
+      required this.message,
+      required this.isMessageBySender,
+      this.inComingChatBubbleConfig,
+      this.outgoingChatBubbleConfig,
+      this.onMaxDuration,
+      this.messageReactionConfig,
+      this.config,
+      this.compartilhavel = false,
+      this.infoAdicional,
+      this.infoAdicional2});
+
+  final String? infoAdicional;
+
+  final String? infoAdicional2;
+
+  final bool? compartilhavel;
 
   /// Provides configuration related to voice message.
   final VoiceMessageConfiguration? config;
@@ -57,6 +66,8 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
 
   Duration _duration = const Duration();
   Duration _position = const Duration();
+
+  final ChatServices _chatServices = ChatServices();
 
   //PlayerState get playerState => _playerState.value;
 
@@ -117,90 +128,109 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(
-          decoration: widget.config?.decoration ??
-              BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: widget.isMessageBySender
-                    ? widget.outgoingChatBubbleConfig?.color
-                    : widget.inComingChatBubbleConfig?.color,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: widget.config?.decoration ??
+                  BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: widget.isMessageBySender
+                        ? widget.outgoingChatBubbleConfig?.color
+                        : widget.inComingChatBubbleConfig?.color,
+                  ),
+              padding: widget.config?.padding ??
+                  const EdgeInsets.symmetric(horizontal: 8),
+              margin: widget.config?.margin ??
+                  EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical:
+                        widget.message.reaction.reactions.isNotEmpty ? 15 : 0,
+                  ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ValueListenableBuilder<PlayerState>(
+                  //   builder: (context, state, child) {
+                  //     return IconButton(
+                  //       onPressed: _playOrPause,
+                  //       icon: player.state == PlayerState.stopped ||
+                  //               player.state == PlayerState.paused ||
+                  //               player.state == PlayerState.playing
+                  //           ? widget.config?.playIcon ??
+                  //               const Icon(
+                  //                 Icons.play_arrow,
+                  //                 color: Colors.white,
+                  //               )
+                  //           : widget.config?.pauseIcon ??
+                  //               const Icon(
+                  //                 Icons.stop,
+                  //                 color: Colors.white,
+                  //               ),
+                  //     );
+                  //   },
+                  //   valueListenable: _playerState,
+                  // ),
+                  //!!!!!!!!!!!!!
+                  IconButton(
+                    onPressed: _playOrPause,
+                    icon: (_playerState == PlayerState.stopped ||
+                            _playerState == PlayerState.paused ||
+                            _playerState ==
+                                PlayerState
+                                    .completed) // Adicione a condição para completed aqui
+                        ? widget.config?.playIcon ??
+                            const Icon(Icons.play_arrow, color: Colors.white)
+                        : widget.config?.pauseIcon ??
+                            const Icon(Icons.pause, color: Colors.white),
+                  ),
+                  Slider(
+                    value: _position.inSeconds.toDouble(),
+                    min: 0.0,
+                    max: _duration.inSeconds.toDouble(),
+                    onChanged: (double value) {
+                      seekToSecond(value.toInt());
+                    },
+                  ),
+                  //!!!!!!!!!!!!!
+                  // AudioFileWaveforms(
+                  //   size: Size(widget.screenWidth * 0.50, 60),
+                  //   playerController: controller,
+                  //   waveformType: WaveformType.fitWidth,
+                  //   playerWaveStyle:
+                  //       widget.config?.playerWaveStyle ?? playerWaveStyle,
+                  //   padding: widget.config?.waveformPadding ??
+                  //       const EdgeInsets.only(right: 10),
+                  //   margin: widget.config?.waveformMargin,
+                  //   animationCurve: widget.config?.animationCurve ?? Curves.easeIn,
+                  //   animationDuration: widget.config?.animationDuration ??
+                  //       const Duration(milliseconds: 500),
+                  //   enableSeekGesture: widget.config?.enableSeekGesture ?? true,
+                  // ),
+                ],
               ),
-          padding: widget.config?.padding ??
-              const EdgeInsets.symmetric(horizontal: 8),
-          margin: widget.config?.margin ??
-              EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: widget.message.reaction.reactions.isNotEmpty ? 15 : 0,
+            ),
+            if (widget.message.reaction.reactions.isNotEmpty)
+              ReactionWidget(
+                isMessageBySender: widget.isMessageBySender,
+                reaction: widget.message.reaction,
+                messageReactionConfig: widget.messageReactionConfig,
               ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // ValueListenableBuilder<PlayerState>(
-              //   builder: (context, state, child) {
-              //     return IconButton(
-              //       onPressed: _playOrPause,
-              //       icon: player.state == PlayerState.stopped ||
-              //               player.state == PlayerState.paused ||
-              //               player.state == PlayerState.playing
-              //           ? widget.config?.playIcon ??
-              //               const Icon(
-              //                 Icons.play_arrow,
-              //                 color: Colors.white,
-              //               )
-              //           : widget.config?.pauseIcon ??
-              //               const Icon(
-              //                 Icons.stop,
-              //                 color: Colors.white,
-              //               ),
-              //     );
-              //   },
-              //   valueListenable: _playerState,
-              // ),
-              //!!!!!!!!!!!!!
-              IconButton(
-                onPressed: _playOrPause,
-                icon: (_playerState == PlayerState.stopped ||
-                        _playerState == PlayerState.paused ||
-                        _playerState ==
-                            PlayerState
-                                .completed) // Adicione a condição para completed aqui
-                    ? widget.config?.playIcon ??
-                        const Icon(Icons.play_arrow, color: Colors.white)
-                    : widget.config?.pauseIcon ??
-                        const Icon(Icons.pause, color: Colors.white),
-              ),
-              Slider(
-                value: _position.inSeconds.toDouble(),
-                min: 0.0,
-                max: _duration.inSeconds.toDouble(),
-                onChanged: (double value) {
-                  seekToSecond(value.toInt());
-                },
-              ),
-              //!!!!!!!!!!!!!
-              // AudioFileWaveforms(
-              //   size: Size(widget.screenWidth * 0.50, 60),
-              //   playerController: controller,
-              //   waveformType: WaveformType.fitWidth,
-              //   playerWaveStyle:
-              //       widget.config?.playerWaveStyle ?? playerWaveStyle,
-              //   padding: widget.config?.waveformPadding ??
-              //       const EdgeInsets.only(right: 10),
-              //   margin: widget.config?.waveformMargin,
-              //   animationCurve: widget.config?.animationCurve ?? Curves.easeIn,
-              //   animationDuration: widget.config?.animationDuration ??
-              //       const Duration(milliseconds: 500),
-              //   enableSeekGesture: widget.config?.enableSeekGesture ?? true,
-              // ),
-            ],
-          ),
+            widget.compartilhavel != null
+                ? widget.compartilhavel!
+                    ? IconButton(
+                        onPressed: () async {
+                          await _chatServices.compartilharAudio(
+                              widget.infoAdicional!,
+                              widget.infoAdicional2!,
+                              widget.message.message);
+                        },
+                        icon: const Icon(Icons.send),
+                      )
+                    : const SizedBox.shrink()
+                : const SizedBox.shrink()
+          ],
         ),
-        if (widget.message.reaction.reactions.isNotEmpty)
-          ReactionWidget(
-            isMessageBySender: widget.isMessageBySender,
-            reaction: widget.message.reaction,
-            messageReactionConfig: widget.messageReactionConfig,
-          ),
       ],
     );
   }

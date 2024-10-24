@@ -66,36 +66,8 @@ class MissoesPendentesContainer extends StatelessWidget {
           //width: 400,
           height: 190,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                canvasColor.withOpacity(0.3),
-                canvasColor.withOpacity(0.33),
-                canvasColor.withOpacity(0.35),
-                canvasColor.withOpacity(0.38),
-                canvasColor.withOpacity(0.4),
-                canvasColor.withOpacity(0.43),
-                canvasColor.withOpacity(0.45),
-                canvasColor.withOpacity(0.48),
-                canvasColor.withOpacity(0.5),
-                canvasColor.withOpacity(0.53),
-                canvasColor.withOpacity(0.55),
-                canvasColor.withOpacity(0.58),
-              ],
-            ),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.blue.withOpacity(0.1),
-              width: 0.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: canvasColor.withOpacity(0.1),
-                blurRadius: 10,
-              )
-            ],
-            //color: Colors.blue,
           ),
           child: Stack(
             children: [
@@ -223,39 +195,10 @@ class AttWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Container(
-        //width: 400,
         height: 190,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              canvasColor.withOpacity(0.3),
-              canvasColor.withOpacity(0.33),
-              canvasColor.withOpacity(0.35),
-              canvasColor.withOpacity(0.38),
-              canvasColor.withOpacity(0.4),
-              //canvasColor.withOpacity(0.43),
-              //canvasColor.withOpacity(0.45),
-              // canvasColor.withOpacity(0.48),
-              // canvasColor.withOpacity(0.5),
-              // canvasColor.withOpacity(0.53),
-              // canvasColor.withOpacity(0.55),
-              // canvasColor.withOpacity(0.58),
-            ],
-          ),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.blue.withOpacity(0.1),
-            width: 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: canvasColor.withOpacity(0.1),
-              blurRadius: 10,
-            )
-          ],
-          //color: Colors.blue,
+          color: Colors.white
         ),
         child:
             // Stack(
@@ -375,6 +318,7 @@ class AttWidget extends StatelessWidget {
                                 missaoSolicitada: missoesStreamState
                                     .missoesSolicitadas[index],
                                 padding: false,
+                                home: true,
                               );
                             },
                           ),
@@ -386,7 +330,7 @@ class AttWidget extends StatelessWidget {
               },
             ),
             Positioned(
-              left: 10, //adjust the position as needed
+              left: 0, //adjust the position as needed
               top: 0,
               bottom: 0,
               child: IconButton(
@@ -404,7 +348,7 @@ class AttWidget extends StatelessWidget {
               ),
             ),
             Positioned(
-              right: 10, //adjust the position as needed
+              right: 0, //adjust the position as needed
               top: 0,
               bottom: 0,
               child: IconButton(

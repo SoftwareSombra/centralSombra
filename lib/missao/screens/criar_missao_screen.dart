@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -286,10 +285,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-        //title: const Text('Solicitações de Missão'),
-      ),
+      appBar: AppBar(),
       body: SingleChildScrollView(
         child: BlocBuilder<MissoesSolicitadasBloc, MissoesSolicitadasState>(
           builder: (context, state) {
@@ -299,14 +295,14 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: width * 0.08),
                 child: ExpansionTile(
-                  collapsedBackgroundColor: canvasColor.withOpacity(0.4),
+                  collapsedBackgroundColor: Colors.white,
                   initiallyExpanded: false,
                   //cor do icone
-                  collapsedIconColor: Colors.grey[300],
+                  collapsedIconColor: canvasColor,
                   //cor do texto
-                  collapsedTextColor: Colors.white,
+                  collapsedTextColor: canvasColor,
                   //backgroundColor: canvasColor.withOpacity(0.4),
-                  backgroundColor: canvasColor.withOpacity(0.4),
+                  backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -578,7 +574,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                         ),
                                       ),
                                     ),
-                                   
+
                                     if (_focusNode.hasFocus &&
                                         _predictions != null &&
                                         _predictions!.isNotEmpty)
@@ -1975,19 +1971,14 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: width * 0.08),
                       child: ExpansionTile(
-                        //collapsedBackgroundColor: canvasColor.withOpacity(0.3),
-                        collapsedBackgroundColor: canvasColor.withOpacity(0.4),
+                        collapsedBackgroundColor: Colors.white,
                         initiallyExpanded: false,
-                        //borda
-                        // collapsedShape: RoundedRectangleBorder(
-                        //   borderRadius: BorderRadius.circular(20),
-                        // ),
                         //cor do icone
-                        collapsedIconColor: Colors.grey[300],
+                        collapsedIconColor: canvasColor,
                         //cor do texto
-                        collapsedTextColor: Colors.white,
+                        collapsedTextColor: canvasColor,
                         //backgroundColor: canvasColor.withOpacity(0.4),
-                        backgroundColor: canvasColor.withOpacity(0.4),
+                        backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -3793,6 +3784,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                                         missao.missaoId),
                                                     missaoSolicitada: missao,
                                                     initialContext: context,
+                                                    home: false,
                                                   ),
                                           ),
                                       ],
@@ -3855,7 +3847,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
               return Center(
                   child: Text(
                 'Erro: ${state.error}',
-                style: const TextStyle(color: Colors.white),
+                //style: const TextStyle(color: Colors.white),
               ));
             }
             return const Center(
@@ -3865,7 +3857,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                   children: [
                     Text(
                       'Algum erro ocorrreu, reinicie a página.',
-                      style: TextStyle(color: Colors.white),
+                      //style: TextStyle(color: Colors.white),
                     ),
                     SizedBox(
                       height: 20,
@@ -3886,7 +3878,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
         decoration: BoxDecoration(
-          color: canvasColor.withOpacity(0.4),
+          color: Colors.grey[300],
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
@@ -3903,8 +3895,8 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                 vertical: 14, horizontal: 40),
                             decoration: BoxDecoration(
                                 color: _botao == 'localizacao'
-                                    ? Colors.white
-                                    : Colors.transparent,
+                                    ? canvasColor
+                                    : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(30)),
                             child: AutoSizeText(
                               'Localização',
@@ -3914,7 +3906,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                               style: TextStyle(
                                   color: _botao != 'localizacao'
                                       ? Colors.grey
-                                      : canvasColor,
+                                      : Colors.white,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -3932,8 +3924,8 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                 vertical: 14, horizontal: 40),
                             decoration: BoxDecoration(
                                 color: _botao == 'coordenada'
-                                    ? Colors.white
-                                    : Colors.transparent,
+                                    ? canvasColor
+                                    : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(30)),
                             child: AutoSizeText(
                               'Coordenada',
@@ -3943,7 +3935,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                               style: TextStyle(
                                   color: _botao != 'coordenada'
                                       ? Colors.grey
-                                      : canvasColor,
+                                      : Colors.white,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -3961,8 +3953,8 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                 vertical: 14, horizontal: 40),
                             decoration: BoxDecoration(
                               color: _botao == 'mapa'
-                                  ? Colors.white
-                                  : Colors.transparent,
+                                  ? canvasColor
+                                  : Colors.grey[300],
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: AutoSizeText(
@@ -3973,7 +3965,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                               style: TextStyle(
                                   color: _botao != 'mapa'
                                       ? Colors.grey
-                                      : canvasColor,
+                                      : Colors.white,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -4317,10 +4309,12 @@ class _MapAddMissaoState extends State<MapAddMissao> {
   Set<gmap.Marker> userMarkers = {};
   MapaServices mapaServices = MapaServices();
   List<Map<String, dynamic>> agentesMaisProximos = [];
+  List<Map<String, dynamic>> todosOsAgentes = [];
   Set<Map<String, dynamic>> agentesSelecionados = <Map<String, dynamic>>{};
   MissaoServices missaoServices = MissaoServices();
   bool scrollingEnabled = true;
   gmap.BitmapDescriptor? icon;
+  double _currentValue = 100; // Valor inicial do slider
 
   @override
   void initState() {
@@ -4433,26 +4427,52 @@ class _MapAddMissaoState extends State<MapAddMissao> {
     };
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        title: const Text(
-          'Enviar Chamado',
-          //style: TextStyle(color: Colors.black),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox.shrink(),
+            const Text(
+              '',
+            ),
+            Row(
+              children: [
+                Slider(
+                  value: _currentValue,
+                  min: 10, // Valor mínimo
+                  max: 200, // Valor máximo
+                  divisions:
+                      190, // Quantidade de divisões para valores discretos
+                  label: _currentValue
+                      .round()
+                      .toString(), // Exibe o valor atual no tooltip
+                  onChanged: (double value) {
+                    setState(() {
+                      _currentValue = value;
+                    });
+                  },
+                ),
+                Text(
+                  '${_currentValue.round()}km',
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w400),
+                ),
+                TextButton(
+                  onPressed: () {
+                    aplicarFiltroDeDistancia(
+                      gmap.LatLng(widget.latitude!, widget.longitude!),
+                      raio: _currentValue,
+                    );
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        //backgroundColor: Colors.white,
-        elevation: 0,
-        // leading: IconButton(
-        //   onPressed: () {
-        //     Navigator.pop(context);
-        //   },
-        //   icon: const CircleAvatar(
-        //     //backgroundColor: Colors.white,
-        //     child: Icon(
-        //       Icons.arrow_back,
-        //       //color: Colors.black,
-        //     ),
-        //   ),
-        // ),
       ),
       body: SingleChildScrollView(
         physics: scrollingEnabled
@@ -4973,10 +4993,15 @@ class _MapAddMissaoState extends State<MapAddMissao> {
     return distance; // Distância em km
   }
 
-  Future<void> fetchNearestUsersToMission(missionPosition) async {
+  Future<void> fetchNearestUsersToMission(gmap.LatLng missionPosition) async {
     debugPrint('Fetching nearest users...');
     debugPrint("Lat: ${widget.latitude!}, Lng: ${widget.longitude!}");
 
+    // Limpa as listas antes de começar para evitar duplicações
+    todosOsAgentes.clear();
+    agentesMaisProximos.clear();
+
+    // Busca todas as localizações de usuários
     final List<UserLocation> userLocations =
         await MapaServices().fetchAllUsersLocations();
 
@@ -4993,39 +5018,87 @@ class _MapAddMissaoState extends State<MapAddMissao> {
     distances.sort(
         (a, b) => (a['distance'] as double).compareTo(b['distance'] as double));
 
-    // Exibe os nomes dos dez usuários mais próximos
-    for (var entry in distances.take(10)) {
-      bool emMissaoResult =
-          await missaoServices.emMissao((entry['user'] as UserLocation).uid);
-      bool jaTemChamado = await missaoServices
-          .verificarSeAgenteTemChamado((entry['user'] as UserLocation).uid);
+    // Itera sobre todos os agentes
+    for (var entry in distances) {
+      UserLocation user = entry['user'] as UserLocation;
+      double distance = entry['distance'] as double;
 
-      bool agenteEstaDisponivel = await missaoServices
-          .verificarSeAgenteEstaDisponivel((entry['user'] as UserLocation).uid);
+      // Verificações para saber se o agente está disponível
+      bool emMissaoResult = await missaoServices.emMissao(user.uid);
+      bool jaTemChamado =
+          await missaoServices.verificarSeAgenteTemChamado(user.uid);
+      bool agenteEstaDisponivel =
+          await missaoServices.verificarSeAgenteEstaDisponivel(user.uid);
+
       debugPrint('Em missão: $emMissaoResult');
       debugPrint('Já tem chamado: $jaTemChamado');
       debugPrint('========Agente disponível: $agenteEstaDisponivel=======');
 
-      bool? agenteJaRejeitouChamado =
-          await missaoServices.verificarSeAgenteRejeitou(
-              (entry['user'] as UserLocation).uid, widget.missaoId);
+      // Verifica se o agente já rejeitou o chamado
+      bool? agenteJaRejeitouChamado = await missaoServices
+          .verificarSeAgenteRejeitou(user.uid, widget.missaoId);
 
       if (!emMissaoResult && !jaTemChamado && agenteEstaDisponivel) {
-        String? enderecoAgente =
-            await fetchAgentAddress((entry['user'] as UserLocation).uid);
+        String? enderecoAgente = await fetchAgentAddress(user.uid);
 
-        agentesMaisProximos.add({
-          'nome': (entry['user'] as UserLocation).nomeDoAgente,
-          'uid': (entry['user'] as UserLocation).uid,
-          'latitude': (entry['user'] as UserLocation).latitude,
-          'longitude': (entry['user'] as UserLocation).longitude,
-          'distance': entry['distance'],
+        // Adiciona o agente à lista de todos os agentes
+        todosOsAgentes.add({
+          'nome': user.nomeDoAgente,
+          'uid': user.uid,
+          'latitude': user.latitude,
+          'longitude': user.longitude,
+          'distance': distance,
           'endereco': enderecoAgente,
-          'timestamp': (entry['user'] as UserLocation).timestamp.toDate(),
+          'timestamp': user.timestamp.toDate(),
           'rejeitou': agenteJaRejeitouChamado,
         });
+
+        // Se a lista de agentes mais próximos tiver menos de 10, adiciona o agente
+        if (agentesMaisProximos.length < 10) {
+          agentesMaisProximos.add({
+            'nome': user.nomeDoAgente,
+            'uid': user.uid,
+            'latitude': user.latitude,
+            'longitude': user.longitude,
+            'distance': distance,
+            'endereco': enderecoAgente,
+            'timestamp': user.timestamp.toDate(),
+            'rejeitou': agenteJaRejeitouChamado,
+          });
+        }
       }
     }
+
+    // Atualiza a interface gráfica
+    setState(() {});
+  }
+
+  void aplicarFiltroDeDistancia(gmap.LatLng missionPosition, {double? raio}) {
+    // Limpa a lista de agentes mais próximos antes de aplicar o filtro
+    agentesMaisProximos.clear();
+
+    // Itera sobre todos os agentes já carregados
+    for (var agente in todosOsAgentes) {
+      double distance = calculateDistance(
+        missionPosition,
+        gmap.LatLng(agente['latitude'], agente['longitude']),
+      );
+
+      // Se o raio for fornecido, filtra os agentes que estão dentro do raio
+      if (raio != null) {
+        if (distance <= raio) {
+          // Adiciona o agente à lista de agentes mais próximos se ele estiver dentro do raio
+          agentesMaisProximos.add(agente);
+        }
+      } else {
+        // Se o raio não for fornecido, apenas adiciona os 10 primeiros
+        if (agentesMaisProximos.length < 10) {
+          agentesMaisProximos.add(agente);
+        }
+      }
+    }
+
+    // Atualiza a interface gráfica
     setState(() {});
   }
 
@@ -5190,109 +5263,137 @@ class _ListaAgentesModalState extends State<ListaAgentesModal> {
             if (state is ElevatedButtonBloc3Loading) {
               return const CircularProgressIndicator();
             } else {
-              return agentes.isNotEmpty
-                  ? ElevatedButton(
-                      onPressed: !isLoading
-                          ? () async {
-                              BlocProvider.of<ElevatedButtonBloc3>(context)
-                                  .add(ElevatedButton3Pressed());
-                              // Enviar a missão para o agente selecionado
-                              setState(() {
-                                isLoading = true;
-                              });
-
-                              bool sucesso = false;
-                              if (_selectedAgentUid != null) {
-                                try {
-                                  sucesso = await missaoServices.criarMissao(
-                                    widget.missaoSolicitada.cnpj,
-                                    widget.missaoSolicitada.nomeDaEmpresa,
-                                    widget.missaoSolicitada.placaCavalo,
-                                    widget.missaoSolicitada.placaCarreta,
-                                    widget.missaoSolicitada.motorista,
-                                    widget.missaoSolicitada.corVeiculo,
-                                    widget.missaoSolicitada.observacao,
-                                    _selectedAgentUid!,
-                                    _selectedAgentLatitude,
-                                    _selectedAgentLongitude,
-                                    widget.missaoSolicitada.latitude,
-                                    widget.missaoSolicitada.longitude,
-                                    widget.missaoSolicitada.local,
-                                    widget.missaoSolicitada.tipo,
-                                    widget.missaoSolicitada.missaoId,
-                                    _selectedAgentNome,
-                                  );
-                                  await missaoServices.excluirMissaoPendente(
-                                      widget.missaoSolicitada.missaoId,
-                                      widget.missaoSolicitada.cnpj);
-
-                                  debugPrint(
-                                      'Missão enviada para o agente UID: $_selectedAgentUid');
-                                  context.mounted
-                                      ? mensagemDeSucesso.showSuccessSnackbar(
-                                          context, 'Missão enviada com sucesso')
-                                      : null;
-
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  agentes.isNotEmpty
+                      ? ElevatedButton(
+                          onPressed: !isLoading
+                              ? () async {
                                   BlocProvider.of<ElevatedButtonBloc3>(context)
-                                      .add(ElevatedButton3Reset());
-                                } catch (e) {
-                                  debugPrint('Erro ao enviar missão: $e');
-                                  context.mounted
-                                      ? tratamentoDeErros.showErrorSnackbar(
-                                          context,
-                                          'Erro ao enviar missão, tente novamente')
-                                      : null;
-                                  BlocProvider.of<ElevatedButtonBloc3>(context)
-                                      .add(ElevatedButton3Reset());
+                                      .add(ElevatedButton3Pressed());
+                                  // Enviar a missão para o agente selecionado
                                   setState(() {
-                                    isLoading = false;
+                                    isLoading = true;
                                   });
-                                }
-                              }
-                              // Realizar a ação com os agentes não selecionados
-                              if (sucesso == true) {
-                                List<String> userTokens =
-                                    await firebaseMessagingService
-                                        .fetchUserTokens(_selectedAgentUid!);
 
-                                debugPrint('Tokens: $userTokens');
+                                  bool sucesso = false;
+                                  if (_selectedAgentUid != null) {
+                                    try {
+                                      sucesso =
+                                          await missaoServices.criarMissao(
+                                        widget.missaoSolicitada.cnpj,
+                                        widget.missaoSolicitada.nomeDaEmpresa,
+                                        widget.missaoSolicitada.placaCavalo,
+                                        widget.missaoSolicitada.placaCarreta,
+                                        widget.missaoSolicitada.motorista,
+                                        widget.missaoSolicitada.corVeiculo,
+                                        widget.missaoSolicitada.observacao,
+                                        _selectedAgentUid!,
+                                        _selectedAgentLatitude,
+                                        _selectedAgentLongitude,
+                                        widget.missaoSolicitada.latitude,
+                                        widget.missaoSolicitada.longitude,
+                                        widget.missaoSolicitada.local,
+                                        widget.missaoSolicitada.tipo,
+                                        widget.missaoSolicitada.missaoId,
+                                        _selectedAgentNome,
+                                      );
+                                      await missaoServices
+                                          .excluirMissaoPendente(
+                                              widget.missaoSolicitada.missaoId,
+                                              widget.missaoSolicitada.cnpj);
 
-                                for (String token in userTokens) {
-                                  debugPrint('FCM Token: $token');
-                                  try {
-                                    await firebaseMessagingService
-                                        .sendNotification(token, 'ATENÇÃO',
-                                            'Você está em missão', 'Missão');
-                                    debugPrint('Notificação enviada');
-                                  } catch (e) {
-                                    debugPrint(
-                                        'Erro ao enviar notificação: $e');
+                                      debugPrint(
+                                          'Missão enviada para o agente UID: $_selectedAgentUid');
+                                      context.mounted
+                                          ? mensagemDeSucesso
+                                              .showSuccessSnackbar(context,
+                                                  'Missão enviada com sucesso')
+                                          : null;
+                                      BlocProvider.of<MissoesPendentesBloc>(
+                                              context)
+                                          .add(BuscarMissoesPendentes());
+                                      BlocProvider.of<ElevatedButtonBloc3>(
+                                              context)
+                                          .add(ElevatedButton3Reset());
+                                    } catch (e) {
+                                      debugPrint('Erro ao enviar missão: $e');
+                                      context.mounted
+                                          ? tratamentoDeErros.showErrorSnackbar(
+                                              context,
+                                              'Erro ao enviar missão, tente novamente')
+                                          : null;
+                                      BlocProvider.of<ElevatedButtonBloc3>(
+                                              context)
+                                          .add(ElevatedButton3Reset());
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
+                                  }
+                                  // Realizar a ação com os agentes não selecionados
+                                  if (sucesso == true) {
+                                    List<String> userTokens =
+                                        await firebaseMessagingService
+                                            .fetchUserTokens(
+                                                _selectedAgentUid!);
+
+                                    debugPrint('Tokens: $userTokens');
+
+                                    for (String token in userTokens) {
+                                      debugPrint('FCM Token: $token');
+                                      try {
+                                        await firebaseMessagingService
+                                            .sendNotification(
+                                                token,
+                                                'ATENÇÃO',
+                                                'Você está em missão',
+                                                'Missão');
+                                        debugPrint('Notificação enviada');
+                                      } catch (e) {
+                                        debugPrint(
+                                            'Erro ao enviar notificação: $e');
+                                      }
+                                    }
+                                    for (var agente in agentes) {
+                                      if (agente['userUid'] !=
+                                          _selectedAgentUid) {
+                                        await missaoServices
+                                            .recusadoPelaCentral(
+                                                agente['userUid']);
+                                        debugPrint(
+                                            'Ação realizada com o agente UID: ${agente['userUid']}');
+                                      }
+                                      if (context.mounted) {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        //MissoesPendentesBloc().add(BuscarMissoesPendentes());
+                                        Navigator.pop(context);
+                                      }
+                                    }
                                   }
                                 }
-                                for (var agente in agentes) {
-                                  if (agente['userUid'] != _selectedAgentUid) {
-                                    await missaoServices
-                                        .recusadoPelaCentral(agente['userUid']);
-                                    debugPrint(
-                                        'Ação realizada com o agente UID: ${agente['userUid']}');
-                                  }
-                                  if (context.mounted) {
-                                    BlocProvider.of<MissoesPendentesBloc>(
-                                            context)
-                                        .add(BuscarMissoesPendentes());
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                    //MissoesPendentesBloc().add(BuscarMissoesPendentes());
-                                    Navigator.pop(context);
-                                  }
-                                }
-                              }
-                            }
-                          : null,
-                      child: const Text('Enviar missão'),
-                    )
-                  : const SizedBox.shrink();
+                              : null,
+                          child: const Text('Enviar missão'),
+                        )
+                      : const SizedBox.shrink(),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  ElevatedButton(
+                    onPressed: state is ElevatedButtonBloc3Loading
+                        ? null
+                        : () {
+                            Navigator.of(context).pop();
+                          },
+                    child: state is ElevatedButtonBloc3Loading
+                        ? const CircularProgressIndicator()
+                        : const Text('Voltar'),
+                  )
+                ],
+              );
             }
           },
         ),

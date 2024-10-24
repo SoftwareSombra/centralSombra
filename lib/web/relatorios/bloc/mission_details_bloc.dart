@@ -30,127 +30,131 @@ class MissionDetailsBloc
         emit(MissionDetailsLoading());
         try {
           Set<gmap.Marker> userMarkers = {};
-          //final Set<gmap.Polyline> polylines = <gmap.Polyline>{};
           Set<gmap.Polyline>? polylines = {};
           Set<gmap.Polyline>? newPolylines = {};
           double? distancia;
           double? distanciaIda;
           double? distanciaVolta;
-
-          //List<CoordenadaComTimestamp> route = [];
+          gmap.CameraPosition? initialPosition;
+          List<CoordenadaComTimestamp>? routeFiltrada;
+          Location? middleLocation;
 
           MissaoRelatorio? missao;
           missao =
               await missaoServices.buscarRelatorio(event.uid, event.missaoId);
 
           final route = await missaoServices.fetchCoordinates(event.missaoId);
-          if (route.isEmpty) {
-            emit(MissionDetailsNoRouteFound());
-            return;
-          }
+          if (route.isNotEmpty) {
+            // emit(MissionDetailsNoRouteFound());
+            // return;
 
-          final routeOrdenada = ordenarPorTimestamp(route);
+            final routeOrdenada = ordenarPorTimestamp(route);
 
-          List<Location> rotaLocations = convertToLocations(routeOrdenada);
+            List<Location> rotaLocations = convertToLocations(routeOrdenada);
 
-          debugPrint('rotaLocations: ${rotaLocations.length}');
+            debugPrint('rotaLocations: ${rotaLocations.length}');
 
-          List<CoordenadaComTimestamp> rotaFiltradaPorVelocidadeMax =
-              filtrarPorVelocidadeMaxima(routeOrdenada, 200);
+            List<CoordenadaComTimestamp> rotaFiltradaPorVelocidadeMax =
+                filtrarPorVelocidadeMaxima(routeOrdenada, 200);
 
-          debugPrint(
-              'rotaFiltradaPorVelocidadeMax: ${rotaFiltradaPorVelocidadeMax.length}');
+            debugPrint(
+                'rotaFiltradaPorVelocidadeMax: ${rotaFiltradaPorVelocidadeMax.length}');
 
-          List<CoordenadaComTimestamp> routeFiltradaPorMinuto =
-              ordenarPorTimestampEManterPrimeiroPorMinuto(
-                  rotaFiltradaPorVelocidadeMax);
+            List<CoordenadaComTimestamp> routeFiltradaPorMinuto =
+                ordenarPorTimestampEManterPrimeiroPorMinuto(
+                    rotaFiltradaPorVelocidadeMax);
 
-          debugPrint('routeFiltrada: ${routeFiltradaPorMinuto.length}');
+            debugPrint('routeFiltrada: ${routeFiltradaPorMinuto.length}');
 
-          List<CoordenadaComTimestamp> routeFiltrada = filtrarPontosPorVelocidade(route);
+            routeFiltrada = filtrarPontosPorVelocidadeMinima(route);
 
-          //List<Location> locations = convertToLocations(routeFiltrada);
-          List<Location> locations = convertToLocations(routeFiltrada);
+            //List<Location> locations = convertToLocations(routeFiltrada);
+            List<Location> locations = convertToLocations(routeFiltrada);
 
-          debugPrint('locations: ${locations.length}');
+            debugPrint('locations: ${locations.length}');
 
-          calcularDistanciaComLatLong2(locations);
-          calcularDistanciaComLatLong2(rotaLocations);
+            calcularDistanciaComLatLong2(locations);
+            calcularDistanciaComLatLong2(rotaLocations);
 
-          if (locations.length > 3) {
-            // final Map<String, dynamic>? pontosComSnapToRoads =
-            //     await obterPontosComSnapToRoads(locations);
+            if (locations.length > 3) {
+              final firstAndLastCoordinates =
+                  getFirstAndLastCoordinates(locations);
+              String firstCoordinate = firstAndLastCoordinates['first']!;
+              String lastCoordinate = firstAndLastCoordinates['last']!;
 
-            // debugPrint('pontosComSnapToRoads: $pontosComSnapToRoads');
+              String missionCoordinates =
+                  '${missao!.missaoLatitude.toString()},${missao.missaoLongitude.toString()}';
 
-            // //capturar os pontos da snapToRoads no map e transformar em uma lista de locations
-            // List<Location> locationsSnapToRoads = [];
+              distanciaIda = await getDistanceWithMatrix(
+                  firstCoordinate, missionCoordinates);
+              distanciaVolta = await getDistanceWithMatrix(
+                  missionCoordinates, lastCoordinate);
 
-            // if (pontosComSnapToRoads != null) {
-            //   for (var ponto in pontosComSnapToRoads['snappedPoints']) {
-            //     locationsSnapToRoads.add(Location(ponto['location']['latitude'],
-            //         ponto['location']['longitude']));
-            //   }
-            // }
-            // debugPrint('locationsSnapToRoads: $locationsSnapToRoads');
+              distancia = distanciaIda! + distanciaVolta!;
 
-            // //debugPrint das coordenadas em comum entre a locations e a locationsSnapToRoads
-            // for (var location in locations) {
-            //   if (locationsSnapToRoads.contains(location)) {
-            //     debugPrint(' ----- location ======== $location --------');
-            //   }
-            // }
+              // Dividir as coordenadas em segmentos online e offline
+              List<gmap.LatLng> onlinePoints = [];
+              List<gmap.LatLng> offlinePoints = [];
+              bool? lastStatus;
 
-            // final distanciaEpolilinha =
-            //     await calcularDistanciaComFirebaseFunction(
-            //         locationsSnapToRoads);
-            // debugPrint('distanciaEpolilinha: $distanciaEpolilinha');
+              List<gmap.LatLng> locationsToLatLng = locations
+                  .map((location) =>
+                      gmap.LatLng(location.latitude, location.longitude))
+                  .toList();
 
-            // distancia = double.parse(distanciaEpolilinha!['totalDistanceKm']);
-            // debugPrint('distancia: $distancia');
+              // newPolylines.add(
+              //   gmap.Polyline(
+              //       polylineId: const gmap.PolylineId('newPolyline'),
+              //       points: locationsToLatLng,
+              //       color: Colors.blue,
+              //       width: 2),
+              // );
 
-            // polylines = createPolylinesFromEncodedString(
-            //     distanciaEpolilinha['polyline']);
+              for (int i = 0; i < routeFiltrada.length - 1; i++) {
+                final currentCoord = locations[i];
+                final nextCoord = locations[i + 1];
 
-            final firstAndLastCoordinates =
-                getFirstAndLastCoordinates(locations);
-            String firstCoordinate = firstAndLastCoordinates['first']!;
-            String lastCoordinate = firstAndLastCoordinates['last']!;
+                // Converter para LatLng do Google Maps
+                final currentPoint =
+                    gmap.LatLng(currentCoord.latitude, currentCoord.longitude);
+                final nextPoint =
+                    gmap.LatLng(nextCoord.latitude, nextCoord.longitude);
 
-            String missionCoordinates =
-                '${missao!.missaoLatitude.toString()},${missao.missaoLongitude.toString()}';
+                // Verificar se o ponto atual é online ou offline
+                final isCurrentOnline = routeFiltrada[i]
+                    .online; // Supondo que `routeFiltrada` tenha esse status
 
-            distanciaIda = await getDistanceWithMatrix(
-                firstCoordinate, missionCoordinates);
-            distanciaVolta =
-                await getDistanceWithMatrix(missionCoordinates, lastCoordinate);
+                // Cria uma polyline entre o ponto atual e o próximo
+                newPolylines.add(
+                  gmap.Polyline(
+                    polylineId: gmap.PolylineId('segment_$i'),
+                    points: [currentPoint, nextPoint],
+                    color: isCurrentOnline!
+                        ? Colors.blue
+                        : Colors.red, // Azul para online, vermelho para offline
+                    width: 2,
+                  ),
+                );
+              }
 
-            distancia = distanciaIda! + distanciaVolta!;
+              debugPrint('polylines: $newPolylines');
 
-            List<gmap.LatLng> locationsToLatLng = locations
-                .map((location) =>
-                    gmap.LatLng(location.latitude, location.longitude))
-                .toList();
+              debugPrint('polylines: $polylines');
+            } else {
+              distancia = calcularDistanciaComLatLong2(locations);
+            }
 
-            newPolylines.add(
-              gmap.Polyline(
-                  polylineId: const gmap.PolylineId('newPolyline'),
-                  points: locationsToLatLng,
-                  color: Colors.blue,
-                  width: 2),
+            final int middleIndex = locations.length ~/ 2;
+            middleLocation = locations[middleIndex];
+            initialPosition = gmap.CameraPosition(
+              target: route[0].ponto,
+              zoom: 14.4746,
             );
-
-            debugPrint('polylines: $polylines');
           } else {
-            distancia = calcularDistanciaComLatLong2(locations);
+            initialPosition = null;
+            middleLocation = null;
+            routeFiltrada = null;
           }
-
-          final int middleIndex = locations.length ~/ 2;
-          final Location middleLocation = locations[middleIndex];
-          final initialPosition = gmap.CameraPosition(
-            target: route[0].ponto,
-            zoom: 14.4746,
-          );
 
           // final rota = await rotaComFirebaseFunction(route);
           // debugPrint('Rota: $rota');
@@ -174,18 +178,6 @@ class MissionDetailsBloc
           Foto? odometroFinal = await relatorioServices.buscarFotoOdometroFinal(
               event.uid, event.missaoId);
 
-          // final List<CoordenadaComTimestamp> testeApi =
-          //     await filtrarPorVelocidade(routeFiltrada);
-
-          // List<Location> locationsTesteApi = convertToLocations(testeApi);
-
-          // for (var location in locationsTesteApi) {
-          //   debugPrint(
-          //       ' >>> TESTE API result -------------------> ${location.toString()}');
-          // }
-
-          //debugPrint de cada campo da missao
-
           if (missao != null) {
             debugPrint('missao: ${missao.toMap()}');
             emit(
@@ -194,7 +186,7 @@ class MissionDetailsBloc
                   initialPosition,
                   userMarkers,
                   newPolylines,
-                  route[0].ponto,
+                  route.isNotEmpty ? route[0].ponto : null,
                   routeFiltrada,
                   //route,
                   middleLocation,
@@ -356,8 +348,12 @@ class MissionDetailsBloc
           var points = data['routes'][0]['overview_polyline']['points'];
           var decoded = PolylinePoints()
               .decodePolyline(points)
-              .map((point) => CoordenadaComTimestamp(
-                  gmap.LatLng(point.latitude, point.longitude), DateTime.now()))
+              .map(
+                (point) => CoordenadaComTimestamp(
+                    gmap.LatLng(point.latitude, point.longitude),
+                    DateTime.now(),
+                    true),
+              )
               .toList();
 
           if (combinedRoute.isNotEmpty) {
@@ -754,8 +750,8 @@ class MissionDetailsBloc
     return velocidade;
   }
 
-// Função para filtrar os pontos com velocidade menor que 5 km/h
-  List<CoordenadaComTimestamp> filtrarPontosPorVelocidade(
+// Função para filtrar os pontos com velocidade menor que 10 km/h
+  List<CoordenadaComTimestamp> filtrarPontosPorVelocidadeMinima(
       List<CoordenadaComTimestamp> route) {
     if (route.length <= 1) {
       return route;
@@ -768,7 +764,7 @@ class MissionDetailsBloc
     for (int i = 1; i < route.length; i++) {
       double velocidade = calcularVelocidade(route[i - 1], route[i]);
 
-      // Apenas adicionar o ponto se a velocidade for >= 5 km/h
+      // Apenas adicionar o ponto se a velocidade for >= 10 km/h
       if (velocidade >= 10) {
         filtrado.add(route[i]);
       }

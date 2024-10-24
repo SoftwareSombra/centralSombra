@@ -39,7 +39,7 @@ class _CentralPerfilScreenState extends State<CentralPerfilScreen> {
                 child: TextFormField(
                   controller: nomeController,
                   keyboardType: TextInputType.name,
-                  style: const TextStyle(color: Colors.white),
+                  //style: const TextStyle(color: Colors.white),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, insira seu novo nome.';
@@ -84,7 +84,6 @@ class _CentralPerfilScreenState extends State<CentralPerfilScreen> {
               },
               child: const Text(
                 'Alterar nome',
-                style: TextStyle(color: Colors.white),
               ),
             ),
             const SizedBox(
@@ -95,7 +94,7 @@ class _CentralPerfilScreenState extends State<CentralPerfilScreen> {
               child: Text(
                 textAlign: TextAlign.center,
                 'Ao clicar no botão abaixo você receberá um email com o link para realizar a troca da senha.',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                style: TextStyle(fontSize: 18),
               ),
             ),
             const SizedBox(
@@ -107,7 +106,6 @@ class _CentralPerfilScreenState extends State<CentralPerfilScreen> {
               },
               child: const Text(
                 'Enviar email',
-                style: TextStyle(color: Colors.white),
               ),
             ),
           ],

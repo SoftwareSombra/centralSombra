@@ -48,7 +48,7 @@ class Formulario extends StatelessWidget {
               TextFormField(
                 controller: nameController,
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
+                //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira seu nome.';
@@ -77,7 +77,7 @@ class Formulario extends StatelessWidget {
               TextFormField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
+                //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira seu email.';
@@ -106,7 +106,7 @@ class Formulario extends StatelessWidget {
               TextFormField(
                 controller: passwordController,
                 obscureText: true,
-                style: const TextStyle(color: Colors.white),
+                //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira sua senha.';

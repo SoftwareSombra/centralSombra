@@ -34,40 +34,9 @@ class MissoesAtivasContainer extends StatelessWidget {
             horizontal: width < 800 ? width * 0.04 : width * 0.08,
           ),
           child: Container(
-            //width: 400,
             height: 480,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  canvasColor.withOpacity(0.3),
-                  canvasColor.withOpacity(0.33),
-                  canvasColor.withOpacity(0.35),
-                  //canvasColor.withOpacity(0.38),
-                  //canvasColor.withOpacity(0.4),
-                  //canvasColor.withOpacity(0.43),
-                  // canvasColor.withOpacity(0.45),
-                  // canvasColor.withOpacity(0.48),
-                  // canvasColor.withOpacity(0.5),
-                  // canvasColor.withOpacity(0.53),
-                  // canvasColor.withOpacity(0.55),
-                  // canvasColor.withOpacity(0.58),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.blue.withOpacity(0.1),
-                width: 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: canvasColor.withOpacity(0.1),
-                  blurRadius: 10,
-                )
-              ],
-              //color: Colors.blue,
-            ),
+                borderRadius: BorderRadius.circular(10), color: Colors.white),
             child: GestureDetector(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 0),
@@ -127,7 +96,7 @@ class MissoesAtivasContainer extends StatelessWidget {
                             return const Center(
                                 child: Text(
                               'Nenhuma missão ativa',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: canvasColor),
                             ));
                           }
 
@@ -147,9 +116,9 @@ class MissoesAtivasContainer extends StatelessWidget {
                                     //     borderRadius: BorderRadius.circular(5),
                                     //   ),
                                     child: Container(
-                                      //color: Colors.grey[400],
-                                      color: const Color.fromARGB(255, 3, 9, 18)
-                                          .withOpacity(0.5),
+                                      color: Colors.grey[200],
+                                      // color: const Color.fromARGB(255, 3, 9, 18)
+                                      //     .withOpacity(0.5),
                                       child:
                                           //   ListTile(
                                           // title:
@@ -174,14 +143,16 @@ class MissoesAtivasContainer extends StatelessWidget {
                                                         children: [
                                                           const Icon(
                                                             Icons.gps_fixed,
-                                                            color: Colors.white,
+                                                            color: canvasColor,
                                                             size: 22,
                                                           ),
                                                           const SizedBox(
                                                             width: 6,
                                                           ),
                                                           Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
                                                             children: [
                                                               SelectableText(
                                                                 '${data['missaoID']}',
@@ -298,6 +269,7 @@ class MissoesAtivasContainer extends StatelessWidget {
                                                                     agenteNome:
                                                                         data[
                                                                             'nome'],
+                                                                    cnpj: data['cnpj'],
                                                                   ),
                                                                 ),
                                                               );
@@ -363,7 +335,7 @@ class MissoesAtivasContainer extends StatelessWidget {
                                                                         'agenteUid'],
                                                                     agenteNome:
                                                                         data[
-                                                                            'nome'],
+                                                                            'nome da empresa'],
                                                                   ),
                                                                 ),
                                                               );

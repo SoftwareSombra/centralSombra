@@ -37,6 +37,7 @@ import 'missao/bloc/missoes_pendentes/missoes_pendentes_bloc.dart';
 import 'missao/bloc/missoes_pendentes/qtd_missoes_pendentes_bloc.dart';
 import 'missao/bloc/missoes_solicitadas/missoes_solicitadas_bloc.dart';
 import 'missao/services/missao_services.dart';
+import 'notificacoes/bloc/qtd_missoes_pendentes_bloc.dart';
 import 'notificacoes/fcm.dart';
 import 'notificacoes/notificacoess.dart';
 import 'perfil_user/bloc/foto/user/user_foto_bloc.dart';
@@ -363,6 +364,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ),
         BlocProvider(
           create: (context) => NotificacaoChatClienteBloc(),
+        ),
+        BlocProvider(
+          create: (context) => AttsHomeBloc(),
         ),
         // Adicionar quantos BLoCs precisar aqui
       ],

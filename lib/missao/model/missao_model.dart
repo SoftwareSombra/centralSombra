@@ -287,24 +287,31 @@ class Foto {
   final Timestamp timestamp;
   final String url;
   final bool? enviada;
+  bool? check = true;
 
-  Foto({required this.caption, required this.timestamp, required this.url, this.enviada});
+  Foto(
+      {required this.caption,
+      required this.timestamp,
+      required this.url,
+      this.enviada,
+      this.check});
 
   factory Foto.fromMap(Map<String, dynamic> data) {
     return Foto(
-      caption: data['caption'] ?? '',
-      timestamp: data['timestamp'] ?? //valor zerado se for nulo
-          DateTime.now(),
-      url: data['url'],
-      enviada: data['enviada']
-    );
+        caption: data['caption'] ?? '',
+        timestamp: data['timestamp'] ?? //valor zerado se for nulo
+            DateTime.now(),
+        url: data['url'],
+        enviada: data['enviada'],
+        check: data['check'] ?? true);
   }
   Map<String, dynamic> toMap() {
     return {
       'url': url,
       'caption': caption,
       'timestamp': timestamp.toDate(),
-      'enviada': enviada
+      'enviada': enviada,
+      'check': check
     };
   }
 }

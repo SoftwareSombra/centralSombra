@@ -33,22 +33,31 @@ import 'reply_message_widget.dart';
 import 'swipe_to_reply.dart';
 
 class ChatBubbleWidget extends StatefulWidget {
-  const ChatBubbleWidget({
-    required GlobalKey key,
-    required this.message,
-    required this.onLongPress,
-    required this.slideAnimation,
-    required this.onSwipe,
-    this.profileCircleConfig,
-    this.chatBubbleConfig,
-    this.repliedMessageConfig,
-    this.swipeToReplyConfig,
-    this.messageTimeTextStyle,
-    this.messageTimeIconColor,
-    this.messageConfig,
-    this.onReplyTap,
-    this.shouldHighlight = false,
-  }) : super(key: key);
+  const ChatBubbleWidget(
+      {required GlobalKey key,
+      required this.message,
+      required this.onLongPress,
+      required this.slideAnimation,
+      required this.onSwipe,
+      this.profileCircleConfig,
+      this.chatBubbleConfig,
+      this.repliedMessageConfig,
+      this.swipeToReplyConfig,
+      this.messageTimeTextStyle,
+      this.messageTimeIconColor,
+      this.messageConfig,
+      this.onReplyTap,
+      this.shouldHighlight = false,
+      this.compartilhavel,
+      this.infoAdicional,
+      this.infoAdicional2})
+      : super(key: key);
+
+  final String? infoAdicional;
+
+  final String? infoAdicional2;
+
+  final bool? compartilhavel;
 
   /// Represent current instance of message.
   final Message message;
@@ -349,6 +358,9 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget> {
                       ?.call(widget.message.replyMessage.messageId),
                 ),
         MessageView(
+          compartilhavel: widget.compartilhavel,
+          infoAdicional: widget.infoAdicional,
+          infoAdicional2: widget.infoAdicional2,
           outgoingChatBubbleConfig:
               widget.chatBubbleConfig?.outgoingChatBubbleConfig,
           isLongPressEnable:
