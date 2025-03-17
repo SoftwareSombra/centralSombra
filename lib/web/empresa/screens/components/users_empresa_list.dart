@@ -113,6 +113,8 @@ class _EmpresaUsersListDialogState extends State<EmpresaUsersListDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SelectableText(state.users[index].nome),
+                                    SelectableText(
+                                        state.users[index].email ?? ''),
                                     SelectableText(state.users[index].uid),
                                     SelectableText(state.users[index].cargo),
                                   ],
@@ -216,38 +218,39 @@ class _EmpresaUsersListDialogState extends State<EmpresaUsersListDialog> {
                                                       );
                                               },
                                             ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                try {
-                                                  await adminServices
-                                                      .deleteUser(state
-                                                          .users[index].uid);
-                                                  await empresaServices
-                                                      .deleteUsuarioEmpresa(
-                                                          state.users[index]
-                                                              .cnpj,
-                                                          state.users[index]
-                                                              .uid);
-                                                  if (context.mounted) {
-                                                    mensagemDeSucesso
-                                                        .showSuccessSnackbar(
-                                                            context,
-                                                            'Usuário excluído com sucesso.');
-                                                    Navigator.of(context).pop();
-                                                    Navigator.of(context).pop();
-                                                  }
-                                                } catch (e) {
-                                                  if (context.mounted) {
-                                                    Navigator.of(context).pop();
-                                                    tratamentoDeErros
-                                                        .showErrorSnackbar(
-                                                            context,
-                                                            'Erro ao excluir usuário, tente novamente.');
-                                                  }
-                                                }
-                                              },
-                                              child: const Text('Excluir'),
-                                            ),
+                                            // TextButton(
+                                            //   onPressed: () async {
+                                            //     // try {
+                                            //     //   await adminServices
+                                            //     //       .deleteUser(state
+                                            //     //           .users[index].uid);
+                                            //     //   await empresaServices
+                                            //     //       .deleteUsuarioEmpresa(
+                                            //     //           state.users[index]
+                                            //     //               .cnpj,
+                                            //     //           state.users[index]
+                                            //     //               .uid);
+                                            //     //   if (context.mounted) {
+                                            //     //     mensagemDeSucesso
+                                            //     //         .showSuccessSnackbar(
+                                            //     //             context,
+                                            //     //             'Usuário excluído com sucesso.');
+                                            //     //     Navigator.of(context).pop();
+                                            //     //     Navigator.of(context).pop();
+                                            //     //   }
+                                            //     // } catch (e) {
+                                            //     //   if (context.mounted) {
+                                            //     //     Navigator.of(context).pop();
+                                            //     //     tratamentoDeErros
+                                            //     //         .showErrorSnackbar(
+                                            //     //             context,
+                                            //     //             'Erro ao excluir usuário, tente novamente.');
+                                            //     //   }
+                                            //     // }
+                                            //     Navigator.of(context).pop();
+                                            //   },
+                                            //   child: const Text('Voltar'),
+                                            // ),
                                           ],
                                         );
                                       },

@@ -529,7 +529,29 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    addCargo(usuario);
+                    if (cargoController!.text.contains('Cliente')) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Atenção'),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                icon: const Icon(Icons.close),
+                                //color: Colors.white,
+                              ),
+                            ],
+                          ),
+                          content: const Text('O usuário pertence a plataforma do cliente.'),
+                        ),
+                      );
+                    } else {
+                      addCargo(usuario);
+                    }
                   },
                   child: const Text('Adicionar'),
                 ),

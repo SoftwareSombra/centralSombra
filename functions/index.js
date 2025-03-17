@@ -1,7 +1,10 @@
 const functions = require('firebase-functions').region('southamerica-east1');
 const cors = require('cors')({ origin: true });
 const admin = require('firebase-admin');
-admin.initializeApp();
+admin.initializeApp({
+    credential: admin.credential.cert(require('./sombratestes-firebase-adminsdk-q8r3k-d44ddafcaa.json')),
+    storageBucket: 'gs://sombratestes.appspot.com',
+});
 const db = admin.firestore();
 const storage = admin.storage();
 const { getStorage, getDownloadURL } = require('firebase-admin/storage');
@@ -69,7 +72,92 @@ updateUserName2: cadastroControllerInstance.updateUserName
 //   // addUserInfos: userControllerInstance.addUserInfos,
  };
 
-module.exports = exportedFunctions;
+//module.exports = exportedFunctions;
+
+exports.sendChatMissionMessage = functions.https.onRequest((request, response) => {
+    cors(request, response, async () => {
+
+        if (!request.body.message || !request.body.missaoId) {
+            return response.status(400).send('Um ou mais campos estão vazios ou não são válidos');
+        }
+        try {
+            let downloadUrl;
+
+            if (request.body.message.message_type === 'image' || request.body.message.message_type === 'voice') {
+                const buffer = Buffer.from(request.body.message.message, 'base64');
+                const file = storage
+                    .bucket()
+                    .file(`chatMissao/${request.body.missaoId}/mensagens/${request.body.message.id}`);
+
+                const contentType = request.body.message.message_type === 'image' ? 'image/jpg' : 'audio/m4a';
+
+                await file.save(buffer, {
+                    contentType: contentType,
+                    public: true,
+                });
+
+                downloadUrl = await getDownloadURL(file);
+
+                request.body.message.message = downloadUrl;
+            }
+
+            const dateString = request.body.message.createdAtString;
+
+            const [datePart, timePart] = dateString.split(' ');
+
+            // Separando dia, mês e ano
+            const [day, month, year] = datePart.split('/').map(Number);
+
+            // Separando horas, minutos e segundos
+            const [hours, minutes, seconds] = timePart.split(':').map(Number);
+
+            const date = new Date(year, month - 1, day, hours, minutes, seconds);
+
+            // Adicionando 3 horas
+            date.setHours(date.getHours() + 3);
+
+            await db.collection('Chat missão').doc(request.body.missaoId).collection('Mensagens').doc(request.body.message.id).set({
+                "id": request.body.message.id,
+                "autor": request.body.message.autor,
+                "createdAt": date,
+                "message": request.body.message.message,
+                "message_type": request.body.message.message_type,
+                "reaction": {
+                    "reactedUserIds": [],
+                    "reactions": [],
+                },
+                "reply_message": {
+                    "id": "",
+                    "message": "",
+                    "message_type": request.body.message.message_type,
+                    "replyBy": "",
+                    "replyTo": "",
+                    "voiceMessageDuration": null
+                },
+                "sendBy": request.body.message.sendBy,
+                "status": 'pending',
+                "voice_message_duration": request.body.message.voice_message_duration || null
+            });
+
+            await db.collection('Chat missão').doc(request.body.missaoId).set({
+                unreadCount: 1,
+                lastMessageTimestamp: date,
+            },
+                { merge: true }
+            );
+
+            await db.collection('notificacoesCentral').doc().set({
+                tipo: 'mensagemChatApp'
+            });
+
+            response.status(200).send('Mensagem enviada com sucesso');
+
+        } catch (e) {
+            console.log(e);
+            response.status(500).send('Erro ao enviar mensagem');
+        }
+    })
+});
 
 
 // exports.getDirections = functions.https.onRequest((request, response) => {

@@ -38,7 +38,6 @@ class MissionDetailsBloc
           gmap.CameraPosition? initialPosition;
           List<CoordenadaComTimestamp>? routeFiltrada;
           Location? middleLocation;
-
           MissaoRelatorio? missao;
           missao =
               await missaoServices.buscarRelatorio(event.uid, event.missaoId);
@@ -54,19 +53,25 @@ class MissionDetailsBloc
 
             debugPrint('rotaLocations: ${rotaLocations.length}');
 
-            List<CoordenadaComTimestamp> rotaFiltradaPorVelocidadeMax =
-                filtrarPorVelocidadeMaxima(routeOrdenada, 200);
+            // List<CoordenadaComTimestamp> rotaFiltradaPorVelocidadeMax =
+            //     filtrarPorVelocidadeMaxima(routeOrdenada, 200);
 
-            debugPrint(
-                'rotaFiltradaPorVelocidadeMax: ${rotaFiltradaPorVelocidadeMax.length}');
+            // debugPrint(
+            //     'rotaFiltradaPorVelocidadeMax: ${rotaFiltradaPorVelocidadeMax.length}');
 
             List<CoordenadaComTimestamp> routeFiltradaPorMinuto =
                 ordenarPorTimestampEManterPrimeiroPorMinuto(
-                    rotaFiltradaPorVelocidadeMax);
+                    routeOrdenada);
+          //! testando sem usar a routeFiltradaPorMinuto
+
 
             debugPrint('routeFiltrada: ${routeFiltradaPorMinuto.length}');
 
-            routeFiltrada = filtrarPontosPorVelocidadeMinima(route);
+            routeFiltrada = filtrarPontosPorVelocidadeMinima(routeOrdenada);
+
+            for (var ponto in routeFiltrada) {
+              debugPrint('timestamp ponto rf: ${ponto.timestamp.toString()}');
+            }
 
             //List<Location> locations = convertToLocations(routeFiltrada);
             List<Location> locations = convertToLocations(routeFiltrada);
@@ -91,16 +96,6 @@ class MissionDetailsBloc
                   missionCoordinates, lastCoordinate);
 
               distancia = distanciaIda! + distanciaVolta!;
-
-              // Dividir as coordenadas em segmentos online e offline
-              List<gmap.LatLng> onlinePoints = [];
-              List<gmap.LatLng> offlinePoints = [];
-              bool? lastStatus;
-
-              List<gmap.LatLng> locationsToLatLng = locations
-                  .map((location) =>
-                      gmap.LatLng(location.latitude, location.longitude))
-                  .toList();
 
               // newPolylines.add(
               //   gmap.Polyline(
@@ -428,7 +423,7 @@ class MissionDetailsBloc
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     if (route.length > 3) {
-      route.removeAt(0);
+      //route.removeAt(0);
       //route.removeAt(0);
     }
     debugPrint('route2: ${route.length}');
@@ -444,6 +439,8 @@ class MissionDetailsBloc
 
     List<CoordenadaComTimestamp> resultado = [];
     const latlong.Distance calculadoraDistancia = latlong.Distance();
+
+    resultado.add(coordenadas[0]);
 
     for (int i = 1; i < coordenadas.length; i++) {
       final coordenadaAtual = coordenadas[i];
@@ -765,7 +762,7 @@ class MissionDetailsBloc
       double velocidade = calcularVelocidade(route[i - 1], route[i]);
 
       // Apenas adicionar o ponto se a velocidade for >= 10 km/h
-      if (velocidade >= 10) {
+      if (velocidade >= 5) {
         filtrado.add(route[i]);
       }
     }

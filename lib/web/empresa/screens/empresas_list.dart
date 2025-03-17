@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -81,6 +82,8 @@ class _EmpresasScreenState extends State<EmpresasScreen> {
 
             List<Empresa> empresasFiltradas =
                 filtrarEmpresas(empresas, searchController.text.toLowerCase());
+            empresasFiltradas.sort((a, b) =>
+                (removeDiacritics(a.nomeEmpresa).toLowerCase()).trim().compareTo(removeDiacritics(b.nomeEmpresa).toLowerCase().trim()));
 
             return Column(
               children: [

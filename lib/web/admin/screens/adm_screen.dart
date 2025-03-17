@@ -109,7 +109,7 @@ class AdmButtonCard extends StatelessWidget {
             width: 300,
             height: 65,
             decoration: BoxDecoration(
-              color: canvasColor.withOpacity(0.4),
+              color: canvasColor.withOpacity(0.15),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Padding(

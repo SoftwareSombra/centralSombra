@@ -120,6 +120,8 @@ class RelatorioCliente {
   final String? tipo;
   final String? nomeDaEmpresa;
   final String? local;
+  final double? missaoLat;
+  final double? missaoLng;
   final String? placaCavalo;
   final String? placaCarreta;
   final String? motorista;
@@ -147,6 +149,8 @@ class RelatorioCliente {
     this.tipo,
     this.nomeDaEmpresa,
     this.local,
+    this.missaoLat,
+    this.missaoLng,
     this.placaCavalo,
     this.placaCarreta,
     this.motorista,
@@ -202,6 +206,8 @@ class RelatorioCliente {
       tipo: data['tipo'],
       nomeDaEmpresa: data['nomeDaEmpresa'],
       local: data['local'],
+      missaoLat: data['missaoLat'],
+      missaoLng: data['missaoLng'],
       placaCavalo: data['placaCavalo'],
       placaCarreta: data['placaCarreta'],
       motorista: data['motorista'],
@@ -260,6 +266,8 @@ class RelatorioCliente {
       'tipo': tipo,
       'nomeDaEmpresa': nomeDaEmpresa,
       'local': local,
+      'missaoLat': missaoLat,
+      'missaoLng': missaoLng,
       'placaCavalo': placaCavalo,
       'placaCarreta': placaCarreta,
       'motorista': motorista,

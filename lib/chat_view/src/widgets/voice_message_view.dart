@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-
 import '../../../chat/services/chat_services.dart';
 import '../../chatview.dart';
 import '../models/voice_message_configuration.dart';

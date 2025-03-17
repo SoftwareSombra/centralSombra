@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc.dart';
 import 'package:sombra/widgets_comuns/elevated_button/bloc/elevated_button_bloc_event.dart';
@@ -99,6 +100,12 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
               child: SizedBox(
                 width: width * 0.33,
                 child: TextFormField(
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(30),
+                    FilteringTextInputFormatter.allow(
+                      RegExp("[a-zA-ZáéíóúâêôàüãõçÁÉÍÓÚÂÊÔÀÜÃÕÇ ]"),
+                    ),
+                  ],
                   cursorHeight: 14,
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
@@ -139,6 +146,9 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
               child: SizedBox(
                 width: width * 0.33,
                 child: TextFormField(
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(50),
+                  ],
                   cursorHeight: 14,
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
@@ -182,7 +192,7 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                         );
                     Tuple2 isRegisterSuccessful =
                         await userServices.performRegistration3(
-                            nome.text, email.text, senha.text);
+                            nome.text.trim(), email.text.trim(), senha.text.trim());
                     debugPrint(isRegisterSuccessful.item2);
                     Future.delayed(const Duration(seconds: 1));
                     if (isRegisterSuccessful.item1 == true) {
@@ -192,11 +202,22 @@ class _AddEmpresaUserState extends State<AddEmpresaUser> {
                           debugPrint(
                               'uid do adm: ${isRegisterSuccessful.item2}');
                           final addAdmin = await adminServices.addAdminCliente(
-                              isRegisterSuccessful.item2,
-                              widget.cnpj.toString(),
-                              nome: nome.text.trim());
+                            isRegisterSuccessful.item2,
+                            widget.cnpj.toString(),
+                            email: email.text.trim(),
+                            nome: nome.text.trim(),
+                          );
                           debugPrint(addAdmin.toString());
-                        } else if (cargo == 'operador') {}
+                        } else if (cargo == 'operador') {
+                          final addOperador =
+                              await adminServices.addOperadorCliente(
+                            isRegisterSuccessful.item2,
+                            widget.cnpj.toString(),
+                            email: email.text.trim(),
+                            nome: nome.text.trim(),
+                          );
+                          debugPrint(addOperador.toString());
+                        }
                         if (context.mounted) {
                           context.read<ElevatedButtonBloc>().add(
                                 ElevatedButtonActionCompleted(),

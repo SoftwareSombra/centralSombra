@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dynamic_tabbar/dynamic_tabbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,12 +54,15 @@ class _WebLoginHomeState extends State<WebLoginHome> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
-      }
-    });
+    FirebaseAuth.instance.authStateChanges().listen(
+      (User? user) {
+        if (user == null) {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+        }
+      },
+    );
+
     nome = FirebaseAuth.instance.currentUser!.displayName;
     controller = SidebarXController(selectedIndex: 0, extended: false);
     context.read<NotificacaoChatBloc>().add(BuscarNotificacao());
@@ -235,7 +237,6 @@ class _WebLoginHomeState extends State<WebLoginHome> {
                                 duration: Duration(
                                     seconds: 5), // Exibe por 3 segundos
                               );
-
                             }
 
                             return const SizedBox

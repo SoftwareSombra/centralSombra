@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sombra/web/admin/usuarios/screens/add_user.dart';
@@ -81,6 +82,8 @@ class _UsersListState extends State<UsersList> {
 
             List<Usuario> usuariosFiltrados =
                 filtrarUsuarios(users, searchController.text);
+            usuariosFiltrados.sort((a, b) =>
+                (removeDiacritics(a.nome).toLowerCase()).trim().compareTo(removeDiacritics(b.nome).toLowerCase().trim()));
 
             return Column(
               children: [
@@ -131,7 +134,8 @@ class _UsersListState extends State<UsersList> {
                       ? PaginatedDataTable(
                           columns: columns,
                           source: EmpresaDataSource(
-                              users: usuariosFiltrados, context: context),
+                              users: usuariosFiltrados,
+                              context: context),
                           header: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

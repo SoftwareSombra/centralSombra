@@ -1920,6 +1920,8 @@ class _MissionDetailsState extends State<MissionDetails> {
                                                 local: localChecked
                                                     ? missao.local
                                                     : null,
+                                                missaoLat: missao.missaoLatitude,
+                                                missaoLng: missao.missaoLongitude,
                                                 placaCavalo: placaCavaloChecked
                                                     ? missao.placaCavalo
                                                     : null,

@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../paginated_data_table/paginated_data_table.dart';
@@ -53,8 +54,8 @@ class _AgentesListState extends State<AgentesList> {
     return Scaffold(
       //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
       appBar: AppBar(
-        //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
-      ),
+          //backgroundColor: const Color.fromARGB(255, 3, 9, 18),
+          ),
       body: SingleChildScrollView(
         child: BlocBuilder<AgentesListBloc, AgentesListState>(
           builder: (context, state) {
@@ -79,6 +80,13 @@ class _AgentesListState extends State<AgentesList> {
 
               List<AgenteAdmList?> agentesFiltrados =
                   filtrarAgentes(agentes, searchController.text);
+
+              agentesFiltrados.sort(
+                (a, b) =>
+                    (removeDiacritics(a!.nome).toLowerCase()).trim().compareTo(
+                          removeDiacritics(b!.nome).toLowerCase().trim(),
+                        ),
+              );
 
               return Column(
                 children: [

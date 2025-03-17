@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:diacritic/diacritic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
@@ -284,8 +285,7 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(),
+      backgroundColor: canvasColor.withAlpha(15),
       body: SingleChildScrollView(
         child: BlocBuilder<MissoesSolicitadasBloc, MissoesSolicitadasState>(
           builder: (context, state) {
@@ -293,7 +293,8 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
               return const Center(child: CircularProgressIndicator());
             } else if (state is MissoesSolicitadasEmpty) {
               return Padding(
-                padding: EdgeInsets.symmetric(horizontal: width * 0.08),
+                padding: EdgeInsets.only(
+                    left: width * 0.08, right: width * 0.08, top: 80),
                 child: ExpansionTile(
                   collapsedBackgroundColor: Colors.white,
                   initiallyExpanded: false,
@@ -454,19 +455,34 @@ class _CriarMissaoScreenState extends State<CriarMissaoScreen> {
                                         },
                                         asyncListFilter: (q, list) {
                                           List<Empresa> geral = [];
+
+                                          // Filtra por nome, aplicando removeDiacritics, toLowerCase e trim
                                           List<Empresa> nome = list
-                                              .where((element) => element
-                                                  .nomeEmpresa
-                                                  .contains(q))
-                                              .toList();
-                                          List<Empresa> cnpj = list
                                               .where((element) =>
-                                                  element.cnpj.contains(q))
+                                                  removeDiacritics(
+                                                          element.nomeEmpresa)
+                                                      .toLowerCase()
+                                                      .trim()
+                                                      .contains(
+                                                          removeDiacritics(q)
+                                                              .toLowerCase()
+                                                              .trim()))
                                               .toList();
+
+                                          // Filtra por CNPJ, aplicando trim para evitar espaços extras
+                                          List<Empresa> cnpj = list
+                                              .where((element) => element.cnpj
+                                                  .trim()
+                                                  .contains(q.trim()))
+                                              .toList();
+
                                           geral.addAll(nome);
-                                          cnpjController.text.isNotEmpty
-                                              ? geral.addAll(cnpj)
-                                              : null;
+
+                                          // Verifica se há conteúdo no CNPJ antes de adicionar
+                                          if (cnpjController.text.isNotEmpty) {
+                                            geral.addAll(cnpj);
+                                          }
+
                                           return geral;
                                         },
                                         searchTextController: cnpjController,

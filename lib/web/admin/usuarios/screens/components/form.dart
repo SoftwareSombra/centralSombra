@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/v4.dart';
 import '../../../../../autenticacao/screens/tratamento/error_snackbar.dart';
@@ -86,7 +87,13 @@ class _FormAddUserState extends State<FormAddUser> {
                 onChanged: (value) {
                   _updateButtonState();
                 },
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.name,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(30),
+                  FilteringTextInputFormatter.allow(
+                    RegExp("[a-zA-ZáéíóúâêôàüãõçÁÉÍÓÚÂÊÔÀÜÃÕÇ ]"),
+                  ),
+                ],
                 //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -119,6 +126,9 @@ class _FormAddUserState extends State<FormAddUser> {
                   _updateButtonState();
                 },
                 keyboardType: TextInputType.emailAddress,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
                 //style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -182,8 +192,8 @@ class _FormAddUserState extends State<FormAddUser> {
                               if (widget.formKey.currentState!.validate()) {
                                 registerBloc.add(
                                   RegisterUserEvent(
-                                    nameController.text,
-                                    emailController.text,
+                                    nameController.text.trim(),
+                                    emailController.text.trim(),
                                     pass,
                                     cargo: selectedOption,
                                   ),
